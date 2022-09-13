@@ -7,7 +7,7 @@
     <ul>
         {% for group in group_list %}
             <li>
-                group.group_name
+                <a href="{% url 'grader:student_list' group.id  %}"> {{ group.group_name }} </a>
             </li>
         {% endfor %}
     </ul>
