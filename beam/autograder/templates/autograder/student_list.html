@@ -1,0 +1,18 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+<h1> Выберите себя в списке  </h1>
+
+    {% if student_list %}
+    <ul>
+        {% for student in student_list %}
+            <li>
+                <a href="{% url 'grader:student_personal' group_id student.id  %}"> {{ student.full_name }} </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p> Error: There are no students in the group {{group_name}} </p>
+    {% endif %}
+
+{% endblock %}
