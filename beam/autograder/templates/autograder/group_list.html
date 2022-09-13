@@ -1,0 +1,18 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+    <h1> Выберите группу из списка </h1>
+
+    {% if group_list %}
+    <ul>
+        {% for group in group_list %}
+            <li>
+                group.group_name
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p> There are no groups in the database </p>
+    {% endif %}
+
+{% endblock %}
