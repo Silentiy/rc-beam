@@ -5,10 +5,6 @@ from .models import Group, Student
 from django.urls import reverse_lazy
 
 
-def test_view(request):
-    return HttpResponse("Hello, world!")
-
-
 class GroupList(generic.ListView):
     model = Group
 
@@ -26,7 +22,7 @@ class StudentList(generic.ListView):
     def get_queryset(self):
         """ Return a list of students from group with given 'group_id' """
         group_id = self.get_group_id()
-        return Student.objects.filter(group__id=group_id)
+        return Student.objects.filter(group_id=group_id)
 
     def get_context_data(self, **kwargs):
         group_id = self.get_group_id()
