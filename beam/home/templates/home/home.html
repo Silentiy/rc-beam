@@ -3,8 +3,25 @@
 {% block content %}
     <h1> Добро пожаловать на сайт! </h1>
 
+    <ul>
+        <li> <p> <a href="{% url "grader:group_list" %}"> Автоматизированная проверка ригеля </a> </p> </li>
+    </ul>
+        
+    {% if session_data_list %}
         <ul>
-            <li> <p> <a href="{% url "grader:group_list" %}"> Автоматизированная проверка ригеля </a> </p> </li>
+            {% for item in session_data_list %}
+                <li> {{item}} </li>
+            {% endfor %}
         </ul>
+    
+    {% else %}
+        <p> Error: There are no session data to show </p>
+    
+    {% endif %}
+
+
+    
+    <p>You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.</p>
+
 
 {% endblock %}
