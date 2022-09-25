@@ -20,7 +20,7 @@ class Student(models.Model):
     )
     subgroup_variant_number = models.PositiveSmallIntegerField()
     personal_variant_number = models.PositiveSmallIntegerField()
-    preferred_freefall_acceleration = models.FloatField()
+    preferred_freefall_acceleration = models.FloatField(default=10)
 
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
 
@@ -29,7 +29,7 @@ class Student(models.Model):
 
 
 class Concrete(models.Model):
-    concrete_class = models.CharField(max_length=5)
+    concrete_class = models.CharField(max_length=5, unique=True)
     R_b_n = models.FloatField()
     R_bt_n = models.FloatField()
     R_b = models.FloatField()
