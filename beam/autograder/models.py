@@ -40,6 +40,19 @@ class Concrete(models.Model):
         return self.concrete_class
 
 
+class ConcreteCreepCoefficient(models.Model):
+    concrete_class = models.CharField(max_length=5, unique=True)
+    creep_for_humidity_high = models.FloatField()
+    creep_for_humidity_normal = models.FloatField()
+    creep_for_humidity_low = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_concrete_creep_coefficient"
+
+    def __str__(self):
+        return self.concrete_class
+
+
 class Reinforcement(models.Model):
     reinforcement_class = models.CharField(max_length=8)
     possible_diameters = models.CharField(max_length=20)
@@ -47,16 +60,89 @@ class Reinforcement(models.Model):
     R_s = models.PositiveSmallIntegerField()
     R_sc_l = models.PositiveSmallIntegerField()
     R_sc_sh = models.PositiveSmallIntegerField()
-    R_sw = models.PositiveSmallIntegerField()
+    R_sw = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
         return self.reinforcement_class
 
 
+class ReinforcementBarsDiameters(models.Model):
+    diameter = models.SmallIntegerField(unique=True)
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
 
+    class Meta:
+        db_table = "autograder_reinforcement_bars_diameters"
+
+    def __str__(self):
+        return f"bar d{self.diameter}"
+
+
+class ReinforcementWiresDiameters(models.Model):
+    diameter = models.SmallIntegerField()
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_reinforcement_wires_diameters"
+
+    def __str__(self):
+        return f"wire d{self.diameter}"
+
+
+class ReinforcementStrandsGeneralDiameters(models.Model):
+    diameter = models.FloatField()
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_reinforcement_strands_general_diameters"
+
+    def __str__(self):
+        return f"strand d{self.diameter} (usual)"
+
+
+class ReinforcementStrandsCrimpedDiameters(models.Model):
+    diameter = models.FloatField()
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_reinforcement_strands_crimped_diameters"
+
+    def __str__(self):
+        return f"strand d{self.diameter} (crimped)"
+
+
+class ReinforcementStrands1500Diameters(models.Model):
+    diameter = models.FloatField()
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_reinforcement_strands_1500_diameters"
+
+    def __str__(self):
+        return f"strand d{self.diameter} (R=1500)"
+
+
+class ReinforcementStrands16001700Diameters(models.Model):
+    diameter = models.FloatField()
+    cross_section_area = models.FloatField()
+    meter_mass = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_reinforcement_strands_1600_1700_diameters"
+
+    def __str__(self):
+        return f"strand d{self.diameter} (R=1600/1700)"
 
 
 class VariantInfo(models.Model):
+
+    class Meta:
+        db_table = "autograder_variant_info"
+
     pass
 
 # cur.execute('''CREATE TABLE IF NOT EXISTS Var_info (
