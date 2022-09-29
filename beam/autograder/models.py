@@ -269,6 +269,17 @@ class TrussParameters(models.Model):
         return f"{self.truss_name},m = {self.truss_mass} т"
 
 
+class Cities(models.Model):
+    city_name = models.CharField(max_length=32, unique=True)
+    snow_region = models.SmallIntegerField()
+    snow_region_2011 = models.SmallIntegerField()
+    wind_region = models.SmallIntegerField()
+    average_january_temp = models.SmallIntegerField()
+
+    def __str__(self):
+        return self.city_name
+
+
 class VariantInfo(models.Model):
 
     class Meta:

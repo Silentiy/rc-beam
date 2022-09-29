@@ -7,7 +7,8 @@ from autograder.models import (Concrete, ConcreteCreepCoefficient, Reinforcement
                                ReinforcementStrands1500Diameters, ReinforcementStrands16001700Diameters,
                                SnowLoads, WindLoads, WindKCoefficient,
                                CraneParameters, CraneSupports,
-                               SlabReferenceGeometry, TrussName, TrussParameters)
+                               SlabReferenceGeometry, TrussName, TrussParameters,
+                               Cities)
 
 
 def write_reinforcement_diameters(path_to_file):
@@ -215,6 +216,10 @@ def write_constructions_data(path_to_file):
                                                            "bracing_elements_cross_section_height_extra": row.t_h4,
                                                            "bearing_knot_height": row.t_h_on_sup}
                                                  )
+
+
+def write_cities_data(path_to_file):
+    pass
 
 
 class Command(BaseCommand):
