@@ -138,6 +138,79 @@ class ReinforcementStrands16001700Diameters(models.Model):
         return f"strand d{self.diameter} (R=1600/1700)"
 
 
+class SnowLoads(models.Model):
+    snow_region = models.SmallIntegerField()
+    snow_load = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_snow_loads"
+
+    def __str__(self):
+        return f"Snow region: {self.snow_region}, snow load: {self.snow_load}"
+
+
+class WindLoads(models.Model):
+    wind_region = models.SmallIntegerField()
+    wind_load = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_wind_loads"
+
+    def __str__(self):
+        return f"Wind region: {self.wind_region}, wind load: {self.wind_load}"
+
+
+class WindKCoefficient(models.Model):
+    effective_height_z_e = models.SmallIntegerField()
+    coeff_for_A_terrain = models.FloatField()
+    coeff_for_B_terrain = models.FloatField()
+    coeff_for_C_terrain = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_wind_k_coefficient"
+
+    def __str__(self):
+        return f"Z_e: {self.effective_height_z_e}, A: {self.coeff_for_A_terrain}," \
+               f" B: {self.coeff_for_B_terrain}, C: {self.coeff_for_C_terrain}"
+
+
+class CraneParameters(models.Model):
+    building_width = models.SmallIntegerField()
+    crane_capacity = models.FloatField()
+    crane_full_length = models.FloatField()
+    crane_span = models.SmallIntegerField()
+    crane_cantilevers_length = models.FloatField()
+    crane_left_hook_indent = models.FloatField()
+    crane_right_hook_indent = models.FloatField()
+    crane_trolleys_base = models.FloatField()
+    crane_height_to_topmost_hook_position = models.FloatField()
+    crane_weight = models.FloatField()
+    crane_max_reaction = models.FloatField()
+    crane_min_reaction = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_crane_parameters"
+
+    def __str__(self):
+        return self.crane_capacity
+
+
+class CraneSupports(models.Model):
+    frames_spacing = models.SmallIntegerField()
+    crane_span = models.SmallIntegerField()
+    crane_capacity = models.FloatField()
+    crane_support_height = models.FloatField()
+    crane_support_meter_mass = models.FloatField()
+    beam_name = models.CharField(max_length=6)
+
+    class Meta:
+        db_table = "autograder_crane_supports"
+
+    def __str__(self):
+        return self.crane_support_height
+
+
+
 class VariantInfo(models.Model):
 
     class Meta:
