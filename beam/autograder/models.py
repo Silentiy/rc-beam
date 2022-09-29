@@ -210,6 +210,64 @@ class CraneSupports(models.Model):
         return self.crane_support_height
 
 
+class SlabReferenceGeometry(models.Model):
+    nominal_length = models.SmallIntegerField()
+    nominal_width = models.SmallIntegerField()
+    nominal_height = models.SmallIntegerField()
+    load_greater_than = models.SmallIntegerField()
+    load_less_than = models.SmallIntegerField()
+    slab_fact_width_bottom = models.SmallIntegerField()
+    slab_fact_width_top = models.SmallIntegerField()
+    longitudinal_rib_width_bottom = models.SmallIntegerField()
+    longitudinal_rib_width_top = models.SmallIntegerField()
+    flange_height = models.SmallIntegerField()
+    transverse_rib_outer_width_bottom = models.SmallIntegerField()
+    transverse_rib_usual_height = models.SmallIntegerField()
+    transverse_rib_outer_width_top = models.SmallIntegerField()
+    transverse_rib_usual_width_bottom = models.SmallIntegerField()
+    transverse_rib_usual_width_top = models.SmallIntegerField()
+    transverse_ribs_spacing = models.SmallIntegerField()
+
+    class Meta:
+        db_table = "autograder_slab_reference_geometry"
+
+    def __str__(self):
+        return f"LxBxH = {self.nominal_length}x{self.nominal_width}x{self.nominal_height}"
+
+
+class TrussName(models.Model):
+    truss_type = models.CharField(max_length=3)
+    frames_spacing = models.SmallIntegerField()
+    load_greater_than = models.SmallIntegerField()
+    load_less_than = models.SmallIntegerField()
+    truss_span = models.SmallIntegerField()
+    truss_name = models.CharField(max_length=6)
+
+    class Meta:
+        db_table = "autograder_truss_name"
+
+    def __str__(self):
+        return self.truss_name
+
+
+class TrussParameters(models.Model):
+    truss_name = models.CharField(max_length=6)
+    truss_length = models.SmallIntegerField()
+    truss_height = models.SmallIntegerField()
+    truss_mass = models.FloatField()
+    truss_width = models.SmallIntegerField()
+    top_chord_cross_section_height = models.SmallIntegerField()
+    bottom_chord_cross_section_height = models.SmallIntegerField()
+    bracing_elements_cross_section_height = models.SmallIntegerField()
+    bracing_elements_cross_section_height_extra = models.SmallIntegerField()
+    bearing_knot_height = models.SmallIntegerField()
+
+    class Meta:
+        db_table = "autograder_truss_parameters"
+
+    def __str__(self):
+        return f"{self.truss_name},m = {self.truss_mass} т"
+
 
 class VariantInfo(models.Model):
 

@@ -6,7 +6,8 @@ from autograder.models import (Concrete, ConcreteCreepCoefficient, Reinforcement
                                ReinforcementStrandsGeneralDiameters, ReinforcementStrandsCrimpedDiameters,
                                ReinforcementStrands1500Diameters, ReinforcementStrands16001700Diameters,
                                SnowLoads, WindLoads, WindKCoefficient,
-                               CraneParameters, CraneSupports)
+                               CraneParameters, CraneSupports,
+                               SlabReferenceGeometry, TrussName, TrussParameters)
 
 
 def write_reinforcement_diameters(path_to_file):
@@ -165,18 +166,55 @@ def write_constructions_data(path_to_file):
                                      usecols='B:Q',
                                      skiprows=2,
                                      header=0).dropna()
+    for row in slabs_data_frame.itertuples(index=True):
+        SlabReferenceGeometry.objects.update_or_create(nominal_length=row.l_nom,
+                                                       nominal_width=row.b_nom,
+                                                       nominal_height=row.h_tot,
+                                                       defaults={"load_greater_than": row.load_gr,
+                                                                 "load_less_than": row.load_less,
+                                                                 "slab_fact_width_bottom": row.slab_w_bot,
+                                                                 "slab_fact_width_top": row.slab_w_top,
+                                                                 "longitudinal_rib_width_bottom": row.b_long_bot,
+                                                                 "longitudinal_rib_width_top": row.b_long_up,
+                                                                 "flange_height": row.h_flange,
+                                                                 "transverse_rib_outer_width_bottom": row.b_tr_out_bot,
+                                                                 "transverse_rib_usual_height": row.h_tr_usual,
+                                                                 "transverse_rib_outer_width_top": row.b_tr_out_up,
+                                                                 "transverse_rib_usual_width_bottom": row.b_tr_us_bot,
+                                                                 "transverse_rib_usual_width_top": row.b_tr_us_up,
+                                                                 "transverse_ribs_spacing": row.tr_sp}
+                                                       )
 
     truss_name_data_frame = pd.read_excel(path_to_file,
                                           sheet_name='Trusses_names',
                                           usecols='B:G',
                                           skiprows=2,
                                           header=0).dropna()
+    for row in truss_name_data_frame.itertuples(index=True):
+        TrussName.objects.update_or_create(truss_type=row.type,
+                                           frames_spacing=row.frames_sp,
+                                           load_greater_than=row.t_load_gr,
+                                           load_less_than=row.t_load_less,
+                                           truss_span=row.t_span,
+                                           defaults={"truss_name": row.t_name})
 
     truss_parameters_data_frame = pd.read_excel(path_to_file,
-                                          sheet_name='Trusses_parameters',
-                                          usecols='B:K',
-                                          skiprows=2,
-                                          header=0).dropna()
+                                                sheet_name='Trusses_parameters',
+                                                usecols='B:K',
+                                                skiprows=2,
+                                                header=0).dropna()
+    for row in truss_parameters_data_frame.itertuples(index=True):
+        TrussParameters.objects.update_or_create(truss_name=row.tr_name,
+                                                 defaults={"truss_length": row.t_length,
+                                                           "truss_height": row.t_height,
+                                                           "truss_mass": row.t_mass,
+                                                           "truss_width": row.t_b,
+                                                           "top_chord_cross_section_height": row.t_h1,
+                                                           "bottom_chord_cross_section_height": row.t_h2,
+                                                           "bracing_elements_cross_section_height": row.t_h3,
+                                                           "bracing_elements_cross_section_height_extra": row.t_h4,
+                                                           "bearing_knot_height": row.t_h_on_sup}
+                                                 )
 
 
 class Command(BaseCommand):
@@ -200,7 +238,7 @@ class Command(BaseCommand):
         if "cities_data" in path_to_file:
             pass
         elif "constructions" in path_to_file:
-            pass
+            write_constructions_data(path_to_file)
         elif "cranes" in path_to_file:
             write_crane_data(path_to_file)
         elif "env_loads" in path_to_file:
