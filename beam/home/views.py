@@ -29,10 +29,4 @@ class HomeView(generic.base.TemplateView):
         context["num_visits"] = session_data['num_visits']
         
         return context
-<<<<<<< HEAD
-        
-        
-        
-        
-=======
->>>>>>> a1bcc9bd48170b71d7f6fc77c3ba7eab766178fa
+

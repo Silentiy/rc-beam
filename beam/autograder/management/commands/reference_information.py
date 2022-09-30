@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from django.core.management.base import BaseCommand, CommandError
 from autograder.models import (Concrete, ConcreteCreepCoefficient, Reinforcement,
                                ReinforcementBarsDiameters, ReinforcementWiresDiameters,
@@ -39,7 +40,7 @@ def write_materials_properties(path_to_file):
                                                  header=0,
                                                  index_col=0)
     concrete_strength_data_frame = concrete_strength_data_frame.transpose()
-    # write concrete strength properties info DB
+    # write concrete strength properties into DB
     for row in concrete_strength_data_frame.itertuples(index=True):
         Concrete.objects.update_or_create(concrete_class=row.Index,
                                           defaults={"R_b_n": row.Rbn,
@@ -219,7 +220,17 @@ def write_constructions_data(path_to_file):
 
 
 def write_cities_data(path_to_file):
-    pass
+    cities_data_frame = pd.read_excel(path_to_file,
+                                                sheet_name='cities',
+                                                usecols='C:G',
+                                                skiprows=2,
+                                                header=0)
+    cities_data_frame = cities_data_frame.replace({np.nan:None})
+    cities_list = cities_data_frame.to_dict(orient='records')
+    for dictionary in cities_list:
+        city_name = dictionary.pop('city_name')
+        Cities.objects.update_or_create(city_name=city_name,
+                                        defaults={**dictionary})
 
 
 class Command(BaseCommand):
@@ -241,7 +252,7 @@ class Command(BaseCommand):
             quit()
 
         if "cities_data" in path_to_file:
-            pass
+            write_cities_data(path_to_file)
         elif "constructions" in path_to_file:
             write_constructions_data(path_to_file)
         elif "cranes" in path_to_file:

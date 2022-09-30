@@ -12,23 +12,11 @@ class Group(models.Model):
 
 
 class Student(models.Model):
-<<<<<<< HEAD
-=======
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
-
->>>>>>> a1bcc9bd48170b71d7f6fc77c3ba7eab766178fa
     full_name = models.CharField(
         max_length=300,
         help_text="Family name, given name, patronymic (if acceptable)"
     )
-<<<<<<< HEAD
-    group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
-    subgroup_variant_number = models.PositiveSmallIntegerField()
-    personal_variant_number = models.PositiveSmallIntegerField()
-
-    def __str__(self):
-        return str(self.full_name) + " " + str(self.group)
-=======
     subgroup_variant_number = models.PositiveSmallIntegerField()
     personal_variant_number = models.PositiveSmallIntegerField()
     preferred_freefall_acceleration = models.FloatField(default=10)
@@ -282,10 +270,10 @@ class TrussParameters(models.Model):
 
 class Cities(models.Model):
     city_name = models.CharField(max_length=32, unique=True)
-    snow_region = models.SmallIntegerField()
-    snow_region_2011 = models.SmallIntegerField()
-    wind_region = models.SmallIntegerField()
-    average_january_temp = models.SmallIntegerField()
+    snow_region = models.SmallIntegerField(null=True)
+    snow_region_2011 = models.SmallIntegerField(null=True)
+    wind_region = models.SmallIntegerField(null=True)
+    average_january_temp = models.SmallIntegerField(null=True)
 
     def __str__(self):
         return self.city_name
@@ -297,6 +285,7 @@ class VariantInfo(models.Model):
         db_table = "autograder_variant_info"
 
     pass
+
 
 # cur.execute('''CREATE TABLE IF NOT EXISTS Var_info (
 #     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -328,4 +317,4 @@ class VariantInfo(models.Model):
 #     ground_natural FLOAT, ground_unnatural FLOAT,
 #     UNIQUE (group_id, var_number)
 #     ); ''')
->>>>>>> a1bcc9bd48170b71d7f6fc77c3ba7eab766178fa
+
