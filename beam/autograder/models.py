@@ -279,17 +279,45 @@ class Cities(models.Model):
         return self.city_name
 
 
+class RoofLayers(models.Model):
+    layer_name = models.CharField(max_length=42, unique=True)
+    layer_density = models.SmallIntegerField(null=True)
+    layer_distributed_weight = models.FloatField(null=True)
+    
+    class Meta:
+    db_table = "autograder_roof_layers"
+
+    def __str__(self):
+        return self.layer_name
+    
+        
+class FloorLayers(models.Model):
+    layer_name = models.CharField(max_length=42, unique=True)
+    layer_density = models.SmallIntegerField(null=True)
+    layer_distributed_weight = models.FloatField(null=True)
+
+    class Meta:
+    db_table = "autograder_floor_layers"
+
+    def __str__(self):
+        return self.layer_name
+
+
 class VariantInfo(models.Model):
+    group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
+    variant_number = models.SmallIntegerField()
+    city = models.ForeignKey("Cities", on_delete=models.DO_NOTHING, null=False)
+    girder_type = models.CharField(max_length=18)
+    roof_layer_1 = 
+
 
     class Meta:
         db_table = "autograder_variant_info"
+        unique_together = ('group_id', 'variant_number')
 
-    pass
+    def __str__(self):
+        return f"group_id = {self.group_id}, variant_number = {variant_number }"
 
-
-# cur.execute('''CREATE TABLE IF NOT EXISTS Var_info (
-#     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-#     var_number INTEGER, group_id INTEGER, city_id INTEGER, girder_type_id INTEGER,
 #     roof_layer_1_id INTEGER, roof_layer_1_th INTEGER,
 #     roof_layer_2_id INTEGER, roof_layer_2_th INTEGER,
 #     roof_layer_3_id INTEGER, roof_layer_3_th INTEGER,
