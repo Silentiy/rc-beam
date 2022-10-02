@@ -283,66 +283,170 @@ class RoofLayers(models.Model):
     layer_name = models.CharField(max_length=42, unique=True)
     layer_density = models.SmallIntegerField(null=True)
     layer_distributed_weight = models.FloatField(null=True)
-    
+
     class Meta:
-    db_table = "autograder_roof_layers"
+        db_table = "autograder_roof_layers"
 
     def __str__(self):
         return self.layer_name
-    
-        
+
+
 class FloorLayers(models.Model):
     layer_name = models.CharField(max_length=42, unique=True)
     layer_density = models.SmallIntegerField(null=True)
     layer_distributed_weight = models.FloatField(null=True)
 
     class Meta:
-    db_table = "autograder_floor_layers"
+        db_table = "autograder_floor_layers"
 
     def __str__(self):
         return self.layer_name
 
 
 class VariantInfo(models.Model):
+    # general info
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
     variant_number = models.SmallIntegerField()
     city = models.ForeignKey("Cities", on_delete=models.DO_NOTHING, null=False)
-    girder_type = models.CharField(max_length=18)
-    roof_layer_1 = 
 
+    # building parameters
+    num_of_floors = models.SmallIntegerField(null=False)
+    floor_height = models.FloatField(null=False)
+    building_length = models.SmallIntegerField(null=False)
+    building_width = models.SmallIntegerField(null=False)
+
+    crane_height = models.FloatField(null=True)
+    crane_capacity = models.FloatField(null=True)
+
+    girder_length = models.SmallIntegerField(null=False)
+    girder_type = models.CharField(max_length=18)
+
+    frames_spacing = models.SmallIntegerField(null=False)
+
+    roof_slab_width = models.FloatField(null=False)
+    top_slab_width = models.FloatField(null=False)
+    usual_slab_width = models.FloatField(null=False)
+
+    # loads
+    roof_load_full = models.SmallIntegerField(null=False)
+    roof_load_long = models.SmallIntegerField(null=False)
+
+    top_floor_load_full = models.SmallIntegerField(null=False)
+    top_floor_load_long = models.SmallIntegerField(null=False)
+
+    usual_floor_load_full = models.SmallIntegerField(null=False)
+    usual_floor_load_long = models.SmallIntegerField(null=False)
+
+    # roof and floor layers
+    roof_layer_1 = models.ForeignKey("RoofLayers", related_name="roof_layer_1", on_delete=models.DO_NOTHING)
+    roof_layer_1_thickness = models.SmallIntegerField(null=True)
+    roof_layer_2 = models.ForeignKey("RoofLayers", related_name="roof_layer_2", on_delete=models.DO_NOTHING)
+    roof_layer_2_thickness = models.SmallIntegerField(null=True)
+    roof_layer_3 = models.ForeignKey("RoofLayers", related_name="roof_layer_3", on_delete=models.DO_NOTHING)
+    roof_layer_3_thickness = models.SmallIntegerField(null=True)
+    roof_layer_4 = models.ForeignKey("RoofLayers", related_name="roof_layer_4", on_delete=models.DO_NOTHING)
+    roof_layer_4_thickness = models.SmallIntegerField(null=True)
+    roof_layer_5 = models.ForeignKey("RoofLayers", related_name="roof_layer_5", on_delete=models.DO_NOTHING)
+    roof_layer_5_thickness = models.SmallIntegerField(null=True)
+
+    floor_layer_1 = models.ForeignKey("FloorLayers", related_name="floor_layer_1", on_delete=models.DO_NOTHING)
+    floor_layer_1_thickness = models.SmallIntegerField(null=True)
+    floor_layer_2 = models.ForeignKey("FloorLayers", related_name="floor_layer_2", on_delete=models.DO_NOTHING)
+    floor_layer_2_thickness = models.SmallIntegerField(null=True)
+    floor_layer_3 = models.ForeignKey("FloorLayers", related_name="floor_layer_3", on_delete=models.DO_NOTHING)
+    floor_layer_3_thickness = models.SmallIntegerField(null=True)
+    floor_layer_4 = models.ForeignKey("FloorLayers", related_name="floor_layer_4", on_delete=models.DO_NOTHING)
+    floor_layer_4_thickness = models.SmallIntegerField(null=True)
+    floor_layer_5 = models.ForeignKey("FloorLayers", related_name="floor_layer_5", on_delete=models.DO_NOTHING)
+    floor_layer_5_thickness = models.SmallIntegerField(null=True)
+
+    # materials
+    roof_slab_concrete = models.ForeignKey("Concrete",
+                                           related_name="roof_slab_concrete",
+                                           on_delete=models.DO_NOTHING
+                                           )
+    roof_slab_reinforcement = models.ForeignKey("Reinforcement",
+                                                related_name="roof_slab_reinforcement",
+                                                on_delete=models.DO_NOTHING
+                                                )
+    roof_slab_pt_reinforcement = models.ForeignKey("Reinforcement",
+                                                   related_name="roof_slab_pt_reinforcement",
+                                                   on_delete=models.DO_NOTHING
+                                                   )
+
+    top_slab_concrete = models.ForeignKey("Concrete",
+                                          related_name="top_slab_concrete",
+                                          on_delete=models.DO_NOTHING
+                                          )
+    top_slab_reinforcement = models.ForeignKey("Reinforcement",
+                                               related_name="top_slab_reinforcement",
+                                               on_delete=models.DO_NOTHING
+                                               )
+    top_slab_pt_reinforcement = models.ForeignKey("Reinforcement",
+                                                  related_name="top_slab_pt_reinforcement",
+                                                  on_delete=models.DO_NOTHING
+                                                  )
+
+    usual_slab_concrete = models.ForeignKey("Concrete",
+                                            related_name="usual_slab_concrete",
+                                            on_delete=models.DO_NOTHING
+                                            )
+    usual_slab_reinforcement = models.ForeignKey("Reinforcement",
+                                                 related_name="usual_slab_reinforcement",
+                                                 on_delete=models.DO_NOTHING
+                                                 )
+    usual_slab_pt_reinforcement = models.ForeignKey("Reinforcement",
+                                                    related_name="usual_slab_pt_reinforcement",
+                                                    on_delete=models.DO_NOTHING
+                                                    )
+
+    truss_concrete = models.ForeignKey("Concrete",
+                                       related_name="truss_concrete",
+                                       on_delete=models.DO_NOTHING
+                                       )
+    truss_reinforcement = models.ForeignKey("Reinforcement",
+                                            related_name="truss_reinforcement",
+                                            on_delete=models.DO_NOTHING
+                                            )
+    truss_pt_reinforcement = models.ForeignKey("Reinforcement",
+                                               related_name="truss_pt_reinforcement",
+                                               on_delete=models.DO_NOTHING
+                                               )
+
+    girder_concrete = models.ForeignKey("Concrete",
+                                        related_name="girder_concrete",
+                                        on_delete=models.DO_NOTHING
+                                        )
+    girder_reinforcement = models.ForeignKey("Reinforcement",
+                                             related_name="girder_reinforcement",
+                                             on_delete=models.DO_NOTHING
+                                             )
+
+    column_concrete = models.ForeignKey("Concrete",
+                                        related_name="column_concrete",
+                                        on_delete=models.DO_NOTHING
+                                        )
+    column_reinforcement = models.ForeignKey("Reinforcement",
+                                             related_name="column_reinforcement",
+                                             on_delete=models.DO_NOTHING
+                                             )
+
+    foundation_concrete = models.ForeignKey("Concrete",
+                                            related_name="foundation_concrete",
+                                            on_delete=models.DO_NOTHING
+                                            )
+    foundation_reinforcement = models.ForeignKey("Reinforcement",
+                                                 related_name="foundation_reinforcement",
+                                                 on_delete=models.DO_NOTHING
+                                                 )
+
+    # ground
+    ground_natural = models.FloatField(null=False)
+    ground_unnatural = models.FloatField(null=False)
 
     class Meta:
         db_table = "autograder_variant_info"
-        unique_together = ('group_id', 'variant_number')
+        unique_together = ("group_id", "variant_number")
 
     def __str__(self):
-        return f"group_id = {self.group_id}, variant_number = {variant_number }"
-
-#     roof_layer_1_id INTEGER, roof_layer_1_th INTEGER,
-#     roof_layer_2_id INTEGER, roof_layer_2_th INTEGER,
-#     roof_layer_3_id INTEGER, roof_layer_3_th INTEGER,
-#     roof_layer_4_id INTEGER, roof_layer_4_th INTEGER,
-#     roof_layer_5_id INTEGER, roof_layer_5_th INTEGER,
-#     floor_layer_1_id INTEGER, floor_layer_1_th INTEGER,
-#     floor_layer_2_id INTEGER, floor_layer_2_th INTEGER,
-#     floor_layer_3_id INTEGER, floor_layer_3_th INTEGER,
-#     floor_layer_4_id INTEGER, floor_layer_4_th INTEGER,
-#     floor_layer_5_id INTEGER, floor_layer_5_th INTEGER,
-#     roof_slab_concrete_id INTEGER, roof_slab_reinf_id INTEGER, roof_slab_pt_reinf_id INTEGER,
-#     top_slab_concrete_id INTEGER, top_slab_reinf_id INTEGER, top_slab_pt_reinf_id INTEGER,
-#     usual_slab_concrete_id INTEGER, usual_slab_reinf_id INTEGER, usual_slab_pt_reinf_id INTEGER,
-#     truss_concrete_id INTEGER, truss_reinf_id INTEGER, truss_pt_reinf_id INTEGER,
-#     girder_concrete_id INTEGER, girder_reinf_id INTEGER,
-#     column_concrete_id INTEGER, column_reinf_id INTEGER,
-#     foundation_concrete_id INTEGER, foundation_reinf_id INTEGER,
-#     num_of_floors INTEGER, floor_height FLOAT, building_length INTEGER, building_width INTEGER,
-#     crane_height FLOAT, crane_capacity FLOAT,
-#     girder_length INTEGER, frames_spacing INTEGER,
-#     roof_slab_width FLOAT, top_slab_width FLOAT, usual_slab_width FLOAT,
-#     roof_load INTEGER, roof_load_l INTEGER,
-#     top_floor_load INTEGER, top_floor_load_l INTEGER,
-#     usual_floor_load INTEGER, usual_floor_load_l INTEGER,
-#     ground_natural FLOAT, ground_unnatural FLOAT,
-#     UNIQUE (group_id, var_number)
-#     ); ''')
-
+        return f"group_id = {self.group}, variant_number = {self.variant_number}"
