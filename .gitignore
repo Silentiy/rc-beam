@@ -4,3 +4,4 @@ __pycache__
 *.orig
 .idea/
 beam/autograder/data
+beam/autograder/pdf
