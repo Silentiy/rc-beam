@@ -20,6 +20,8 @@ class Student(models.Model):
     personal_variant_number = models.PositiveSmallIntegerField()
     preferred_freefall_acceleration = models.FloatField(default=10)
 
+    first_access_password = models.CharField(max_length=12)
+
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
 
     class Meta:
@@ -448,7 +450,7 @@ class VariantInfo(models.Model):
 
     class Meta:
         db_table = "autograder_variant_info"
-        unique_together = ("group_id", "variant_number")
+        unique_together = ("group", "variant_number")
 
     def __str__(self):
-        return f"group_id = {self.group}, variant_number = {self.variant_number}"
+        return f"group = {self.group}, variant_number = {self.variant_number}"

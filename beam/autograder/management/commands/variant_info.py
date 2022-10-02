@@ -2,6 +2,7 @@ import os
 import fitz
 import string
 import secrets
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from autograder.models import (Group, Student, VariantInfo,
                                Concrete, Reinforcement,
@@ -100,7 +101,7 @@ class Command(BaseCommand):
                     variant = lines[4].split()
                     variant_number = variant[3]
                     group_name = variant[1]
-                    group_year = int("20" + group_name[-4:-3])
+                    group_year = int("20" + group_name[-5:-3])
                     print(group_year)
                     group, created = Group.objects.get_or_create(group_name=group_name,
                                                                  defaults={"group_year": group_year})
@@ -149,7 +150,7 @@ class Command(BaseCommand):
                     floor_layers_lines = [47, 49, 51, 53, 55]
                     layer_number = 1
                     for lin in floor_layers_lines:
-                        layer = Layer(lines(lin))
+                        layer = Layer(lines[lin])
                         floor_layer, created = \
                             FloorLayers.objects.get_or_create(layer_name=layer.layer_name,
                                                               defaults={"layer_density": layer.layer_density,
@@ -192,18 +193,25 @@ class Command(BaseCommand):
                                     str.maketrans('', '', string.punctuation))
                             except IndexError:
                                 student_middle_name = None
-
+                            username = str(group.group_name) + "-" + \
+                                       str(variant_number) + "-" + str(personal_variant_number)
                             first_access_password = secrets.token_urlsafe(6)
-                            user = User.objects.create_user(username=student_last_name,
-                                                            first_name=student_first_name,
-                                                            last_name=student_last_name,
-                                                            password=first_access_password)
-                            student = Student.objects.update_or_create(group=group.pk,
-                                                                       subgroup_variant_number=variant_number,
-                                                                       personal_variant_number=personal_variant_number,
-                                                                       defaults={"full_name": student_full_name,
-                                                                                 "user": user.pk}
-                                                                       )
+
+                            try:
+                                User.objects.get_by_natural_key(username=username)
+                            except ObjectDoesNotExist:
+                                user = User.objects.create_user(username=username,
+                                                                first_name=student_first_name if student_first_name is not None else "?",
+                                                                last_name=student_last_name,
+                                                                password=first_access_password)
+                                student = Student.objects.update_or_create(group=group,
+                                                                           subgroup_variant_number=variant_number,
+                                                                           personal_variant_number=personal_variant_number,
+                                                                           defaults={"full_name": student_full_name,
+                                                                                     "user": user,
+                                                                                     "first_access_password":
+                                                                                         first_access_password}
+                                                                           )
                 else:  # even page
                     # roof slab materials
                     defaults["roof_slab_concrete"] = get_concrete(lines[6])
@@ -235,7 +243,8 @@ class Command(BaseCommand):
                     defaults["ground_natural"] = float(lines[42].replace(',', '.'))
                     defaults["ground_unnatural"] = float(lines[44].replace(',', '.'))
 
-                # variant_info object creation or update
-                VariantInfo.objects.update_or_create(group=group,
-                                                     variant_number=variant_number,
-                                                     defaults={**defaults})
+                    # variant_info object creation or update
+                    print(defaults)
+                    VariantInfo.objects.update_or_create(group=group,
+                                                         variant_number=variant_number,
+                                                         defaults={**defaults})

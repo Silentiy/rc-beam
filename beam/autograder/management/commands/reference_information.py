@@ -47,7 +47,7 @@ def write_materials_properties(path_to_file):
                                                     "R_bt_n": row.Rbtn,
                                                     "R_b": row.Rb,
                                                     "R_bt": row.Rbt,
-                                                    "E_b=": row.Eb}
+                                                    "E_b": row.Eb}
                                           )
 
     # read concrete creep coefficients from Excel file
