@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 
 class Group(models.Model):
     group_year = models.PositiveSmallIntegerField()
-    group_name = models.CharField(
-        max_length=12)
+    group_name = models.CharField(max_length=12, unique=True)
 
     def __str__(self):
         return self.group_name

@@ -95,7 +95,6 @@ def write_environment_loads(path_to_file):
                                     header=0,
                                     index_col=0).dropna()
     snow_data_frame = snow_data_frame.transpose()
-    print(snow_data_frame)
     for row in snow_data_frame.itertuples(index=True):
         SnowLoads.objects.update_or_create(snow_region=row.Index,
                                            defaults={"snow_load": row.Sg})
@@ -107,7 +106,6 @@ def write_environment_loads(path_to_file):
                                     header=0,
                                     index_col=0).dropna()
     wind_data_frame = wind_data_frame.transpose()
-    print(wind_data_frame)
     for row in wind_data_frame.itertuples(index=True):
         WindLoads.objects.update_or_create(wind_region=row.Index,
                                            defaults={"wind_load": row.w0})
