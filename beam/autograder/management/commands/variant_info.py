@@ -1,18 +1,12 @@
 import os
 import fitz
 import string
-import pandas as pd
-import numpy as np
+import secrets
 from django.core.management.base import BaseCommand, CommandError
 from autograder.models import (Group, Student, VariantInfo,
-                               Concrete, ConcreteCreepCoefficient, Reinforcement,
-                               ReinforcementBarsDiameters, ReinforcementWiresDiameters,
-                               ReinforcementStrandsGeneralDiameters, ReinforcementStrandsCrimpedDiameters,
-                               ReinforcementStrands1500Diameters, ReinforcementStrands16001700Diameters,
-                               SnowLoads, WindLoads, WindKCoefficient,
-                               CraneParameters, CraneSupports,
-                               SlabReferenceGeometry, TrussName, TrussParameters,
+                               Concrete, Reinforcement,
                                Cities, RoofLayers, FloorLayers)
+from django.contrib.auth.models import User
 
 
 class Layer:
@@ -52,19 +46,16 @@ def parse_layer_thickness(line_data: str):
     return thickness
 
 
-# def concr_ID(str_data):
-#     concrete = str_data.replace('В', 'B')  # 'CYRILLIC CAPITAL LETTER VE' to ASCII 'B'
-#     cur.execute('SELECT id FROM Concrete WHERE c_class = ? ', (concrete,))
-#     concreteID = cur.fetchone()[0]
-#     return concreteID
-#
-#
-# def reinf_ID(str_data):
-#     reinf = str_data.strip()
-#     # print(reinf)
-#     cur.execute('SELECT id FROM Reinforcement WHERE r_class = ? ', (reinf,))
-#     reinfID = cur.fetchone()[0]
-#     return reinfID
+def get_concrete(str_data: str):
+    concrete_class = str_data.replace('В', 'B')  # 'CYRILLIC CAPITAL LETTER VE' to ASCII 'B'
+    concrete = Concrete.objects.get(concrete_class=concrete_class)
+    return concrete
+
+
+def get_reinforcement(str_data: str):
+    reinforcement_class = str_data.strip()
+    reinforcement = Reinforcement.objects.get(reinforcement_class=reinforcement_class)
+    return reinforcement
 
 
 class Command(BaseCommand):
@@ -142,28 +133,20 @@ class Command(BaseCommand):
 
                     # roof layers
                     roof_layers_lines = [37, 39, 41, 43, 45]
-                    roof_layers_list = list()
-                    roof_layers_thickness_list = list()
                     layer_number = 1
                     for lin in roof_layers_lines:
-                        # parsing to get layer name, density and distributed weight
                         layer = Layer(lines[lin])
-                        # retrieving or creation of RoofLayers object
                         roof_layer, created = \
                             RoofLayers.objects.get_or_create(layer_name=layer.layer_name,
                                                              defaults={"layer_density": layer.layer_density,
                                                                        "layer_distributed_weight": layer.layer_weight})
-                        roof_layers_list.append()
-                        # thicknesses of layers in current variant
-                        roof_layers_thickness_list.append(parse_layer_thickness(lines[lin + 1]))
                         defaults["roof_layer_" + str(layer_number)] = roof_layer
-
-
+                        defaults["roof_layer_" + str(layer_number) + "_thickness"] = parse_layer_thickness(
+                            lines[lin + 1])
                         layer_number += 1
+
                     # floor layers
                     floor_layers_lines = [47, 49, 51, 53, 55]
-                    floor_layers_list = list()
-                    floor_layers_thickness_list = list()
                     layer_number = 1
                     for lin in floor_layers_lines:
                         layer = Layer(lines(lin))
@@ -171,8 +154,10 @@ class Command(BaseCommand):
                             FloorLayers.objects.get_or_create(layer_name=layer.layer_name,
                                                               defaults={"layer_density": layer.layer_density,
                                                                         "layer_distributed_weight": layer.layer_weight})
-                        floor_layers_list.append(floor_layer)
-                        floor_layers_thickness_list.append(parse_layer_thickness(lines[lin + 1]))
+                        defaults["floor_layer_" + str(layer_number)] = floor_layer
+                        defaults["floor_layer_" + str(layer_number) + "_thickness"] = parse_layer_thickness(
+                            lines[lin + 1])
+                        layer_number += 1
 
                     # loads
                     defaults["roof_load_full"] = int(lines[58])
@@ -182,69 +167,75 @@ class Command(BaseCommand):
                     defaults["usual_floor_load_full"] = int(lines[62])
                     defaults["usual_floor_load_long"] = int(lines[64])
 
-                    # students
+                    # students and users
                     student_name_lines = [71, 73, 75]
                     for num in student_name_lines:
-                        if 'группа' in lines[num]:  # check if there are only 2 student for 1 variant
+                        # if there is no word 'группа' in line, so student data is not supposed to be in this line
+                        if 'группа' in lines[num]:
+                            personal_variant_number = int(lines[num + 1])
+                            student_data = lines[num].split()
+                            student_full_name = student_data[:-2]
+                            student_last_name = student_full_name[0].translate(
+                                str.maketrans('', '', string.punctuation))
 
-                            calcVar = int(lines[num + 1])
-
-                            stNameList = lines[num].split()
-                            studName = stNameList[:-2]
-                            # print(studName)
-                            studNameL = studName[0].translate(str.maketrans('', '', string.punctuation))
-
-                            if len(studNameL) == 0:  # if there actually 2 students, but we have place for third and its empty
-                                studNameL = "LastName" + str(groupID) + str(variant_number) + str(calcVar)
-                                # (we want to calculate everything in our building)
-
-                            try:  # if there not full names of sudents
-                                studNameF = studName[1].translate(str.maketrans('', '', ','))
-                            except:
-                                studNameF = None
+                            # if there are actually 2 students, but we have place for 3rd and its empty
+                            if len(student_last_name) == 0:
+                                student_last_name = "LastName" + str(group.pk) + \
+                                                    str(variant_number) + str(personal_variant_number)
+                            # there could be not full names of students
                             try:
-                                studNameM = studName[2].translate(str.maketrans('', '', string.punctuation))
-                            except:
-                                studNameM = None
+                                student_first_name = student_full_name[1].translate(str.maketrans('', '', ','))
+                            except IndexError:
+                                student_first_name = None
+                            try:
+                                student_middle_name = student_full_name[2].translate(
+                                    str.maketrans('', '', string.punctuation))
+                            except IndexError:
+                                student_middle_name = None
 
-                            cur.execute('''INSERT OR IGNORE INTO Students
-                            (f_name, m_name, l_name,
-                            group_id, variant_number, calc_var)
-                            VALUES (?, ?, ?, ?, ?, ?)''',
-                                        (studNameF, studNameM, studNameL, groupID, variant_number, calcVar))
-                    conn.commit()
+                            first_access_password = secrets.token_urlsafe(6)
+                            user = User.objects.create_user(username=student_last_name,
+                                                            first_name=student_first_name,
+                                                            last_name=student_last_name,
+                                                            password=first_access_password)
+                            student = Student.objects.update_or_create(group=group.pk,
+                                                                       subgroup_variant_number=variant_number,
+                                                                       personal_variant_number=personal_variant_number,
+                                                                       defaults={"full_name": student_full_name,
+                                                                                 "user": user.pk}
+                                                                       )
                 else:  # even page
                     # roof slab materials
-                    roofSlabConcreteID = concr_ID(lines[6])
-                    roofSlabReinfID = reinf_ID(lines[8])
-                    roofSlabPTReinfID = reinf_ID(lines[10])
+                    defaults["roof_slab_concrete"] = get_concrete(lines[6])
+                    defaults["roof_slab_reinforcement"] = get_reinforcement(lines[8])
+                    defaults["roof_slab_pt_reinforcement"] = get_reinforcement(lines[10])
                     # top floor slab materials
-                    topSlabConcreteID = concr_ID(lines[18])
-                    topSlabReinfID = reinf_ID(lines[20])
-                    topSlabPTReinfID = reinf_ID(lines[22])
+                    defaults["top_slab_concrete"] = get_concrete(lines[18])
+                    defaults["top_slab_reinforcement"] = get_reinforcement(lines[20])
+                    defaults["top_slab_pt_reinforcement"] = get_reinforcement(lines[22])
                     # usual floor slab materials
-                    usualSlabConcreteID = concr_ID(lines[12])
-                    usualSlabReinfID = reinf_ID(lines[14])
-                    usualSlabPTReinfID = reinf_ID(lines[16])
+                    defaults["usual_slab_concrete"] = get_concrete(lines[12])
+                    defaults["usual_slab_reinforcement"] = get_reinforcement(lines[14])
+                    defaults["usual_slab_pt_reinforcement"] = get_reinforcement(lines[16])
                     # truss materials
-                    trussConcreteID = concr_ID(lines[24])
-                    trussReinfID = reinf_ID(lines[26])
-                    trussPTReinfID = reinf_ID(lines[28])
+                    defaults["truss_concrete"] = get_concrete(lines[24])
+                    defaults["truss_reinforcement"] = get_reinforcement(lines[26])
+                    defaults["truss_pt_reinforcement"] = get_reinforcement(lines[28])
                     # girder materials
-                    girderConcreteID = concr_ID(lines[30])
-                    girderReinfID = reinf_ID(lines[32])
+                    defaults["girder_concrete"] = get_concrete(lines[30])
+                    defaults["girder_reinforcement"] = get_reinforcement(lines[32])
                     # column materials
-                    columnConcreteID = concr_ID(lines[34])
-                    columnReinfID = reinf_ID(lines[36])
+                    defaults["column_concrete"] = get_concrete(lines[34])
+                    defaults["column_reinforcement"] = get_reinforcement(lines[36])
                     # foundation materials
-                    foundationConcreteID = concr_ID(lines[38])
-                    foundationReinfID = reinf_ID(lines[40])
+                    defaults["foundation_concrete"] = get_concrete(lines[38])
+                    defaults["foundation_reinforcement"] = get_reinforcement(lines[40])
 
                     # ground
-                    ground_natural = float(lines[42].replace(',', '.'))
-                    ground_unnatural = float(lines[44].replace(',', '.'))
+                    defaults["ground_natural"] = float(lines[42].replace(',', '.'))
+                    defaults["ground_unnatural"] = float(lines[44].replace(',', '.'))
 
                 # variant_info object creation or update
                 VariantInfo.objects.update_or_create(group=group,
                                                      variant_number=variant_number,
-                                                     defaults=defaults)
+                                                     defaults={**defaults})

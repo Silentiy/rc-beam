@@ -22,6 +22,9 @@ class Student(models.Model):
 
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
 
+    class Meta:
+        unique_together = ("group", "subgroup_variant_number", "personal_variant_number")
+
     def __str__(self):
         return str(self.full_name) + " " + str(self.group)
 
