@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 import numpy as np
 from django.core.management.base import BaseCommand, CommandError
@@ -75,6 +76,7 @@ def write_materials_properties(path_to_file):
                                                       index_col=0,
                                                       na_values='-')
     reinforcement_strength_data_frame['Rsw'].fillna(0, inplace=True)
+
     # write reinforcement strength data into DB
     for row in reinforcement_strength_data_frame.itertuples(index=True):
         Reinforcement.objects.update_or_create(reinforcement_class=row.Index,
@@ -231,6 +233,33 @@ def write_cities_data(path_to_file):
                                         defaults={**dictionary})
 
 
+def choose_and_execute_function(path_to_file):
+    try:
+        with open(path_to_file):
+            print(f"Connected to {path_to_file}")
+    except FileNotFoundError as e:
+        print(e)
+        print(f"Add file {path_to_file}!")
+        quit()
+
+    if "cities_data" in path_to_file:
+        write_cities_data(path_to_file)
+    elif "constructions" in path_to_file:
+        write_constructions_data(path_to_file)
+    elif "cranes" in path_to_file:
+        write_crane_data(path_to_file)
+    elif "env_loads" in path_to_file:
+        write_environment_loads(path_to_file)
+    elif "wind_coeffs" in path_to_file:
+        write_wind_coefficients(path_to_file)
+    elif "materials" in path_to_file:
+        write_materials_properties(path_to_file)
+    elif "reinf_diameters" in path_to_file:
+        write_reinforcement_diameters(path_to_file)
+
+    print("Data inserted into DB!")
+
+
 class Command(BaseCommand):
     help = 'Inserting reference information about materials, constructions and loads' \
            'from files in "data" folder into DB'
@@ -239,29 +268,11 @@ class Command(BaseCommand):
         parser.add_argument('--path', type=str)
 
     def handle(self, *args, **options):
-        path_to_file = options['path']
+        path_to_file = options["path"]
 
-        try:
-            with open(path_to_file):
-                print(f"Connected to {path_to_file}")
-        except FileNotFoundError as e:
-            print(e)
-            print(f"Add file {path_to_file}!")
-            quit()
-
-        if "cities_data" in path_to_file:
-            write_cities_data(path_to_file)
-        elif "constructions" in path_to_file:
-            write_constructions_data(path_to_file)
-        elif "cranes" in path_to_file:
-            write_crane_data(path_to_file)
-        elif "env_loads" in path_to_file:
-            write_environment_loads(path_to_file)
-        elif "wind_coeffs" in path_to_file:
-            write_wind_coefficients(path_to_file)
-        elif "materials" in path_to_file:
-            write_materials_properties(path_to_file)
-        elif "reinf_diameters" in path_to_file:
-            write_reinforcement_diameters(path_to_file)
-
-        print("Data inserted into DB!")
+        if os.path.isdir(path_to_file):
+            file_names = os.listdir(path_to_file)
+            for file_name in file_names:
+                choose_and_execute_function(path_to_file + '/' + file_name)
+        elif os.path.isfile(path_to_file):
+            choose_and_execute_function(path_to_file)

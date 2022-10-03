@@ -175,9 +175,13 @@ class Command(BaseCommand):
                         if 'группа' in lines[num]:
                             personal_variant_number = int(lines[num + 1])
                             student_data = lines[num].split()
-                            student_full_name = student_data[:-2]
-                            student_last_name = student_full_name[0].translate(
+                            student_full_name_words = student_data[:-2]
+                            student_full_name = " ".join(student_full_name_words).translate(str.maketrans('', '', ','))
+                            student_last_name = student_full_name_words[0].translate(
                                 str.maketrans('', '', string.punctuation))
+                            if len(student_full_name) == 0:
+                                student_full_name = "LastName" + str(group.pk) + \
+                                                    str(variant_number) + str(personal_variant_number)
 
                             # if there are actually 2 students, but we have place for 3rd and its empty
                             if len(student_last_name) == 0:
@@ -185,33 +189,34 @@ class Command(BaseCommand):
                                                     str(variant_number) + str(personal_variant_number)
                             # there could be not full names of students
                             try:
-                                student_first_name = student_full_name[1].translate(str.maketrans('', '', ','))
+                                student_first_name = student_full_name_words[1].translate(str.maketrans('', '', ','))
                             except IndexError:
                                 student_first_name = None
                             try:
-                                student_middle_name = student_full_name[2].translate(
+                                student_middle_name = student_full_name_words[2].translate(
                                     str.maketrans('', '', string.punctuation))
                             except IndexError:
                                 student_middle_name = None
                             username = str(group.group_name) + "-" + \
-                                       str(variant_number) + "-" + str(personal_variant_number)
+                                                    str(variant_number) + "-" + str(personal_variant_number)
                             first_access_password = secrets.token_urlsafe(6)
 
                             try:
-                                User.objects.get_by_natural_key(username=username)
+                                user = User.objects.get_by_natural_key(username=username)
                             except ObjectDoesNotExist:
                                 user = User.objects.create_user(username=username,
-                                                                first_name=student_first_name if student_first_name is not None else "?",
+                                                                first_name=student_first_name if student_first_name is
+                                                                                                    not None else "?",
                                                                 last_name=student_last_name,
                                                                 password=first_access_password)
-                                student = Student.objects.update_or_create(group=group,
-                                                                           subgroup_variant_number=variant_number,
-                                                                           personal_variant_number=personal_variant_number,
-                                                                           defaults={"full_name": student_full_name,
-                                                                                     "user": user,
-                                                                                     "first_access_password":
-                                                                                         first_access_password}
-                                                                           )
+                            student = Student.objects.update_or_create(group=group,
+                                                                       subgroup_variant_number=variant_number,
+                                                                       personal_variant_number=personal_variant_number,
+                                                                       defaults={"full_name": student_full_name,
+                                                                                 "user": user,
+                                                                                 "first_access_password":
+                                                                                     first_access_password}
+                                                                       )
                 else:  # even page
                     # roof slab materials
                     defaults["roof_slab_concrete"] = get_concrete(lines[6])
@@ -244,7 +249,6 @@ class Command(BaseCommand):
                     defaults["ground_unnatural"] = float(lines[44].replace(',', '.'))
 
                     # variant_info object creation or update
-                    print(defaults)
                     VariantInfo.objects.update_or_create(group=group,
                                                          variant_number=variant_number,
                                                          defaults={**defaults})
