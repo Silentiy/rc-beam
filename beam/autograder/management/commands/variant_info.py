@@ -102,7 +102,6 @@ class Command(BaseCommand):
                     variant_number = variant[3]
                     group_name = variant[1]
                     group_year = int("20" + group_name[-5:-3])
-                    print(group_year)
                     group, created = Group.objects.get_or_create(group_name=group_name,
                                                                  defaults={"group_year": group_year})
                     # city
@@ -198,25 +197,34 @@ class Command(BaseCommand):
                             except IndexError:
                                 student_middle_name = None
                             username = str(group.group_name) + "-" + \
-                                                    str(variant_number) + "-" + str(personal_variant_number)
-                            first_access_password = secrets.token_urlsafe(6)
+                                       str(variant_number) + "-" + str(personal_variant_number)
 
                             try:
                                 user = User.objects.get_by_natural_key(username=username)
                             except ObjectDoesNotExist:
+                                first_access_password = secrets.token_urlsafe(6)
                                 user = User.objects.create_user(username=username,
-                                                                first_name=student_first_name if student_first_name is
-                                                                                                    not None else "?",
+                                                                first_name=student_first_name if student_first_name
+                                                                                                 is not None else "?",
                                                                 last_name=student_last_name,
                                                                 password=first_access_password)
-                            student = Student.objects.update_or_create(group=group,
-                                                                       subgroup_variant_number=variant_number,
-                                                                       personal_variant_number=personal_variant_number,
-                                                                       defaults={"full_name": student_full_name,
-                                                                                 "user": user,
-                                                                                 "first_access_password":
-                                                                                     first_access_password}
-                                                                       )
+
+                                Student.objects.update_or_create(group=group,
+                                                                 subgroup_variant_number=variant_number,
+                                                                 personal_variant_number=personal_variant_number,
+                                                                 defaults={"full_name": student_full_name,
+                                                                           "user": user,
+                                                                           "first_access_password":
+                                                                               first_access_password}
+                                                                 )
+                            # we have user object therefore we have student object with first_access_password
+                            # we may want to update student name, but we shurely do not want update password!
+                            Student.objects.update_or_create(group=group,
+                                                             subgroup_variant_number=variant_number,
+                                                             personal_variant_number=personal_variant_number,
+                                                             defaults={"full_name": student_full_name,
+                                                                       "user": user}
+                                                             )
                 else:  # even page
                     # roof slab materials
                     defaults["roof_slab_concrete"] = get_concrete(lines[6])
@@ -252,3 +260,4 @@ class Command(BaseCommand):
                     VariantInfo.objects.update_or_create(group=group,
                                                          variant_number=variant_number,
                                                          defaults={**defaults})
+        print("Variants data inserted into DB ")
