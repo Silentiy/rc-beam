@@ -116,7 +116,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOGIN_REDIRECT_URL = "grader:student_personal"
+LOGIN_REDIRECT_URL = "grader:redirect"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

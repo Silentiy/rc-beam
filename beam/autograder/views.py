@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from .models import Group, Student
 from django.contrib.auth.models import User
@@ -34,12 +34,23 @@ class StudentList(generic.ListView):
 
 
 @login_required
-def student_personal_view(request):
+def redirect(request):
     user_id = request.user.pk
+    user_name = request.user.username
+    print("!!!!!!", reverse_lazy("grader:student_personal", args=[user_id]))
+    return HttpResponseRedirect(reverse_lazy("grader:student_personal", args=[user_name]))
+
+
+def student_personal_view(request, user_name):
+    owner = False
+    if user_name == request.user.username:
+        owner = True
+
+    user_id = User.objects.get_by_natural_key(username=user_name)
     student = Student.objects.get(user_id=user_id)
     student_id = student.pk
     student_name = student.full_name
     group_id = student.group_id
     group = Group.objects.get(pk=group_id)
     group_name = group.group_name
-    return HttpResponse(f"Hello, {student_name} from {group_name}")
+    return HttpResponse(f"Hello, {student_name} from {group_name}! Owner = {owner}")
