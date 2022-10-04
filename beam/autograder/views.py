@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import generic
 from .models import Group, Student
+from django.contrib.auth.models import User
 from django.urls import reverse_lazy
-
+from django.contrib.auth.decorators import login_required
 
 class GroupList(generic.ListView):
     model = Group
@@ -32,5 +33,13 @@ class StudentList(generic.ListView):
         return context
 
 
-def student_personal_view(request, group_id, stud_id):
-    return HttpResponse(f"Hello, {stud_id} from {group_id}")
+@login_required
+def student_personal_view(request):
+    user_id = request.user.pk
+    student = Student.objects.get(user_id=user_id)
+    student_id = student.pk
+    student_name = student.full_name
+    group_id = student.group_id
+    group = Group.objects.get(pk=group_id)
+    group_name = group.group_name
+    return HttpResponse(f"Hello, {student_name} from {group_name}")
