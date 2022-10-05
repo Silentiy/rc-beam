@@ -1,7 +1,31 @@
 {% extends "base_bootstrap.html" %}
 
 {% block content %}
-<h1> Concrete  </h1>
+<h1> Concrete </h1>
+
+<p> {{ owner }} </p>
+
+<form method="POST">
+    {{ form.as_ul }}
+    {% csrf_token %}
+
+    <fieldset>
+
+        {% for item in student_concrete_answers.objects.all %}
+            <input type="text" id="{{item.pk}}" name="{{item}}">
+            <label for="{{item.pk}}"> "?" </label>
+        {% endfor %}
+
+    </fieldset>
+    {% if owner is True %}
+        <input type="submit" value="Submit">
+    {% else %}
+        <p> You cannot change data in this form </p>
+    {% endif %}
+</form>
+
+
 <h1> Reinforcement </h1>
 
 {% endblock %}
+

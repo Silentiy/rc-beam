@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views import generic
-from .models import Group, Student
+from django.views import generic, View
+from .models import Group, Student, ConcreteStudentAnswers
+from .forms import ConcreteStudentAnswersForm
 from django.contrib.auth.models import User
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+
 
 class GroupList(generic.ListView):
     model = Group
@@ -41,16 +44,59 @@ def redirect(request):
     return HttpResponseRedirect(reverse_lazy("grader:student_personal", args=[user_name]))
 
 
-def student_personal_view(request, user_name):
-    owner = False
-    if user_name == request.user.username:
-        owner = True
+class StudentPersonalView(View):
 
-    user_id = User.objects.get_by_natural_key(username=user_name)
-    student = Student.objects.get(user_id=user_id)
-    student_id = student.pk
-    student_name = student.full_name
-    group_id = student.group_id
-    group = Group.objects.get(pk=group_id)
-    group_name = group.group_name
-    return HttpResponse(f"Hello, {student_name} from {group_name}! Owner = {owner}")
+    def get_request_data(self, request, **kwargs):
+        owner = False
+        if kwargs["user_name"] == self.request.user.username:
+            owner = True
+        return owner
+
+    def get(self, request, **kwargs):
+        user_name = kwargs["user_name"]
+        print("!!!!!!!!", user_name)
+        user_id = User.objects.get_by_natural_key(username=user_name)
+        student = Student.objects.get(user_id=user_id)
+        student_id = student.pk
+        student_name = student.full_name
+        group_id = student.group_id
+        group = Group.objects.get(pk=group_id)
+        group_name = group.group_name
+
+        try:
+            concrete_answer = ConcreteStudentAnswers.objects.get(student_id=student_id)
+        except ObjectDoesNotExist:
+            concrete_answer = False
+
+        if concrete_answer is not False:
+            form = ConcreteStudentAnswersForm(instance=concrete_answer)
+        else:
+            form = ConcreteStudentAnswersForm()
+
+        return render(request, "autograder/student_personal.html", {'form': form,
+                                                                    "owner": self.get_request_data(request, **kwargs)})
+
+    def post(self, request, **kwargs):
+        user_name = kwargs["user_name"]
+
+        user_id = User.objects.get_by_natural_key(username=user_name)
+        student = Student.objects.get(user_id=user_id)
+        student_id = student.pk
+
+        try:
+            concrete_answer = ConcreteStudentAnswers.objects.get(student_id=student_id)
+        except ObjectDoesNotExist:
+            concrete_answer = False
+
+        if concrete_answer is not False:
+            form = ConcreteStudentAnswersForm(request.POST, instance=concrete_answer)
+        else:
+            form = ConcreteStudentAnswersForm(request.POST or None)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.student_id = student_id
+            answer.save()
+            print("after save")
+        # else:
+        #     form.save()
+        return redirect(request)
