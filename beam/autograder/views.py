@@ -46,15 +46,20 @@ def redirect(request):
 
 class StudentPersonalView(View):
 
-    def get_request_data(self, request, **kwargs):
+    def is_owner(self):
         owner = False
-        if kwargs["user_name"] == self.request.user.username:
+        if self.kwargs["user_name"] == self.request.user.username:
             owner = True
         return owner
 
+    def get_student_id(self):
+        user_name = self.kwargs["user_name"]
+        user_id = User.objects.get_by_natural_key(username=user_name)
+        student = Student.objects.get(user_id=user_id)
+        return student.pk
+
     def get(self, request, **kwargs):
-        user_name = kwargs["user_name"]
-        print("!!!!!!!!", user_name)
+        user_name = kwargs.get("user_name")
         user_id = User.objects.get_by_natural_key(username=user_name)
         student = Student.objects.get(user_id=user_id)
         student_id = student.pk
@@ -74,21 +79,13 @@ class StudentPersonalView(View):
             form = ConcreteStudentAnswersForm()
 
         return render(request, "autograder/student_personal.html", {'form': form,
-                                                                    "owner": self.get_request_data(request, **kwargs)})
+                                                                    "owner": self.is_owner()})
 
     def post(self, request, **kwargs):
-        user_name = kwargs["user_name"]
+        student_id = self.get_student_id()
+        concrete_answer = ConcreteStudentAnswers.objects.filter(student_id=student_id).first()
 
-        user_id = User.objects.get_by_natural_key(username=user_name)
-        student = Student.objects.get(user_id=user_id)
-        student_id = student.pk
-
-        try:
-            concrete_answer = ConcreteStudentAnswers.objects.get(student_id=student_id)
-        except ObjectDoesNotExist:
-            concrete_answer = False
-
-        if concrete_answer is not False:
+        if concrete_answer is not None:
             form = ConcreteStudentAnswersForm(request.POST, instance=concrete_answer)
         else:
             form = ConcreteStudentAnswersForm(request.POST or None)

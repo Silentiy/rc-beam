@@ -196,6 +196,8 @@ class Command(BaseCommand):
                                     str.maketrans('', '', string.punctuation))
                             except IndexError:
                                 student_middle_name = None
+
+                            # TODO: username should be in the format '1902-1-1' (without cyrillic characters and dot)
                             username = str(group.group_name) + "-" + \
                                        str(variant_number) + "-" + str(personal_variant_number)
 
