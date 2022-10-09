@@ -3,7 +3,7 @@
 {% block content %}
 <h1> Concrete </h1>
 
-<p> {{ owner }} </p>
+<p> Owner = {{ owner }} </p>
 
 <form method="POST">
     {{ form.as_ul }}
@@ -17,6 +17,7 @@
         {% endfor %}
 
     </fieldset>
+
     {% if owner is True %}
         <input type="submit" value="Submit">
     {% else %}
@@ -24,6 +25,13 @@
     {% endif %}
 </form>
 
+{% if stat %}
+    {% for item in stat.items %}
+        <p>{{item}}</p>
+    {% endfor %}
+{% else %}
+    <p>No statistics available </p>
+{% endif %}
 
 <h1> Reinforcement </h1>
 

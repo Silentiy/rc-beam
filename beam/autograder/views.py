@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic, View
-from .models import Group, Student, ConcreteStudentAnswers
+from .models import Group, Student, ConcreteStudentAnswers, ConcreteAnswersStatistics
 from .forms import ConcreteStudentAnswersForm
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
 from autograder.services import validation
 
 
@@ -41,7 +42,6 @@ class StudentList(generic.ListView):
 def redirect(request):
     user_id = request.user.pk
     user_name = request.user.username
-    print("!!!!!!", reverse_lazy("grader:student_personal", args=[user_id]))
     return HttpResponseRedirect(reverse_lazy("grader:student_personal", args=[user_name]))
 
 
@@ -77,6 +77,12 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         concrete_answer = self.get_current_form()
+        concrete_statistics = ConcreteAnswersStatistics.objects.filter(student_id=self.get_student_id()).first()
+
+        if concrete_statistics is not None:
+            concrete_statistics_dict = model_to_dict(concrete_statistics, exclude=["id", "student"])
+        else:
+            concrete_statistics_dict = dict()
 
         if concrete_answer is not None:
             form = ConcreteStudentAnswersForm(instance=concrete_answer)
@@ -84,7 +90,8 @@ class StudentPersonalView(View):
             form = ConcreteStudentAnswersForm()
 
         return render(request, "autograder/student_personal.html", {"form": form,
-                                                                    "owner": self.is_owner()})
+                                                                    "owner": self.is_owner(),
+                                                                    "stat": concrete_statistics_dict})
 
     def post(self, request, **kwargs):
         student_id = self.get_student_id()
@@ -99,5 +106,5 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student_id = student_id
             answer.save()
-            # TODO: invoke validation method here
+            validation.validate_answers(self.get_student())
         return redirect(request)

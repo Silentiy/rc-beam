@@ -509,12 +509,12 @@ class ConcreteStudentAnswers(models.Model):
 
 class ConcreteAnswersStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    prog_concrete_class = models.BooleanField()
-    prog_R_b_n = models.BooleanField()
-    prog_R_bt_n = models.BooleanField()
-    prog_R_b = models.BooleanField()
-    prog_R_bt = models.BooleanField()
-    prog_E_b = models.BooleanField()
+    concrete_class = models.BooleanField()
+    R_b_n = models.BooleanField()
+    R_bt_n = models.BooleanField()
+    R_b = models.BooleanField()
+    R_bt = models.BooleanField()
+    E_b = models.BooleanField()
 
     class Meta:
         db_table = "autograder_concrete_answers_statistics"
