@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from autograder.services import validation
 
 
 class GroupList(generic.ListView):
@@ -52,28 +53,32 @@ class StudentPersonalView(View):
             owner = True
         return owner
 
-    def get_student_id(self):
+    def get_student(self):
         user_name = self.kwargs["user_name"]
         user_id = User.objects.get_by_natural_key(username=user_name)
-        student = Student.objects.get(user_id=user_id)
+        return Student.objects.get(user_id=user_id)
+
+    def get_student_id(self):
+        student = self.get_student()
         return student.pk
 
-    def get(self, request, **kwargs):
-        user_name = kwargs.get("user_name")
-        user_id = User.objects.get_by_natural_key(username=user_name)
-        student = Student.objects.get(user_id=user_id)
-        student_id = student.pk
-        student_name = student.full_name
+    def get_student_name(self):
+        student = self.get_student()
+        return student.full_name
+
+    def get_student_group_name(self):
+        student = self.get_student()
         group_id = student.group_id
         group = Group.objects.get(pk=group_id)
-        group_name = group.group_name
+        return group.group_name
 
-        try:
-            concrete_answer = ConcreteStudentAnswers.objects.get(student_id=student_id)
-        except ObjectDoesNotExist:
-            concrete_answer = False
+    def get_current_form(self):
+        return ConcreteStudentAnswers.objects.filter(student_id=self.get_student_id()).first()
 
-        if concrete_answer is not False:
+    def get(self, request, **kwargs):
+        concrete_answer = self.get_current_form()
+
+        if concrete_answer is not None:
             form = ConcreteStudentAnswersForm(instance=concrete_answer)
         else:
             form = ConcreteStudentAnswersForm()
@@ -83,12 +88,13 @@ class StudentPersonalView(View):
 
     def post(self, request, **kwargs):
         student_id = self.get_student_id()
-        concrete_answer = ConcreteStudentAnswers.objects.filter(student_id=student_id).first()
+        concrete_answer = self.get_current_form()
 
         if concrete_answer is not None:
             form = ConcreteStudentAnswersForm(request.POST, instance=concrete_answer)
         else:
-            form = ConcreteStudentAnswersForm(request.POST or None)
+            form = ConcreteStudentAnswersForm(None)
+
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = student_id
