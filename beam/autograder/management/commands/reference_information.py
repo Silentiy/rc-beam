@@ -10,7 +10,8 @@ from autograder.models import (Concrete, ConcreteCreepCoefficient, Reinforcement
                                SnowLoads, WindLoads, WindKCoefficient,
                                CraneParameters, CraneSupports,
                                SlabReferenceGeometry, TrussName, TrussParameters,
-                               Cities)
+                               Cities,
+                               PersonalVariantsCivilEngineers, PersonalVariantsArchitects)
 
 
 def write_reinforcement_diameters(path_to_file):
@@ -234,16 +235,40 @@ def write_constructions_data(path_to_file):
 
 def write_cities_data(path_to_file):
     cities_data_frame = pd.read_excel(path_to_file,
-                                                sheet_name='cities',
-                                                usecols='C:G',
-                                                skiprows=2,
-                                                header=0)
-    cities_data_frame = cities_data_frame.replace({np.nan:None})
+                                      sheet_name='cities',
+                                      usecols='C:G',
+                                      skiprows=2,
+                                      header=0)
+    cities_data_frame = cities_data_frame.replace({np.nan: None})
     cities_list = cities_data_frame.to_dict(orient='records')
     for dictionary in cities_list:
         city_name = dictionary.pop('city_name')
         Cities.objects.update_or_create(city_name=city_name,
                                         defaults={**dictionary})
+
+
+def write_personal_variants_data(path_to_file):
+    civil_engineering_students_dataframe = pd.read_excel(path_to_file,
+                                                         sheet_name="PGS",
+                                                         usecols="B:I",
+                                                         skiprows=2,
+                                                         header=0)
+    civil_engineering_students_variants = civil_engineering_students_dataframe.to_dict(orient='records')
+    for dictionary in civil_engineering_students_variants:
+        personal_variant = dictionary.pop('personal_variant')
+        PersonalVariantsCivilEngineers.objects.update_or_create(personal_variant=personal_variant,
+                                                                defaults={**dictionary})
+
+    architecture_students_dataframe = pd.read_excel(path_to_file,
+                                                    sheet_name="PZ",
+                                                    usecols="B:H",
+                                                    skiprows=2,
+                                                    header=0)
+    architecture_students_variants = architecture_students_dataframe.to_dict(orient='records')
+    for dictionary in architecture_students_variants:
+        personal_variant = dictionary.pop('personal_variant')
+        PersonalVariantsArchitects.objects.update_or_create(personal_variant=personal_variant,
+                                                            defaults={**dictionary})
 
 
 def choose_and_execute_function(path_to_file):
@@ -269,6 +294,8 @@ def choose_and_execute_function(path_to_file):
         write_materials_properties(path_to_file)
     elif "reinf_diameters" in path_to_file:
         write_reinforcement_diameters(path_to_file)
+    elif "personal_variants" in path_to_file:
+        write_personal_variants_data(path_to_file)
 
     print("Data inserted into DB!")
 

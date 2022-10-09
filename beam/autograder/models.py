@@ -309,6 +309,39 @@ class FloorLayers(models.Model):
         return self.layer_name
 
 
+class PersonalVariantsCivilEngineers(models.Model):
+    personal_variant = models.SmallIntegerField(unique=True)
+    slab = models.CharField(max_length=20)
+    truss = models.CharField(max_length=20)
+    girder = models.CharField(max_length=20)
+    column = models.CharField(max_length=20)
+    foundation = models.CharField(max_length=20)
+    girder_detail = models.CharField(max_length=20)
+    column_detail = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = "autograder_personal_variants_civil_engineers"
+
+    def __str__(self):
+        return self.personal_variant
+
+
+class PersonalVariantsArchitects(models.Model):
+    personal_variant = models.SmallIntegerField(unique=True)
+    slab = models.CharField(max_length=20)
+    girder = models.CharField(max_length=20)
+    column = models.CharField(max_length=20)
+    foundation = models.CharField(max_length=20)
+    girder_detail = models.CharField(max_length=20)
+    column_detail = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = "autograder_personal_variants_architects"
+
+    def __str__(self):
+        return self.personal_variant
+
+
 class VariantInfo(models.Model):
     # general info
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
