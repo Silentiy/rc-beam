@@ -456,6 +456,22 @@ class VariantInfo(models.Model):
         return f"group = {self.group}, variant_number = {self.variant_number}"
 
 
+class ConcreteStudentAnswers(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    stud_concrete_class = models.CharField(max_length=4)
+    stud_R_b_n = models.FloatField()
+    stud_R_bt_n = models.FloatField()
+    stud_R_b = models.FloatField()
+    stud_R_bt = models.FloatField()
+    stud_E_b = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = "autograder_concrete_student_answers"
+
+    def __str__(self):
+        return f"{self.student} {self.stud_concrete_class}"
+
+
 class ConcreteProgramAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
     prog_concrete_class = models.CharField(max_length=4)
@@ -472,17 +488,18 @@ class ConcreteProgramAnswers(models.Model):
         return f"{self.student} {self.prog_concrete_class}"
 
 
-class ConcreteStudentAnswers(models.Model):
+class ConcreteAnswersStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_concrete_class = models.CharField(max_length=4)
-    stud_R_b_n = models.FloatField()
-    stud_R_bt_n = models.FloatField()
-    stud_R_b = models.FloatField()
-    stud_R_bt = models.FloatField()
-    stud_E_b = models.PositiveIntegerField()
+    prog_concrete_class = models.BooleanField()
+    prog_R_b_n = models.BooleanField()
+    prog_R_bt_n = models.BooleanField()
+    prog_R_b = models.BooleanField()
+    prog_R_bt = models.BooleanField()
+    prog_E_b = models.BooleanField()
 
     class Meta:
-        db_table = "autograder_concrete_student_answers"
+        db_table = "autograder_concrete_answers_statistics"
 
     def __str__(self):
-        return f"{self.student} {self.stud_concrete_class}"
+        return self.student
+        

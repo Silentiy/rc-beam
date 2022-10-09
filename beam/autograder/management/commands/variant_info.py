@@ -68,10 +68,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         path_to_files = options['path']
+        
+        
 
         # list of files for further processing
         pdf_files_list = list()
-        pdf_names = os.listdir(path_to_files)
+        try:
+            pdf_names = os.listdir(path_to_files)
+        except FileNotFoundError as e:
+            print(e, f"Check if folder '{path_to_files}' exists and contains files")
+            quit()
+        
         for pdf in pdf_names:
             pdf_files_list.append(path_to_files + '\\' + pdf)
 

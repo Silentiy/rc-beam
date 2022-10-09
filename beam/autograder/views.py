@@ -78,7 +78,7 @@ class StudentPersonalView(View):
         else:
             form = ConcreteStudentAnswersForm()
 
-        return render(request, "autograder/student_personal.html", {'form': form,
+        return render(request, "autograder/student_personal.html", {"form": form,
                                                                     "owner": self.is_owner()})
 
     def post(self, request, **kwargs):
@@ -93,7 +93,5 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student_id = student_id
             answer.save()
-            print("after save")
-        # else:
-        #     form.save()
+            # TODO: invoke validation method here
         return redirect(request)
