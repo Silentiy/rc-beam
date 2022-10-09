@@ -1,4 +1,5 @@
 {% extends "base_bootstrap.html" %}
+{% load template_filters %}
 
 {% block content %}
 <h1> Concrete </h1>
@@ -6,32 +7,28 @@
 <p> Owner = {{ owner }} </p>
 
 <form method="POST">
-    {{ form.as_ul }}
     {% csrf_token %}
 
-    <fieldset>
-
-        {% for item in student_concrete_answers.objects.all %}
-            <input type="text" id="{{item.pk}}" name="{{item}}">
-            <label for="{{item.pk}}"> "?" </label>
+    <table>
+        {% for field in form %}
+            <tr>
+                <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
+                <td> <div>{{field}}</div> </td>
+                <td> <div>
+                    {% with key=field.name|cut:'stud_' %}
+                        {{ stat|get_item:key }}
+                    {% endwith %}</div> </td>
+            </tr>
         {% endfor %}
-
-    </fieldset>
+    </table>
 
     {% if owner is True %}
         <input type="submit" value="Submit">
     {% else %}
         <p> You cannot change data in this form </p>
     {% endif %}
-</form>
 
-{% if stat %}
-    {% for item in stat.items %}
-        <p>{{item}}</p>
-    {% endfor %}
-{% else %}
-    <p>No statistics available </p>
-{% endif %}
+</form>
 
 <h1> Reinforcement </h1>
 
