@@ -79,13 +79,26 @@ def write_materials_properties(path_to_file):
 
     # write reinforcement strength data into DB
     for row in reinforcement_strength_data_frame.itertuples(index=True):
-        Reinforcement.objects.update_or_create(reinforcement_class=row.Index,
+        reinforcement_class = row.Index
+        nominal_reinforcement_strength = row.Rsser
+        R_s = row.Rs
+        if nominal_reinforcement_strength <= 540:  # for A type up to A540 and for B500/Bp500
+
+            xi_R = 0.8 / (1 + R_s / 700)
+            alpha_R = xi_R * (1 - 0.5 * xi_R)
+        else:  # for other classes there is no need in that parameters, or they are being calculated differently
+            xi_R = None
+            alpha_R = None
+        Reinforcement.objects.update_or_create(reinforcement_class=reinforcement_class,
                                                defaults={"possible_diameters": row.ds,
-                                                         "R_s_ser": row.Rsser,
-                                                         "R_s": row.Rs,
+                                                         "R_s_ser": nominal_reinforcement_strength,
+                                                         "R_s": R_s,
                                                          "R_sc_l": row.Rsc_l,
                                                          "R_sc_sh": row.Rsc_sh,
-                                                         "R_sw": row.Rsw}
+                                                         "R_sw": row.Rsw,
+                                                         "alpha_R": alpha_R,
+                                                         "xi_R": xi_R
+                                                         }
                                                )
 
 

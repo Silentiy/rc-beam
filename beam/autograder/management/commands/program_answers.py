@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from autograder.models import (Group, Student, VariantInfo,
                                Concrete, Reinforcement,
                                Cities, RoofLayers, FloorLayers,
-                               ConcreteStudentAnswers, ConcreteProgramAnswers, ConcreteAnswersStatistics)
+                               ConcreteStudentAnswers, ConcreteAnswersStatistics)
 from django.contrib.auth.models import User
 
 

@@ -64,6 +64,8 @@ class Reinforcement(models.Model):
     R_sc_l = models.PositiveSmallIntegerField()
     R_sc_sh = models.PositiveSmallIntegerField()
     R_sw = models.PositiveSmallIntegerField(null=True)
+    alpha_R = models.FloatField(null=True)
+    xi_R = models.FloatField(null=True)
 
     def __str__(self):
         return self.reinforcement_class
@@ -470,22 +472,6 @@ class ConcreteStudentAnswers(models.Model):
 
     def __str__(self):
         return f"{self.student} {self.stud_concrete_class}"
-
-
-class ConcreteProgramAnswers(models.Model):
-    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    prog_concrete_class = models.CharField(max_length=4)
-    prog_R_b_n = models.FloatField()
-    prog_R_bt_n = models.FloatField()
-    prog_R_b = models.FloatField()
-    prog_R_bt = models.FloatField()
-    prog_E_b = models.PositiveIntegerField()
-
-    class Meta:
-        db_table = "autograder_concrete_program_answers"
-
-    def __str__(self):
-        return f"{self.student} {self.prog_concrete_class}"
 
 
 class ConcreteAnswersStatistics(models.Model):
