@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic, View
-from .models import Group, Student, ConcreteStudentAnswers, ConcreteAnswersStatistics
-from .forms import ConcreteStudentAnswersForm
+from .models import (Group, Student,
+                     ConcreteStudentAnswers, ConcreteAnswersStatistics,
+                     ReinforcementStudentAnswers, ReinforcementAnswersStatistics)
+from .forms import ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from autograder.services import validation
+from django.db import models
 
 
 class GroupList(generic.ListView):
@@ -72,30 +75,44 @@ class StudentPersonalView(View):
         group = Group.objects.get(pk=group_id)
         return group.group_name
 
-    def get_current_form(self):
-        return ConcreteStudentAnswers.objects.filter(student_id=self.get_student_id()).first()
+    def get_instance(self, model_name):
+        return model_name.objects.filter(student_id=self.get_student_id()).first()
+
+    def get_statistics_instance(self, model_name: models.Model):
+        return model_name.objects.filter(student_id=self.get_student_id()).first()
 
     def get(self, request, **kwargs):
-        concrete_answer = self.get_current_form()
-        concrete_statistics = ConcreteAnswersStatistics.objects.filter(student_id=self.get_student_id()).first()
+        forms = dict()
+        answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers]
+        answer_forms = [ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm]
+        forms_names = ["Concrete", "Reinforcement"]
+        statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
-        if concrete_statistics is not None:
-            concrete_statistics_dict = model_to_dict(concrete_statistics, exclude=["id", "student"])
-        else:
-            concrete_statistics_dict = dict()
+        for num, model_name in enumerate(answer_models):
+            answer = self.get_instance(model_name)
+            if answer is not None:
+                form = answer_forms[num](instance=answer)
+            else:
+                form = answer_forms[num]()
 
-        if concrete_answer is not None:
-            form = ConcreteStudentAnswersForm(instance=concrete_answer)
-        else:
-            form = ConcreteStudentAnswersForm()
+            forms[forms_names[num]] = form
 
-        return render(request, "autograder/student_personal.html", {"form": form,
+        statistics_dict = dict()
+        for model_name in statistics_models:
+            statistics = self.get_statistics_instance(model_name)
+            if statistics is not None:
+                statistics_dict.update(model_to_dict(statistics, exclude=["id", "student"]))
+            # else:
+            #     statistics_dict = dict()
+            print(statistics_dict)
+        print(statistics_dict)
+        return render(request, "autograder/student_personal.html", {"forms": forms,
                                                                     "owner": self.is_owner(),
-                                                                    "stat": concrete_statistics_dict})
+                                                                    "stat": statistics_dict})
 
     def post(self, request, **kwargs):
         student_id = self.get_student_id()
-        concrete_answer = self.get_current_form()
+        concrete_answer = self.get_instance(ConcreteStudentAnswers)
 
         if concrete_answer is not None:
             form = ConcreteStudentAnswersForm(request.POST, instance=concrete_answer)
@@ -107,4 +124,5 @@ class StudentPersonalView(View):
             answer.student_id = student_id
             answer.save()
             validation.validate_answers(self.get_student())
+
         return redirect(request)

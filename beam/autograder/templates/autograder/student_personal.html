@@ -2,35 +2,36 @@
 {% load template_filters %}
 
 {% block content %}
-<h1> Concrete </h1>
 
 <p> Owner = {{ owner }} </p>
 
-<form method="POST">
-    {% csrf_token %}
+{% for form_name, form in forms.items %}
+    <h1> {{form_name}} </h1>
+    <form method="POST">
+        {% csrf_token %}
 
-    <table>
-        {% for field in form %}
-            <tr>
-                <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
-                <td> <div>{{field}}</div> </td>
-                <td> <div>
-                    {% with key=field.name|cut:'stud_' %}
-                        {{ stat|get_item:key }}
-                    {% endwith %}</div> </td>
-            </tr>
-        {% endfor %}
-    </table>
+        <table>
+            {% for field in form %}
+                <tr>
+                    <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
+                    <td> <div>{{field}}</div> </td>
+                    <td> <div>
+                        {% with key=field.name|cut:'stud_' %}
+                            {{ stat|get_item:key }}
+                        {% endwith %}</div> </td>
+                </tr>
+            {% endfor %}
+        </table>
 
-    {% if owner is True %}
-        <input type="submit" value="Submit">
-    {% else %}
-        <p> You cannot change data in this form </p>
-    {% endif %}
+        {% if owner is True %}
+            <input type="submit" value="Submit" name={{form_name}}>
+        {% else %}
+            <p> You cannot change data in this form </p>
+        {% endif %}
 
-</form>
+    </form>
 
-<h1> Reinforcement </h1>
+{% endfor %}
 
 {% endblock %}
 

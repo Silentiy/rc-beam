@@ -87,7 +87,7 @@ def write_materials_properties(path_to_file):
 
             xi_R = 0.8 / (1 + R_s / 700)
             alpha_R = xi_R * (1 - 0.5 * xi_R)
-        else:  # for other classes there is no need in that parameters, or they are being calculated differently
+        else:  # for other classes there is no need in that parameters, or they are calculated differently
             xi_R = None
             alpha_R = None
         Reinforcement.objects.update_or_create(reinforcement_class=reinforcement_class,
