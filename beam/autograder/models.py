@@ -526,11 +526,11 @@ class ConcreteAnswersStatistics(models.Model):
 class ReinforcementStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
     stud_reinforcement_class = models.CharField(max_length=8)
-    stud_R_s_ser = models.PositiveSmallIntegerField()
-    stud_R_s = models.PositiveSmallIntegerField()
-    stud_R_sc_l = models.PositiveSmallIntegerField()
-    stud_R_sc_sh = models.PositiveSmallIntegerField()
-    stud_R_sw = models.PositiveSmallIntegerField(null=True)
+    stud_R_s_ser = models.FloatField()
+    stud_R_s = models.FloatField()
+    stud_R_sc_l = models.FloatField()
+    stud_R_sc_sh = models.FloatField()
+    stud_R_sw = models.FloatField(null=True)
     stud_alpha_R = models.FloatField(null=True)
     stud_xi_R = models.FloatField(null=True)
 
@@ -543,14 +543,14 @@ class ReinforcementStudentAnswers(models.Model):
 
 class ReinforcementAnswersStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    reinforcement_class = models.CharField(max_length=8)
-    R_s_ser = models.PositiveSmallIntegerField()
-    R_s = models.PositiveSmallIntegerField()
-    R_sc_l = models.PositiveSmallIntegerField()
-    R_sc_sh = models.PositiveSmallIntegerField()
-    R_sw = models.PositiveSmallIntegerField(null=True)
-    alpha_R = models.FloatField(null=True)
-    xi_R = models.FloatField(null=True)
+    reinforcement_class = models.BooleanField()
+    R_s_ser = models.BooleanField()
+    R_s = models.BooleanField()
+    R_sc_l = models.BooleanField()
+    R_sc_sh = models.BooleanField()
+    R_sw = models.BooleanField()
+    alpha_R = models.BooleanField()
+    xi_R = models.BooleanField()
 
     class Meta:
         db_table = "autograder_reinforcement_answers_statistics"

@@ -1,36 +1,45 @@
 from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics,
+                               Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                                VariantInfo, PersonalVariantsArchitects, PersonalVariantsCivilEngineers,
                                Student)
 from django.forms.models import model_to_dict
 
 
-def validate_answers(student):
+def validate_answers(student, button_name):
+    models_dict = {"Concrete": [Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics],
+                   "Reinforcement": [Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics]}
+
     student_id = student.pk
     student_subgroup_variant = student.subgroup_variant_number
     student_personal_variant = student.personal_variant_number
-    concrete_student_answers = ConcreteStudentAnswers.objects.get(student_id=student_id)
     student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
-    student_concrete_id = student_variant_data.girder_concrete_id
-    concrete_program_answers = Concrete.objects.get(pk=student_concrete_id)
 
-    concrete_student_answers_dict = model_to_dict(concrete_student_answers)
-    concrete_program_answers_dict = model_to_dict(concrete_program_answers)
-    concrete_student_answers_dict.pop("id")
-    concrete_student_answers_dict.pop("student")
-    concrete_program_answers_dict.pop("id")
+    program_answers_model = models_dict[button_name][0]
+    student_answers_model = models_dict[button_name][1]
+    statistics_model = models_dict[button_name][2]
 
-    # print(concrete_student_answers_dict)
-    #  print(concrete_program_answers_dict)
+    student_answers = student_answers_model.objects.get(student_id=student_id)
+
+    student_exclude = ["id", "student"]
+    if button_name == "Concrete":
+        program_exclude = ["id"]
+        student_material_id = student_variant_data.girder_concrete_id
+    elif button_name == "Reinforcement":
+        program_exclude = ["id", "possible_diameters"]
+        student_material_id = student_variant_data.girder_reinforcement_id
+
+    program_answers = program_answers_model.objects.get(pk=student_material_id)
+
+    student_answers_dict = model_to_dict(student_answers, exclude=student_exclude)
+    program_answers_dict = model_to_dict(program_answers, exclude=program_exclude)
 
     statistics = dict()
-    for key, value in concrete_program_answers_dict.items():
-        # print(key, value)
+    for key, value in program_answers_dict.items():
         stud_dict_key = "stud_" + key
-        if concrete_student_answers_dict[stud_dict_key] == value:
+        if student_answers_dict[stud_dict_key] == value:
             statistics[key] = True
         else:
             statistics[key] = False
 
-    ConcreteAnswersStatistics.objects.update_or_create(student_id=student_id,
-                                                       defaults={**statistics})
-
+    statistics_model.objects.update_or_create(student_id=student_id,
+                                              defaults={**statistics})

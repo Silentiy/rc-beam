@@ -104,25 +104,32 @@ class StudentPersonalView(View):
                 statistics_dict.update(model_to_dict(statistics, exclude=["id", "student"]))
             # else:
             #     statistics_dict = dict()
-            print(statistics_dict)
-        print(statistics_dict)
+            # print(statistics_dict)
+        # print(statistics_dict)
         return render(request, "autograder/student_personal.html", {"forms": forms,
                                                                     "owner": self.is_owner(),
                                                                     "stat": statistics_dict})
 
     def post(self, request, **kwargs):
-        student_id = self.get_student_id()
-        concrete_answer = self.get_instance(ConcreteStudentAnswers)
+        models_dict = {"Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
+                       "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm]}
 
-        if concrete_answer is not None:
-            form = ConcreteStudentAnswersForm(request.POST, instance=concrete_answer)
+        for key in models_dict.keys():
+            if key in request.POST:
+                submit_button_name = key
+
+        answer_instance = self.get_instance(models_dict[submit_button_name][0])
+        model_form = models_dict[submit_button_name][1]
+
+        if answer_instance is not None:
+            form = model_form(request.POST, instance=answer_instance)
         else:
-            form = ConcreteStudentAnswersForm(None)
+            form = model_form(request.POST or None)
 
         if form.is_valid():
             answer = form.save(commit=False)
-            answer.student_id = student_id
+            answer.student_id = self.get_student_id()
             answer.save()
-            validation.validate_answers(self.get_student())
+            validation.validate_answers(self.get_student(), submit_button_name)
 
         return redirect(request)
