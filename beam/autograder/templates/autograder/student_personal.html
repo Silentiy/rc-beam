@@ -1,22 +1,25 @@
 {% extends "base_bootstrap.html" %}
 {% load template_filters %}
 {% load static %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'autograder/style.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <p> Owner = {{ owner }} </p>
+<img src="{% static 'autograder/images/girder_cross_section.jpg' %}" alt="girder cross section">
 
 {% for form_name, form in forms.items %}
     <h1> {{ forms_names|get_item:form_name }} </h1>
     <form method="POST">
         {% csrf_token %}
 
-        <table>
+        <table id={{form_name}}>
                 <tr>
-                    <th> Название параметра </th>
-                    <th> Значение </th>
-                    <th> Статус </th>
+                    <th class="title"> Название параметра </th>
+                    <th class="value"> Значение </th>
+                    <th class="status"> Статус </th>
                 </tr>
             {% for field in form %}
                 <tr>
@@ -31,7 +34,7 @@
         </table>
 
         {% if owner is True %}
-            <input type="submit" value="Submit" name={{form_name}}>
+            <input class="button" type="submit" value="Submit" name={{form_name}}>
         {% else %}
             <p> You cannot change data in this form </p>
         {% endif %}

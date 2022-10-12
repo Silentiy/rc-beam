@@ -1,5 +1,6 @@
 import os
 import fitz
+import pandas as pd
 import string
 import secrets
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,6 +9,7 @@ from autograder.models import (Group, Student, VariantInfo,
                                Concrete, Reinforcement,
                                Cities, RoofLayers, FloorLayers)
 from django.contrib.auth.models import User
+from pathlib import Path
 
 
 class Layer:
@@ -68,8 +70,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         path_to_files = options['path']
-        
-        
 
         # list of files for further processing
         pdf_files_list = list()
@@ -78,12 +78,13 @@ class Command(BaseCommand):
         except FileNotFoundError as e:
             print(e, f"Check if folder '{path_to_files}' exists and contains files")
             quit()
-        
+
         for pdf in pdf_names:
-            pdf_files_list.append(path_to_files + '\\' + pdf)
+            pdf_files_list.append(path_to_files + '/' + pdf)
 
         page_number = 0
         defaults = dict()
+        first_login_data = {"fullname": [], "login": [], "password": []}
         for doc_name in pdf_files_list:
             # check if file is accessible
             try:
@@ -111,6 +112,8 @@ class Command(BaseCommand):
                     group_year = int("20" + group_name[-5:-3])
                     group, created = Group.objects.get_or_create(group_name=group_name,
                                                                  defaults={"group_year": group_year})
+                    group_number = group.group_name[-5:].translate(str.maketrans('', '', string.punctuation))
+
                     # city
                     city_name = lines[6]
                     defaults["city"] = Cities.objects.get(city_name=city_name)
@@ -204,12 +207,20 @@ class Command(BaseCommand):
                             except IndexError:
                                 student_middle_name = None
 
-                            # TODO: username should be in the format '1902-1-1' (without cyrillic characters and dot)
-                            username = str(group.group_name) + "-" + \
-                                       str(variant_number) + "-" + str(personal_variant_number)
+                            username = f"{group_number}-{variant_number}-{personal_variant_number}"
 
                             try:
                                 user = User.objects.get_by_natural_key(username=username)
+                                # we have user object therefore we have student object with first_access_password
+                                # we may want to update student name, but we surely do not want to update password!
+                                student = Student.objects.update_or_create(group=group,
+                                                                           subgroup_variant_number=
+                                                                           variant_number,
+                                                                           personal_variant_number=
+                                                                           personal_variant_number,
+                                                                           defaults={"full_name": student_full_name,
+                                                                                     "user": user}
+                                                                           )
                             except ObjectDoesNotExist:
                                 first_access_password = secrets.token_urlsafe(6)
                                 user = User.objects.create_user(username=username,
@@ -226,14 +237,18 @@ class Command(BaseCommand):
                                                                            "first_access_password":
                                                                                first_access_password}
                                                                  )
-                            # we have user object therefore we have student object with first_access_password
-                            # we may want to update student name, but we shurely do not want update password!
-                            Student.objects.update_or_create(group=group,
-                                                             subgroup_variant_number=variant_number,
-                                                             personal_variant_number=personal_variant_number,
-                                                             defaults={"full_name": student_full_name,
-                                                                       "user": user}
-                                                             )
+                            # data for firs login
+                            password = None
+                            try:
+                                password = first_access_password
+                            except UnboundLocalError:
+                                student_id = student[0].pk
+                                password = Student.objects.get(pk=student_id).first_access_password
+
+                            first_login_data["fullname"].append(student_full_name)
+                            first_login_data["login"].append(username)
+                            first_login_data["password"].append(password)
+
                 else:  # even page
                     # roof slab materials
                     defaults["roof_slab_concrete"] = get_concrete(lines[6])
@@ -269,4 +284,13 @@ class Command(BaseCommand):
                     VariantInfo.objects.update_or_create(group=group,
                                                          variant_number=variant_number,
                                                          defaults={**defaults})
-        print("Variants data inserted into DB ")
+
+            # write first login data into file
+            folder_path = "autograder/login_data"
+            Path(folder_path).mkdir(parents=True, exist_ok=True)
+            file_name = folder_path + f"/login_data_{group_number}.txt"
+            login_data_dataframe = pd.DataFrame(data=first_login_data)
+            login_data_dataframe.to_csv(file_name, sep=' ')
+
+            print(f"Variants data for group {group_name} inserted into DB")
+            print(f"Login data is written into file '{file_name}'")

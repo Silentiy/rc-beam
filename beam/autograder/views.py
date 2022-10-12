@@ -57,8 +57,7 @@ class StudentPersonalView(View):
         return owner
 
     def get_student(self):
-        user_name = self.kwargs["user_name"]
-        user_id = User.objects.get_by_natural_key(username=user_name)
+        user_id = User.objects.get_by_natural_key(username=self.get_user_name())
         return Student.objects.get(user_id=user_id)
 
     def get_student_id(self):
@@ -68,6 +67,9 @@ class StudentPersonalView(View):
     def get_student_name(self):
         student = self.get_student()
         return student.full_name
+
+    def get_user_name(self):
+        return self.kwargs["user_name"]
 
     def get_student_group_name(self):
         student = self.get_student()
@@ -134,5 +136,6 @@ class StudentPersonalView(View):
             answer.student_id = self.get_student_id()
             answer.save()
             validation.validate_answers(self.get_student(), submit_button_name)
-
+        redirect_url = f"{reverse('grader:student_personal', self.get_user_name())}#{submit_button_name}"
+        print(redirect_url)
         return redirect(request)

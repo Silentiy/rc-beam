@@ -74,6 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'beam.wsgi.application'
 
+APP_NAME = 'RC Autograder'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
