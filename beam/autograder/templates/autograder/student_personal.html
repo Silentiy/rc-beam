@@ -1,16 +1,23 @@
 {% extends "base_bootstrap.html" %}
 {% load template_filters %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'autograder/style.css' %}">
 
 {% block content %}
 
 <p> Owner = {{ owner }} </p>
 
 {% for form_name, form in forms.items %}
-    <h1> {{form_name}} </h1>
+    <h1> {{ forms_names|get_item:form_name }} </h1>
     <form method="POST">
         {% csrf_token %}
 
         <table>
+                <tr>
+                    <th> Название параметра </th>
+                    <th> Значение </th>
+                    <th> Статус </th>
+                </tr>
             {% for field in form %}
                 <tr>
                     <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>

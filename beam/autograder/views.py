@@ -85,7 +85,9 @@ class StudentPersonalView(View):
         forms = dict()
         answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers]
         answer_forms = [ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm]
-        forms_names = ["Concrete", "Reinforcement"]
+        forms_names = {"Concrete": "Исходные данные по бетону",
+                       "Reinforcement": "Исходные данные по продольной рабочей арматуре"}
+
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
         for num, model_name in enumerate(answer_models):
@@ -95,7 +97,7 @@ class StudentPersonalView(View):
             else:
                 form = answer_forms[num]()
 
-            forms[forms_names[num]] = form
+            forms[list(forms_names.keys())[num]] = form
 
         statistics_dict = dict()
         for model_name in statistics_models:
@@ -108,7 +110,8 @@ class StudentPersonalView(View):
         # print(statistics_dict)
         return render(request, "autograder/student_personal.html", {"forms": forms,
                                                                     "owner": self.is_owner(),
-                                                                    "stat": statistics_dict})
+                                                                    "stat": statistics_dict,
+                                                                    "forms_names": forms_names})
 
     def post(self, request, **kwargs):
         models_dict = {"Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],

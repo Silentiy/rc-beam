@@ -5,3 +5,4 @@ __pycache__
 .idea/
 beam/autograder/data
 beam/autograder/pdf
+**/images/
