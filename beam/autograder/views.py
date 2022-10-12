@@ -136,6 +136,7 @@ class StudentPersonalView(View):
             answer.student_id = self.get_student_id()
             answer.save()
             validation.validate_answers(self.get_student(), submit_button_name)
-        redirect_url = f"{reverse('grader:student_personal', self.get_user_name())}#{submit_button_name}"
-        print(redirect_url)
-        return redirect(request)
+
+        redirect_url = f"{reverse('grader:student_personal', args=(request.user,))}#{submit_button_name}"
+        return HttpResponseRedirect(redirect_url)
+
