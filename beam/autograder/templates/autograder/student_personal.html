@@ -13,7 +13,7 @@
 {% for form_name, form in forms.items %}
     <h2> {{ forms_names|get_item:form_name }} </h2>
 
-    {% if form_name == "Geometry" %}
+    {% if form_name == "GirderGeometry" %}
         {% include 'autograder/girder_geometry.html' %}
     {% endif %}
 
@@ -21,6 +21,7 @@
         {% include 'autograder/initial_reinforcement.html' %}
     {% endif %}
 
+    {% if form_name != "GirderGeometry" and "Initial_reinforcement" %}
     <form method="POST">
         {% csrf_token %}
 
@@ -46,6 +47,7 @@
         {% endif %}
 
     </form>
+    {% endif %}
 
 {% endfor %}
 

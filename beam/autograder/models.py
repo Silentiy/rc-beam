@@ -549,11 +549,47 @@ class ReinforcementAnswersStatistics(models.Model):
     R_sc_l = models.BooleanField()
     R_sc_sh = models.BooleanField()
     R_sw = models.BooleanField()
-    alpha_R = models.BooleanField()
-    xi_R = models.BooleanField()
+    alpha_R = models.BooleanField(blank=True)
+    xi_R = models.BooleanField(blank=True)
 
     class Meta:
         db_table = "autograder_reinforcement_answers_statistics"
 
     def __str__(self):
         return self.student
+
+
+class SlabHeight(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    slab_height = models.SmallIntegerField(null=False)
+
+    class Meta:
+        db_table = "autograder_slab_height"
+
+    def __str__(self):
+        return self.slab_height
+
+
+class GirderGeometry(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    slab = models.OneToOneField("SlabHeight", on_delete=models.DO_NOTHING, null=True)  # is necessary?
+
+    girder_flange_bevel_height = models.FloatField()
+    girder_flange_slab_height = models.FloatField()
+    girder_wall_height = models.SmallIntegerField()
+    girder_wall_width = models.SmallIntegerField()
+    girder_flange_bevel_width = models.FloatField()
+
+    girder_height = models.SmallIntegerField(blank=True, null=True)
+    girder_flange_full_width = models.SmallIntegerField(blank=True, null=True)
+    girder_flange_console_widths = models.FloatField(blank=True, null=True)
+
+    girder_length = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = "autograder_girder_geometry"
+
+    def __str__(self):
+        return self.girder_height
+
+

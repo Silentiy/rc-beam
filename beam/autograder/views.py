@@ -3,8 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic, View
 from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
-                     ReinforcementStudentAnswers, ReinforcementAnswersStatistics)
-from .forms import ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm
+                     ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
+                     GirderGeometry)
+from .forms import ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -85,10 +86,11 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         forms = dict()
-        answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers]
-        answer_forms = [ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm]
+        answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry]
+        answer_forms = [ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm]
         forms_names = {"Concrete": "Исходные данные по бетону",
-                       "Reinforcement": "Исходные данные по продольной рабочей арматуре"}
+                       "Reinforcement": "Исходные данные по продольной рабочей арматуре",
+                       "GirderGeometry": "Геометрия сечения ригеля"}
 
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
@@ -115,7 +117,8 @@ class StudentPersonalView(View):
 
     def post(self, request, **kwargs):
         models_dict = {"Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
-                       "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm]}
+                       "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+                       "GirderGeometry": [GirderGeometry, GirderGeometryForm]}
 
         for key in models_dict.keys():
             if key in request.POST:
@@ -133,7 +136,8 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()
             answer.save()
-            validation.validate_answers(self.get_student(), submit_button_name)
+            if submit_button_name != "GirderGeometry":
+                validation.validate_answers(self.get_student(), submit_button_name)
 
         redirect_url = f"{reverse('grader:student_personal', args=(request.user,))}#{submit_button_name}"
         return HttpResponseRedirect(redirect_url)

@@ -7,3 +7,4 @@ beam/autograder/data
 beam/autograder/pdf
 beam/autograder/login_data
 **/images/
+**/temp/
