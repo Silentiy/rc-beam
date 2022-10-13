@@ -106,12 +106,10 @@ class StudentPersonalView(View):
             statistics = self.get_statistics_instance(model_name)
             if statistics is not None:
                 statistics_dict.update(model_to_dict(statistics, exclude=["id", "student"]))
-            # else:
-            #     statistics_dict = dict()
-            # print(statistics_dict)
-        # print(statistics_dict)
+
         return render(request, "autograder/student_personal.html", {"forms": forms,
                                                                     "owner": self.is_owner(),
+                                                                    "student_name": self.get_student_name(),
                                                                     "stat": statistics_dict,
                                                                     "forms_names": forms_names})
 

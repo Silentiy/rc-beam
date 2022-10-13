@@ -43,3 +43,10 @@ input.button{
 	width: 75%;
 	height: 42px;
 }
+
+
+div.fig{
+  width: auto;
+  display: inline-block;
+}
+

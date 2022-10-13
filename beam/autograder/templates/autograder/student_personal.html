@@ -7,11 +7,20 @@
 
 {% block content %}
 
-<p> Owner = {{ owner }} </p>
-<img src="{% static 'autograder/images/girder_cross_section.jpg' %}" alt="girder cross section">
+<h1> Добро пожаловать, {{ student_name }}!</h1>
+
 
 {% for form_name, form in forms.items %}
-    <h1> {{ forms_names|get_item:form_name }} </h1>
+    <h2> {{ forms_names|get_item:form_name }} </h2>
+
+    {% if form_name == "Geometry" %}
+        {% include 'autograder/girder_geometry.html' %}
+    {% endif %}
+
+    {% if form_name == "Initial_reinforcement" %}
+        {% include 'autograder/initial_reinforcement.html' %}
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
 
@@ -25,10 +34,7 @@
                 <tr>
                     <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
                     <td> <div>{{field}}</div> </td>
-                    <td> <div>
-                        {% with key=field.name|cut:'stud_' %}
-                            {{ stat|get_item:key }}
-                        {% endwith %}</div> </td>
+                    <td> <div> {% with key=field.name|cut:'stud_' %} {{ stat|get_item:key }} {% endwith %}</div> </td>
                 </tr>
             {% endfor %}
         </table>
