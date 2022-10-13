@@ -9,7 +9,7 @@
 
 <form method="POST">
         {% csrf_token %}
-        {{ form.as_ul }}
+        {{ form }}
 
         {% if owner is True %}
             <input class="button" type="submit" value="Submit" name={{form_name}}>

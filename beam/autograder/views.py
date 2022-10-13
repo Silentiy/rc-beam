@@ -4,7 +4,7 @@ from django.views import generic, View
 from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
-                     GirderGeometry)
+                     GirderGeometry, SlabHeight)
 from .forms import ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
@@ -13,6 +13,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from autograder.services import validation
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy
 
 
 class GroupList(generic.ListView):
@@ -50,6 +52,7 @@ def redirect(request):
 
 
 class StudentPersonalView(View):
+    error = {}
 
     def is_owner(self):
         owner = False
@@ -84,6 +87,9 @@ class StudentPersonalView(View):
     def get_statistics_instance(self, model_name: models.Model):
         return model_name.objects.filter(student_id=self.get_student_id()).first()
 
+    def get_slab(self):
+        return SlabHeight.objects.get(student_id=self.get_student_id())
+
     def get(self, request, **kwargs):
         forms = dict()
         answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry]
@@ -97,11 +103,23 @@ class StudentPersonalView(View):
         for num, model_name in enumerate(answer_models):
             answer = self.get_instance(model_name)
             if answer is not None:
-                form = answer_forms[num](instance=answer)
+                if answer_forms[num] is GirderGeometryForm:
+                    form = GirderGeometryForm(instance=answer, sslab=self.get_slab())
+                else:
+                    form = answer_forms[num](instance=answer)
             else:
-                form = answer_forms[num]()
+                if answer_forms[num] is GirderGeometryForm:
+                    if self.error:
+                        form = self.error["formm"]
+                        print(form)
+                    else:
+                        print("empty_girder_form")
+                        form = GirderGeometryForm(sslab=self.get_slab())
+                else:
+                    form = answer_forms[num]()
 
             forms[list(forms_names.keys())[num]] = form
+        print(forms)
 
         statistics_dict = dict()
         for model_name in statistics_models:
@@ -113,7 +131,9 @@ class StudentPersonalView(View):
                                                                     "owner": self.is_owner(),
                                                                     "student_name": self.get_student_name(),
                                                                     "stat": statistics_dict,
-                                                                    "forms_names": forms_names})
+                                                                    "forms_names": forms_names,
+                                                                    # "errors": self.error
+                                                                    })
 
     def post(self, request, **kwargs):
         models_dict = {"Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
@@ -128,17 +148,27 @@ class StudentPersonalView(View):
         model_form = models_dict[submit_button_name][1]
 
         if answer_instance is not None:
-            form = model_form(request.POST, instance=answer_instance)
+            if model_form is GirderGeometryForm:
+                form = GirderGeometryForm(request.POST, instance=answer_instance, sslab=self.get_slab())
+            else:
+                form = model_form(request.POST, instance=answer_instance)
         else:
-            form = model_form(request.POST or None)
+            if model_form is GirderGeometryForm:
+                form = GirderGeometryForm(request.POST or None, sslab=self.get_slab())
+            else:
+                form = model_form(request.POST or None)
 
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()
+            if submit_button_name == "GirderGeometry":
+                slab = self.get_slab()
+                answer.slab = slab
             answer.save()
             if submit_button_name != "GirderGeometry":
                 validation.validate_answers(self.get_student(), submit_button_name)
+        else:
+            self.error["formm"] = form
 
         redirect_url = f"{reverse('grader:student_personal', args=(request.user,))}#{submit_button_name}"
         return HttpResponseRedirect(redirect_url)
-

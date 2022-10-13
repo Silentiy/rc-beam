@@ -572,7 +572,7 @@ class SlabHeight(models.Model):
 
 class GirderGeometry(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    slab = models.OneToOneField("SlabHeight", on_delete=models.DO_NOTHING, null=True)  # is necessary?
+    slab = models.ForeignKey(SlabHeight, on_delete=models.DO_NOTHING, null=True)  # is necessary?
 
     girder_flange_bevel_height = models.FloatField()
     girder_flange_slab_height = models.FloatField()
@@ -591,5 +591,6 @@ class GirderGeometry(models.Model):
 
     def __str__(self):
         return self.girder_height
+
 
 

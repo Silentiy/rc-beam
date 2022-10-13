@@ -1,5 +1,6 @@
 from django.forms import ModelForm
-import django.forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy
 from autograder.models import Student, ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry
 from django.utils.safestring import mark_safe
 
@@ -48,8 +49,18 @@ class GirderGeometryForm(ModelForm):
                   "girder_length": "Длина ригеля"}
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.sslab = kwargs.pop('sslab')
+        super(GirderGeometryForm, self).__init__(*args, **kwargs)
+
         self.fields["girder_height"].widget.attrs["readonly"] = True
         self.fields["girder_flange_console_widths"].widget.attrs["readonly"] = True
         self.fields["girder_flange_full_width"].widget.attrs["readonly"] = True
 
+    def clean(self):
+        data = self.cleaned_data
+        girder_wall_height = data["girder_wall_height"]
+        slab_height = self.sslab.slab_height
+        # print(girder_wall_height, slab_height)
+        if girder_wall_height != slab_height:
+            raise ValidationError(gettext_lazy('Высота стенки ригеля должна быть равна высоте плиты,'
+                                               ' опирающейся на ригель'))
