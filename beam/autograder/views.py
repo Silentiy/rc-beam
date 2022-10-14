@@ -109,17 +109,17 @@ class StudentPersonalView(View):
                     form = answer_forms[num](instance=answer)
             else:
                 if answer_forms[num] is GirderGeometryForm:
-                    if self.error:
+                    if self.error and self.error["user"] == request.user:
                         form = self.error["formm"]
-                        print(form)
+                        # print(form)
                     else:
-                        print("empty_girder_form")
+                        # print("empty_girder_form")
                         form = GirderGeometryForm(sslab=self.get_slab())
                 else:
                     form = answer_forms[num]()
 
             forms[list(forms_names.keys())[num]] = form
-        print(forms)
+        # print(forms)
 
         statistics_dict = dict()
         for model_name in statistics_models:
@@ -169,6 +169,7 @@ class StudentPersonalView(View):
                 validation.validate_answers(self.get_student(), submit_button_name)
         else:
             self.error["formm"] = form
+            self.error["user"] = request.user
 
         redirect_url = f"{reverse('grader:student_personal', args=(request.user,))}#{submit_button_name}"
         return HttpResponseRedirect(redirect_url)

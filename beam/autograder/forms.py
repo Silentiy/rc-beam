@@ -47,6 +47,28 @@ class GirderGeometryForm(ModelForm):
                   "girder_flange_full_width": "Ширина полки ригеля",
                   "girder_flange_console_widths": "Вылет полки ригеля",
                   "girder_length": "Длина ригеля"}
+        error_messages = {
+            "girder_flange_bevel_height": {
+                'min_value': gettext_lazy(
+                    'Высота скоса полки должна быть более или равна %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Высота скоса полки должна быть менее или равна %(limit_value)s см')
+            },
+            "girder_flange_slab_height": {
+                'min_value': gettext_lazy(
+                    'Высота прямого участка полки должна быть более или равна %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Высота прямого участка полки должна быть менее или равна %(limit_value)s см')
+            },
+            "girder_wall_width": {
+                'min_value': gettext_lazy('Ширина стенки должна быть более или равна %(limit_value)s см'),
+                'max_value': gettext_lazy('Ширина стенки должна быть менее или равна %(limit_value)s см')
+            },
+            'girder_flange_bevel_width': {
+                'min_value': gettext_lazy('Ширина скоса полки должна быть более или равна %(limit_value)s см'),
+                'max_value': gettext_lazy('Ширина скоса полки должна быть менее или равна %(limit_value)s см')
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         self.sslab = kwargs.pop('sslab')
@@ -56,11 +78,15 @@ class GirderGeometryForm(ModelForm):
         self.fields["girder_flange_console_widths"].widget.attrs["readonly"] = True
         self.fields["girder_flange_full_width"].widget.attrs["readonly"] = True
 
-    def clean(self):
+        self.fields["girder_flange_bevel_height"].widget.attrs["min"] = 10
+        self.fields["girder_flange_bevel_height"].widget.attrs["max"] = 30
+
+    def clean_girder_wall_height(self):
         data = self.cleaned_data
         girder_wall_height = data["girder_wall_height"]
-        slab_height = self.sslab.slab_height
+        slab_height = self.sslab.slab_height / 10
         # print(girder_wall_height, slab_height)
         if girder_wall_height != slab_height:
             raise ValidationError(gettext_lazy('Высота стенки ригеля должна быть равна высоте плиты,'
                                                ' опирающейся на ригель'))
+        return girder_wall_height

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy
 
 class Group(models.Model):
     group_year = models.PositiveSmallIntegerField()
@@ -574,11 +576,11 @@ class GirderGeometry(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
     slab = models.ForeignKey(SlabHeight, on_delete=models.DO_NOTHING, null=True)  # is necessary?
 
-    girder_flange_bevel_height = models.FloatField()
-    girder_flange_slab_height = models.FloatField()
+    girder_flange_bevel_height = models.FloatField(validators=[MinValueValidator(10), MaxValueValidator(30)])
+    girder_flange_slab_height = models.FloatField(validators=[MinValueValidator(5), MaxValueValidator(15)])
     girder_wall_height = models.SmallIntegerField()
-    girder_wall_width = models.SmallIntegerField()
-    girder_flange_bevel_width = models.FloatField()
+    girder_wall_width = models.SmallIntegerField(validators=[MinValueValidator(30), MaxValueValidator(40)])
+    girder_flange_bevel_width = models.FloatField(validators=[MinValueValidator(14.5), MaxValueValidator(20.5)])
 
     girder_height = models.SmallIntegerField(blank=True, null=True)
     girder_flange_full_width = models.SmallIntegerField(blank=True, null=True)
@@ -588,6 +590,14 @@ class GirderGeometry(models.Model):
 
     class Meta:
         db_table = "autograder_girder_geometry"
+
+    def clean(self):
+        if self.girder_wall_height is not None:
+            self.girder_height = self.girder_wall_height + self.girder_flange_bevel_height + self.girder_flange_slab_height
+            self.girder_flange_full_width = 2 * self.girder_flange_bevel_width + self.girder_wall_width
+            self.girder_flange_console_widths = self.girder_flange_bevel_width - 2
+            if self.girder_height > 80:
+                raise ValidationError(gettext_lazy('Высота сечения ригеля должна быть не более 80 см!'))
 
     def __str__(self):
         return self.girder_height
