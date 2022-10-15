@@ -48,5 +48,17 @@ input.button{
 div.fig{
   width: auto;
   display: inline-block;
+  text-align: center;
 }
 
+figcaption {
+    margin: 0 auto 10px; /* Отступы вокруг абзаца */
+	text-indent: 20px;
+	text-align:center;
+}
+
+figcaption.center {
+    margin: 0 auto 0px; /* Отступы вокруг абзаца */
+	text-indent: 0px;
+	text-align:center;
+}

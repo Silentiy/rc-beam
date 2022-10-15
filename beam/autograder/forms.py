@@ -85,7 +85,6 @@ class GirderGeometryForm(ModelForm):
         data = self.cleaned_data
         girder_wall_height = data["girder_wall_height"]
         slab_height = self.sslab.slab_height / 10
-        # print(girder_wall_height, slab_height)
         if girder_wall_height != slab_height:
             raise ValidationError(gettext_lazy('Высота стенки ригеля должна быть равна высоте плиты,'
                                                ' опирающейся на ригель'))

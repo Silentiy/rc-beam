@@ -92,11 +92,12 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         forms = dict()
-        answer_models = [ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry]
-        answer_forms = [ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm]
-        forms_names = {"Concrete": "Исходные данные по бетону",
+        answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers, ]
+        answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, ]
+        forms_names = {"GirderGeometry": "Геометрия сечения ригеля",
+                       "Concrete": "Исходные данные по бетону",
                        "Reinforcement": "Исходные данные по продольной рабочей арматуре",
-                       "GirderGeometry": "Геометрия сечения ригеля"}
+                       }
 
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
@@ -136,9 +137,10 @@ class StudentPersonalView(View):
                                                                     })
 
     def post(self, request, **kwargs):
-        models_dict = {"Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
+        models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
+                       "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
-                       "GirderGeometry": [GirderGeometry, GirderGeometryForm]}
+                       }
 
         for key in models_dict.keys():
             if key in request.POST:
