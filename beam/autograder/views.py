@@ -101,7 +101,7 @@ class StudentPersonalView(View):
                         ]
         forms_names = {"GirderGeometry": "Геометрия сечения ригеля",
                        "Concrete": "Исходные данные по бетону",
-                       "Reinforcement": "Исходные данные по продольной рабочей арматуре",
+                       "Reinforcement": "Исходные данные по рабочей арматуре",
                        "MomentsForces": "Усилия в сечениях ригеля"
                        }
 
@@ -166,7 +166,7 @@ class StudentPersonalView(View):
                 form = GirderGeometryForm(request.POST or None, sslab=self.get_slab())
             else:
                 form = model_form(request.POST or None)
-        print(form)
+        # print(form)
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()

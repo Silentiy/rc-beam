@@ -1,0 +1,29 @@
+{% load static %}
+
+<form method="POST">
+        {% csrf_token %}
+
+        <table id={{form_name}}>
+                <tr>
+                    <th class="title"> Название параметра </th>
+                    <th class="value"> Значение </th>
+                </tr>
+            {% for field in form %}
+                <tr>
+                    <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                    <td> <div>{{field}}</div> </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            {{ field.errors }}
+        {% endfor %}
+
+        {% if owner is True %}
+            <input class="button" type="submit" value="Submit" name={{form_name}}>
+        {% else %}
+            <p> You cannot change data in this form </p>
+        {% endif %}
+</form>

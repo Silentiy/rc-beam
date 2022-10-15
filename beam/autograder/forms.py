@@ -103,7 +103,7 @@ class MomentsForcesForm(ModelForm):
                 "Момент в сечении 1-1, растягивающий верхнюю грань, M<sub>1-1</sub><sup>в</sup> [кНсм]"),
             "middle_section_moment_bot": mark_safe(
                 "Момент в сечении 1-1, растягивающий нижнюю грань, M<sub>1-1</sub><sup>н</sup> [кНсм]"),
-            "middle_section_status": "Усилия в середине пролёта",
+            "middle_section_status": "Усилия в середине пролёта приняты",
 
             "left_support_moment_top": mark_safe(
                 "Момент в сечении 2-2, растягивающий верхнюю грань, M<sub>2-2</sub><sup>в</sup> [кНсм]"),
@@ -111,7 +111,7 @@ class MomentsForcesForm(ModelForm):
                 "Момент в сечении 2-2, растягивающий нижнюю грань, M<sub>2-2</sub><sup>н</sup> [кНсм]"),
             "left_support_shear_force": mark_safe(
                 "Перерезывающая сила в сечении 2-2, Q<sub>2-2</sub> [кН]"),
-            "left_support_status": "Усилия на опоре слева",
+            "left_support_status": "Усилия на опоре слева приняты",
 
             "right_support_moment_top": mark_safe(
                 "Момент в сечении 3-3, растягивающий верхнюю грань, M<sub>3-3</sub><sup>в</sup> [кНсм]"),
@@ -119,7 +119,7 @@ class MomentsForcesForm(ModelForm):
                 "Момент в сечении 3-3, растягивающий нижнюю грань, M<sub>3-3</sub><sup>н</sup> [кНсм]"),
             "right_support_shear_force": mark_safe(
                 "Перерезывающая сила в сечении 3-3, Q<sub>3-3</sub> [кН]"),
-            "right_support_status": "Усилия на опоре справа",
+            "right_support_status": "Усилия на опоре справа приняты",
         }
 
     def __init__(self, *args, **kwargs):
