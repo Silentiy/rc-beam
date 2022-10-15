@@ -4,8 +4,9 @@ from django.views import generic, View
 from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
-                     GirderGeometry, SlabHeight)
-from .forms import ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm
+                     GirderGeometry, SlabHeight,
+                     MomentsForces)
+from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm, MomentsForcesForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -92,11 +93,16 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         forms = dict()
-        answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers, ]
-        answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, ]
+        answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
+                         MomentsForces
+                         ]
+        answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
+                        MomentsForcesForm
+                        ]
         forms_names = {"GirderGeometry": "Геометрия сечения ригеля",
                        "Concrete": "Исходные данные по бетону",
                        "Reinforcement": "Исходные данные по продольной рабочей арматуре",
+                       "MomentsForces": "Усилия в сечениях ригеля"
                        }
 
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
@@ -140,6 +146,7 @@ class StudentPersonalView(View):
         models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
                        "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+                       "MomentsForces": [MomentsForces, MomentsForcesForm],
                        }
 
         for key in models_dict.keys():
@@ -159,7 +166,7 @@ class StudentPersonalView(View):
                 form = GirderGeometryForm(request.POST or None, sslab=self.get_slab())
             else:
                 form = model_form(request.POST or None)
-
+        print(form)
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()
@@ -167,7 +174,9 @@ class StudentPersonalView(View):
                 slab = self.get_slab()
                 answer.slab = slab
             answer.save()
-            if submit_button_name != "GirderGeometry":
+            if submit_button_name != "GirderGeometry" or submit_button_name != "MomentsForces":
+                pass
+            else:
                 validation.validate_answers(self.get_student(), submit_button_name)
         else:
             self.error["formm"] = form

@@ -600,7 +600,7 @@ class GirderGeometry(models.Model):
                 raise ValidationError(gettext_lazy('Высота сечения ригеля должна быть не более 80 см!'))
 
     def __str__(self):
-        return self.girder_height
+        return f"girder_h = {self.girder_height}"
 
 
 class MomentsForces(models.Model):
@@ -608,22 +608,20 @@ class MomentsForces(models.Model):
 
     middle_section_moment_top = models.FloatField()
     middle_section_moment_bot = models.FloatField()
-    middle_section_moment_top_status = models.BooleanField(null=True, blank=True)
-    middle_section_moment_bot_status = models.BooleanField(null=True, blank=True)
-
-    right_support_moment_top = models.FloatField()
-    right_support_moment_bot = models.FloatField()
-    right_support_shear_force = models.FloatField()
-    right_support_moment_top_status = models.BooleanField(null=True, blank=True)
-    right_support_moment_bot_status = models.BooleanField(null=True, blank=True)
-    right_support_shear_force_status = models.BooleanField(null=True, blank=True)
+    middle_section_status = models.BooleanField(null=True, blank=True)
 
     left_support_moment_top = models.FloatField()
     left_support_moment_bot = models.FloatField()
     left_support_shear_force = models.FloatField()
-    left_support_moment_top_status = models.BooleanField(null=True, blank=True)
-    left_support_moment_bot_status = models.BooleanField(null=True, blank=True)
-    left_support_shear_force_status = models.BooleanField(null=True, blank=True)
+    left_support_status = models.BooleanField(null=True, blank=True)
+
+    right_support_moment_top = models.FloatField()
+    right_support_moment_bot = models.FloatField()
+    right_support_shear_force = models.FloatField()
+    right_support_status = models.BooleanField(null=True, blank=True)
+
+    class Meta:
+        db_table = "autograder_moments_forces"
 
     def __str__(self):
-        return self.middle_section_moment_bot
+        return f"M & Q for {self.student}"
