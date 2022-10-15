@@ -124,40 +124,21 @@ class MomentsForcesForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MomentsForcesForm, self).__init__(*args, **kwargs)
-        self.fields["middle_section_status"].widget.attrs["disabled"] = True
-        self.fields["right_support_status"].widget.attrs["disabled"] = True
-        self.fields["left_support_status"].widget.attrs["disabled"] = True
+        self.fields["middle_section_status"].disabled = True
+        self.fields["right_support_status"].disabled = True
+        self.fields["left_support_status"].disabled = True
         instance = getattr(self, 'instance', None)
         # print(type(instance))
 
         if instance.middle_section_status is True:
-            self.fields["middle_section_moment_top"].widget.attrs["readonly"] = True
-            self.fields["middle_section_moment_bot"].widget.attrs["readonly"] = True
+            self.fields["middle_section_moment_top"].disabled = True
+            self.fields["middle_section_moment_bot"].disabled = True
         if instance.left_support_status is True:
             self.fields["left_support_moment_top"].disabled = True
             self.fields["left_support_moment_bot"].disabled = True
             self.fields["left_support_shear_force"].disabled = True
         if instance.right_support_status is True:
-            self.fields["right_support_moment_top"].widget.attrs["readonly"] = True
-            self.fields["right_support_moment_bot"].widget.attrs["readonly"] = True
-            self.fields["right_support_shear_force"].widget.attrs["readonly"] = True
+            self.fields["right_support_moment_top"].disabled = True
+            self.fields["right_support_moment_bot"].disabled = True
+            self.fields["right_support_shear_force"].disabled = True
 
-    def clean_middle_section_status(self):
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            return instance.middle_section_status
-        else:
-            return self.cleaned_data['middle_section_status']
-
-    def clean_left_support_status(self):
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            return instance.left_support_status
-        else:
-            return self.cleaned_data['left_support_status']
-
-    def clean(self):
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk and instance.middle_section_status is True:
-            self.cleaned_data['middle_section_moment_top'] = instance.middle_section_moment_top
-            self.cleaned_data['middle_section_moment_bot'] = instance.middle_section_moment_bot
