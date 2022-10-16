@@ -171,4 +171,9 @@ class InitialReinforcementForm(ModelForm):
 
     class Meta:
         model = InitialReinforcement
+        # fields = "__all__"
         exclude = ("student", )
+
+    # def __init__(self, *args, **kwargs):
+    #     super(InitialReinforcementForm, self).__init__(*args, **kwargs)
+    #     self.fields['student'].widget = forms.HiddenInput()

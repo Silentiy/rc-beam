@@ -26,10 +26,13 @@
             {% endfor %}
         </table>
 
-        {{ form.non_field_errors }}
-        {% for field in form %}
-            {{ field.errors }}
-        {% endfor %}
+        {% if form.non_field_errors or form.errors %}
+            <p> Для успешной отправки данных исправьте следующие ошибки: </p>
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                {{ field.errors }}
+            {% endfor %}
+        {% endif %}
 
         {% if owner is True %}
             <input class="button" type="submit" value="Submit" name={{form_name}}>
