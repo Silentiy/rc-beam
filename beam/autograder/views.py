@@ -99,11 +99,7 @@ class StudentPersonalView(View):
         answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
                         MomentsForcesForm
                         ]
-        forms_names = {"GirderGeometry": "Геометрия сечения ригеля",
-                       "Concrete": "Исходные данные по бетону",
-                       "Reinforcement": "Исходные данные по рабочей арматуре",
-                       "MomentsForces": "Усилия в сечениях ригеля"
-                       }
+        forms_names = ["GirderGeometry", "Concrete", "Reinforcement", "MomentsForces"]
 
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
@@ -125,7 +121,7 @@ class StudentPersonalView(View):
                 else:
                     form = answer_forms[num]()
 
-            forms[list(forms_names.keys())[num]] = form
+            forms[forms_names[num]] = form
         # print(forms)
 
         statistics_dict = dict()

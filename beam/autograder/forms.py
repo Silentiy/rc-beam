@@ -6,11 +6,10 @@ from autograder.models import (Student,
                                ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
                                MomentsForces)
 from django.utils.safestring import mark_safe
-from autograder.custom_fields import header_field, widgets
 
 
 class ConcreteStudentAnswersForm(ModelForm):
-    verbose_name = forms.CharField(required=False, initial="Исходные данные по бетону", disabled=True)
+    verbose_name = forms.CharField(label="header", required=False, initial="Исходные данные по бетону", disabled=True)
 
     class Meta:
         model = ConcreteStudentAnswers
@@ -29,9 +28,7 @@ class ConcreteStudentAnswersForm(ModelForm):
 
 
 class ReinforcementStudentAnswersForm(ModelForm):
-    header = header_field.HeaderField(label=gettext_lazy(""), required=False, label_suffix='',
-                                      widget=widgets.HeaderWidget(label=gettext_lazy("My custom Label text here"),
-                                                                  tag="h3"))
+    verbose_name = forms.CharField(required=False, initial="Исходные данные по арматуре", disabled=True)
 
     class Meta:
         model = ReinforcementStudentAnswers
@@ -47,6 +44,8 @@ class ReinforcementStudentAnswersForm(ModelForm):
 
 
 class GirderGeometryForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Геометрия сечения ригеля", disabled=True)
+
     class Meta:
         model = GirderGeometry
         exclude = ("student", "slab")
@@ -105,6 +104,8 @@ class GirderGeometryForm(ModelForm):
 
 
 class MomentsForcesForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Усилия в сечениях ригеля", disabled=True)
+
     class Meta:
         model = MomentsForces
         exclude = ("student",)

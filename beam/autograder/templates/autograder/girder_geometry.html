@@ -16,10 +16,12 @@
                     <th class="value"> Значение </th>
                 </tr>
             {% for field in form %}
-                <tr>
-                    <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
-                    <td> <div>{{field}}</div> </td>
-                </tr>
+                {% if field.label != "header" %}
+                    <tr>
+                        <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                        <td> <div>{{field}}</div> </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </table>
 

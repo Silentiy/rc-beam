@@ -11,7 +11,7 @@
 
 
 {% for form_name, form in forms.items %}
-    <h2> {{ forms_names|get_item:form_name }} </h2>
+
     <h2> {{ form.verbose_name }} </h2>
 
     {% if form_name == "GirderGeometry" %}
@@ -37,12 +37,15 @@
                     <th class="value"> Значение </th>
                     <th class="status"> Статус </th>
                 </tr>
+
             {% for field in form %}
-                <tr>
-                    <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
-                    <td> <div>{{field}}</div> </td>
-                    <td> <div> {% with key=field.name|cut:'stud_' %} {{ stat|get_item:key }} {% endwith %}</div> </td>
-                </tr>
+                {% if field.label != "header" %}
+                    <tr>
+                        <td> <label for="id_{{field.name}}"> {{field.label}} </label> </td>
+                        <td> <div>{{field}}</div> </td>
+                        <td> <div> {% with key=field.name|cut:'stud_' %} {{ stat|get_item:key }} {% endwith %}</div> </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </table>
 
