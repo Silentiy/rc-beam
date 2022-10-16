@@ -1,13 +1,17 @@
 from django.forms import ModelForm
+from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
 from autograder.models import (Student,
                                ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
                                MomentsForces)
 from django.utils.safestring import mark_safe
+from autograder.custom_fields import header_field, widgets
 
 
 class ConcreteStudentAnswersForm(ModelForm):
+    verbose_name = forms.CharField(required=False, initial="Исходные данные по бетону", disabled=True)
+
     class Meta:
         model = ConcreteStudentAnswers
         fields = ["stud_concrete_class", "stud_R_b_n", "stud_R_bt_n", "stud_R_b", "stud_R_bt", "stud_E_b"]
@@ -20,8 +24,15 @@ class ConcreteStudentAnswersForm(ModelForm):
                   "stud_E_b": "Начальный модуль упругости бетона"
                   }
 
+    def __init__(self, *args, **kwargs):
+        super(ConcreteStudentAnswersForm, self).__init__(*args, **kwargs)
+
 
 class ReinforcementStudentAnswersForm(ModelForm):
+    header = header_field.HeaderField(label=gettext_lazy(""), required=False, label_suffix='',
+                                      widget=widgets.HeaderWidget(label=gettext_lazy("My custom Label text here"),
+                                                                  tag="h3"))
+
     class Meta:
         model = ReinforcementStudentAnswers
         exclude = ("student",)
@@ -141,4 +152,3 @@ class MomentsForcesForm(ModelForm):
             self.fields["right_support_moment_top"].disabled = True
             self.fields["right_support_moment_bot"].disabled = True
             self.fields["right_support_shear_force"].disabled = True
-

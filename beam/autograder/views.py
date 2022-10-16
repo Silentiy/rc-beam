@@ -116,7 +116,7 @@ class StudentPersonalView(View):
                     form = answer_forms[num](instance=answer)
             else:
                 if answer_forms[num] is GirderGeometryForm:
-                    if self.error and self.error["user"] == request.user:
+                    if self.error and self.error["user"].username == request.user.username:
                         form = self.error["formm"]
                         # print(form)
                     else:
@@ -170,11 +170,8 @@ class StudentPersonalView(View):
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()
-            if submit_button_name == "GirderGeometry":
-                slab = self.get_slab()
-                answer.slab = slab
             answer.save()
-            if submit_button_name != "GirderGeometry" or submit_button_name != "MomentsForces":
+            if submit_button_name == "GirderGeometry" or submit_button_name == "MomentsForces":
                 pass
             else:
                 validation.validate_answers(self.get_student(), submit_button_name)
