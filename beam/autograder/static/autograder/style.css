@@ -79,7 +79,7 @@ div.fig{
 
 figcaption {
     width: auto;
-    margin: 5; /* Отступы вокруг абзаца */
+    margin: 12px; /* Отступы вокруг абзаца */
 	text-align:center;
 }
 

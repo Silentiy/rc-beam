@@ -22,11 +22,11 @@
         {% include 'autograder/moments_forces.html' %}
     {% endif %}
 
-    {% if form_name == "Initial_reinforcement" %}
+    {% if form_name == "InitialReinforcement" %}
         {% include 'autograder/initial_reinforcement.html' %}
     {% endif %}
 
-    {% if form_name != "GirderGeometry" and form_name != "MomentsForces" and form_name != "Initial_reinforcement" %}
+    {% if form_name != "GirderGeometry" and form_name != "MomentsForces" and form_name != "InitialReinforcement" %}
 
     <form method="POST">
         {% csrf_token %}

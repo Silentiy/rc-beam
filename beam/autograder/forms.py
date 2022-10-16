@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
 from autograder.models import (Student,
                                ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
-                               MomentsForces)
+                               MomentsForces, InitialReinforcement)
 from django.utils.safestring import mark_safe
 
 
@@ -108,7 +108,6 @@ class GirderGeometryForm(ModelForm):
         data = self.cleaned_data
         girder_length = data["girder_length"]
         answer_girder_length = self.answer_girder_length
-        print("from clean_girder_length", answer_girder_length, girder_length)
         if girder_length != answer_girder_length:
             raise ValidationError(gettext_lazy('Уточните конструктивную длину ригеля'))
         return girder_length
@@ -164,3 +163,12 @@ class MomentsForcesForm(ModelForm):
             self.fields["right_support_moment_top"].disabled = True
             self.fields["right_support_moment_bot"].disabled = True
             self.fields["right_support_shear_force"].disabled = True
+
+
+class InitialReinforcementForm(ModelForm):
+
+    verbose_name = forms.CharField(label="header", required=False, initial="Предварительное армирование", disabled=True)
+
+    class Meta:
+        model = InitialReinforcement
+        exclude = ("student", )

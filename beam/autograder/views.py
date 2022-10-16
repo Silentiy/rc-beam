@@ -5,8 +5,9 @@ from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry, SlabHeight,
-                     MomentsForces)
-from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm, MomentsForcesForm)
+                     MomentsForces, InitialReinforcement)
+from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
+                    MomentsForcesForm, InitialReinforcementForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -97,12 +98,12 @@ class StudentPersonalView(View):
     def get(self, request, **kwargs):
         forms = dict()
         answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
-                         MomentsForces
+                         MomentsForces, InitialReinforcement
                          ]
         answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
-                        MomentsForcesForm
+                        MomentsForcesForm, InitialReinforcementForm
                         ]
-        forms_names = ["GirderGeometry", "Concrete", "Reinforcement", "MomentsForces"]
+        forms_names = ["GirderGeometry", "Concrete", "Reinforcement", "MomentsForces", "InitialReinforcement"]
 
         statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
 
@@ -115,7 +116,7 @@ class StudentPersonalView(View):
                 else:
                     form = answer_forms[num](instance=answer)
             else:
-                if answer_forms[num] is GirderGeometryForm:
+                if answer_forms[num] is GirderGeometryForm or answer_forms[num] is InitialReinforcementForm:
                     if self.error and self.error["user"].username == request.user.username:
                         form = self.error["formm"]
                         # print(form)
@@ -148,6 +149,7 @@ class StudentPersonalView(View):
                        "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
                        "MomentsForces": [MomentsForces, MomentsForcesForm],
+                       "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
                        }
 
         for key in models_dict.keys():
@@ -173,14 +175,14 @@ class StudentPersonalView(View):
         if form.is_valid():
             answer = form.save(commit=False)
             answer.student_id = self.get_student_id()
+            print("Answer", answer)
             answer.save()
-            if submit_button_name == "GirderGeometry" or submit_button_name == "MomentsForces":
-                pass
-            else:
+            if submit_button_name not in ["GirderGeometry", "MomentsForces", "InitialReinforcement"]:
                 validation.validate_answers(self.get_student(), submit_button_name)
         else:
             self.error["formm"] = form
             self.error["user"] = request.user
+            print("Invalid")
 
         redirect_url = f"{reverse('grader:student_personal', args=(request.user,))}#{submit_button_name}"
         return HttpResponseRedirect(redirect_url)

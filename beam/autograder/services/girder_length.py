@@ -15,7 +15,7 @@ def determine_girder_length(student: Student):
     else:
         personal_data = PersonalVariantsArchitects.objects.get(personal_variant=student_personal_variant)
     girder_position = personal_data.girder
-    print(girder_position)
+
     if "крайний" in girder_position :
         girder_length = girder_nominal_length - 40 - 20 - 4
     else:
