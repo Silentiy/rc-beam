@@ -12,7 +12,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
-from autograder.services import validation
+from autograder.services import validation, girder_length
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
@@ -91,6 +91,9 @@ class StudentPersonalView(View):
     def get_slab(self):
         return SlabHeight.objects.get(student_id=self.get_student_id())
 
+    def get_girder_length(self):
+        return girder_length.determine_girder_length(student=self.get_student())
+
     def get(self, request, **kwargs):
         forms = dict()
         answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
@@ -107,7 +110,8 @@ class StudentPersonalView(View):
             answer = self.get_instance(model_name)
             if answer is not None:
                 if answer_forms[num] is GirderGeometryForm:
-                    form = GirderGeometryForm(instance=answer, sslab=self.get_slab())
+                    form = GirderGeometryForm(instance=answer, slab=self.get_slab(),
+                                              girder_length=self.get_girder_length())
                 else:
                     form = answer_forms[num](instance=answer)
             else:
@@ -117,7 +121,8 @@ class StudentPersonalView(View):
                         # print(form)
                     else:
                         # print("empty_girder_form")
-                        form = GirderGeometryForm(sslab=self.get_slab())
+                        form = GirderGeometryForm(slab=self.get_slab(),
+                                                  girder_length=self.get_girder_length())
                 else:
                     form = answer_forms[num]()
 
@@ -154,12 +159,14 @@ class StudentPersonalView(View):
 
         if answer_instance is not None:
             if model_form is GirderGeometryForm:
-                form = GirderGeometryForm(request.POST, instance=answer_instance, sslab=self.get_slab())
+                form = GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
+                                          girder_length=self.get_girder_length())
             else:
                 form = model_form(request.POST, instance=answer_instance)
         else:
             if model_form is GirderGeometryForm:
-                form = GirderGeometryForm(request.POST or None, sslab=self.get_slab())
+                form = GirderGeometryForm(request.POST or None, slab=self.get_slab(),
+                                          girder_length=self.get_girder_length())
             else:
                 form = model_form(request.POST or None)
         # print(form)

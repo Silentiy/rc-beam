@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
+from autograder.services import *
+
 
 class Group(models.Model):
     group_year = models.PositiveSmallIntegerField()
@@ -586,10 +588,35 @@ class GirderGeometry(models.Model):
     girder_flange_full_width = models.SmallIntegerField(blank=True, null=True)
     girder_flange_console_widths = models.FloatField(blank=True, null=True)
 
-    girder_length = models.SmallIntegerField(blank=True, null=True)
+    girder_length = models.SmallIntegerField()
+    girder_effective_flange_width = models.FloatField(blank=True, null=True)
 
     class Meta:
         db_table = "autograder_girder_geometry"
+
+    def determine_flange_width(self):
+        """ Determines effective width of flange for T-section girder """
+        
+        girder_height = self.girder_height
+        girder_length = self.girder_length
+        girder_wall_width = self.girder_wall_width
+        girder_flange_height = self.girder_flange_bevel_height + self.girder_flange_slab_height
+        girder_flange_average_width = (self.girder_flange_full_width + girder_wall_width) / 2
+
+        flange_widths_options = list()
+        flange_widths_options.append(girder_flange_average_width)
+        flange_widths_options.append(girder_length / 3 + girder_wall_width)
+
+        if girder_flange_height < 0.05 * girder_height:
+            flange_widths_options.append(girder_wall_width)
+
+        if 0.05 * girder_height <= girder_flange_height < 0.1 * girder_height:
+            flange_widths_options.append(girder_wall_width + 6 * girder_flange_height)
+
+        if girder_flange_height >= 0.1 * girder_height:
+            flange_widths_options.append(girder_wall_width + 12 * girder_flange_height)
+
+        return min(flange_widths_options)
 
     def clean(self):
         if self.girder_wall_height is not None:
@@ -598,6 +625,8 @@ class GirderGeometry(models.Model):
             self.girder_flange_console_widths = self.girder_flange_bevel_width - 2
             if self.girder_height > 80:
                 raise ValidationError(gettext_lazy('Высота сечения ригеля должна быть не более 80 см!'))
+        if self.girder_length is not None and self.girder_height is not None:
+            self.girder_effective_flange_width = self.determine_flange_width()
 
     def __str__(self):
         return f"girder_h = {self.girder_height}"
@@ -625,3 +654,30 @@ class MomentsForces(models.Model):
 
     def __str__(self):
         return f"M & Q for {self.student}"
+
+
+class InitialReinforcement(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    reinforcement = models.OneToOneField("Reinforcement", on_delete=models.DO_NOTHING, null=True)
+    student_reinforcement = models.OneToOneField("ReinforcementStudentAnswers", on_delete=models.DO_NOTHING, null=True)
+    bars_diameters = models.OneToOneField("ReinforcementBarsDiameters", on_delete=models.DO_NOTHING, null=True)
+
+    section_1_top_d_external = models.PositiveSmallIntegerField(default=0)
+    section_1_top_n_external = models.PositiveSmallIntegerField(default=0)
+    section_1_top_d_internal = models.PositiveSmallIntegerField(default=0)
+    section_1_top_n_internal = models.PositiveSmallIntegerField(default=0)
+    section_1_top_reinforcement_area = models.FloatField()
+    section_1_top_distance = models.FloatField()
+
+    section_1_bot_d_external = models.PositiveSmallIntegerField()
+    section_1_bot_n_external = models.PositiveSmallIntegerField()
+    section_1_bot_d_internal = models.PositiveSmallIntegerField()
+    section_1_bot_n_internal = models.PositiveSmallIntegerField()
+    section_1_bot_reinforcement_area = models.FloatField()
+    section_1_bot_distance = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_initial_reinforcement"
+
+    def __str__(self):
+        return f"Initial reinforcement for {self.student}"

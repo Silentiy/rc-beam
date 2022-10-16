@@ -83,3 +83,6 @@ figcaption {
 	text-align:center;
 }
 
+ul.errorlist {
+    margin-left: 15px;
+}

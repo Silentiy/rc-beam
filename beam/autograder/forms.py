@@ -48,7 +48,7 @@ class GirderGeometryForm(ModelForm):
 
     class Meta:
         model = GirderGeometry
-        exclude = ("student", "slab")
+        exclude = ("student", "slab", "girder_effective_flange_width")
 
         labels = {"girder_flange_bevel_height": "Высота скоса полки, см",
                   "girder_flange_slab_height": "Высота прямого участка полки",
@@ -58,7 +58,8 @@ class GirderGeometryForm(ModelForm):
                   "girder_height": "Высота сечения ригеля",
                   "girder_flange_full_width": "Ширина полки ригеля",
                   "girder_flange_console_widths": "Вылет полки ригеля",
-                  "girder_length": "Длина ригеля"}
+                  "girder_length": "Длина ригеля",
+                  }
         error_messages = {
             "girder_flange_bevel_height": {
                 'min_value': gettext_lazy(
@@ -83,12 +84,13 @@ class GirderGeometryForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.sslab = kwargs.pop('sslab')
+        self.slab = kwargs.pop('slab')
+        self.answer_girder_length = kwargs.pop("girder_length")
         super(GirderGeometryForm, self).__init__(*args, **kwargs)
 
-        self.fields["girder_height"].widget.attrs["readonly"] = True
-        self.fields["girder_flange_console_widths"].widget.attrs["readonly"] = True
-        self.fields["girder_flange_full_width"].widget.attrs["readonly"] = True
+        self.fields["girder_height"].disabled = True
+        self.fields["girder_flange_console_widths"].disabled = True
+        self.fields["girder_flange_full_width"].disabled = True
 
         self.fields["girder_flange_bevel_height"].widget.attrs["min"] = 10
         self.fields["girder_flange_bevel_height"].widget.attrs["max"] = 30
@@ -96,11 +98,20 @@ class GirderGeometryForm(ModelForm):
     def clean_girder_wall_height(self):
         data = self.cleaned_data
         girder_wall_height = data["girder_wall_height"]
-        slab_height = self.sslab.slab_height / 10
+        slab_height = self.slab.slab_height / 10
         if girder_wall_height != slab_height:
             raise ValidationError(gettext_lazy('Высота стенки ригеля должна быть равна высоте плиты,'
                                                ' опирающейся на ригель'))
         return girder_wall_height
+
+    def clean_girder_length(self):
+        data = self.cleaned_data
+        girder_length = data["girder_length"]
+        answer_girder_length = self.answer_girder_length
+        print("from clean_girder_length", answer_girder_length, girder_length)
+        if girder_length != answer_girder_length:
+            raise ValidationError(gettext_lazy('Уточните конструктивную длину ригеля'))
+        return girder_length
 
 
 class MomentsForcesForm(ModelForm):
