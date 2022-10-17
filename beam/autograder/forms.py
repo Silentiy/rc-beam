@@ -174,6 +174,13 @@ class InitialReinforcementForm(ModelForm):
         # fields = "__all__"
         exclude = ("student", )
 
-    # def __init__(self, *args, **kwargs):
-    #     super(InitialReinforcementForm, self).__init__(*args, **kwargs)
-    #     self.fields['student'].widget = forms.HiddenInput()
+    def __init__(self, *args, **kwargs):
+        self.girder_height = kwargs.pop('girder_height')
+        super(InitialReinforcementForm, self).__init__(*args, **kwargs)
+        # self.fields['section_1_top_d_external'].widget = forms.HiddenInput()
+
+    def get_effective_depths(self, section: int, surface: str):
+        student_id = self.student
+        student_girder_height = GirderGeometry.objects.get(student_id=student_id).girder_height
+        distance_to_reinforcement = getattr(self, f"section_{section}_{surface}_distance")
+        return student_girder_height - distance_to_reinforcement

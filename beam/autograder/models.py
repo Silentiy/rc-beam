@@ -657,7 +657,7 @@ class MomentsForces(models.Model):
 
 
 class InitialReinforcement(models.Model):
-    NUMBER_EXTERNAL_BARS = [(2, 2)]
+    NUMBER_EXTERNAL_BARS = [(0, 0), (2, 2)]
     NUMBER_INTERNAL_BARS = [(0, 0), (1, 1), (2, 2)]
 
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
@@ -671,10 +671,10 @@ class InitialReinforcement(models.Model):
     # top reinforcement internal
     section_1_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_top_internal",
-                                                 on_delete=models.DO_NOTHING, null=True)
+                                                 on_delete=models.DO_NOTHING, null=True, default=2)
     section_1_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
     # top reinforcement area
-    section_1_top_reinforcement_area = models.FloatField(null=True, blank=True)
+    section_1_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to top
     section_1_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
     section_1_top_effective_depth = models.FloatField(null=True, blank=True)
@@ -690,7 +690,7 @@ class InitialReinforcement(models.Model):
                                                  on_delete=models.DO_NOTHING, null=True)
     section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
     # bot reinforcement area
-    section_1_bot_reinforcement_area = models.FloatField(null=True, blank=True)
+    section_1_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to bot
     section_1_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
     section_1_bot_effective_depth = models.FloatField(null=True, blank=True)
@@ -699,8 +699,16 @@ class InitialReinforcement(models.Model):
         db_table = "autograder_initial_reinforcement"
 
     def get_reinforcement_area(self, section: int, surface: str):
-        external_bar_area = getattr(self, f"section_{section}_{surface}_d_external").cross_section_area
-        internal_bar_area = getattr(self, f"section_{section}_{surface}_d_internal").cross_section_area
+        external_bar = getattr(self, f"section_{section}_{surface}_d_external")
+        internal_bar = getattr(self, f"section_{section}_{surface}_d_internal")
+        if external_bar is not None:
+            external_bar_area = external_bar.cross_section_area
+        else:
+            external_bar_area = 0
+        if internal_bar is not None:
+            internal_bar_area = internal_bar.cross_section_area
+        else:
+            internal_bar_area = 0
 
         number_external_bars = getattr(self, f"section_{section}_{surface}_n_external")
         number_internal_bars = getattr(self, f"section_{section}_{surface}_n_internal")
@@ -709,17 +717,10 @@ class InitialReinforcement(models.Model):
                                     internal_bar_area * number_internal_bars  # square mm
         return reinforcement_area / 100  # square cm
 
-    def get_effective_depths(self, section: int, surface: str):
-        student_id = self.student
-        student_girder_height = GirderGeometry.objects.get(student_id=student_id).girder_height
-        distance_to_reinforcement = getattr(self, f"section_{section}_{surface}_distance")
-        return student_girder_height - distance_to_reinforcement
-
     def clean(self):
+        print("Clean in model started")
         self.section_1_top_reinforcement_area = self.get_reinforcement_area(section=1, surface="top")
         self.section_1_bot_reinforcement_area = self.get_reinforcement_area(section=1, surface="bot")
-        if hasattr(self, 'student') and self.student is not None:
-            self.section_1_top_effective_depth = self.get_effective_depths(section=1, surface="top")
 
         # self.section_2_top_reinforcement_area = self.get_reinforcement_area(section=2, surface="top")
         # self.section_2_bot_reinforcement_area = self.get_reinforcement_area(section=2, surface="bot")
@@ -728,4 +729,5 @@ class InitialReinforcement(models.Model):
         # self.section_3_bot_reinforcement_area = self.get_reinforcement_area(section=3, surface="bot")
 
     def __str__(self):
-        return f"Initial reinforcement for {self.student}"
+        stud = self.student if hasattr(self, 'student') else "no student yet"
+        return f"Initial reinforcement {stud}"

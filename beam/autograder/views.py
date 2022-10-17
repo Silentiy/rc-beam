@@ -95,6 +95,9 @@ class StudentPersonalView(View):
     def get_girder_length(self):
         return girder_length.determine_girder_length(student=self.get_student())
 
+    def get_girder_height(self):
+        return GirderGeometry.objects.get(student_id=self.get_student_id()).girder_height
+
     def get(self, request, **kwargs):
         forms = dict()
         answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
@@ -111,6 +114,8 @@ class StudentPersonalView(View):
                 if answer_forms[num] is GirderGeometryForm:  # we need to pass extra arguments for this form
                     form = GirderGeometryForm(instance=answer, slab=self.get_slab(),
                                               girder_length=self.get_girder_length())
+                elif answer_forms[num] is InitialReinforcementForm:  # and to this as well
+                    form = InitialReinforcementForm(instance=answer, girder_height=self.get_girder_height())
                 else:  # usual form
                     form = answer_forms[num](instance=answer)
             else:  # answer was not saved, there could be errors in form
@@ -120,6 +125,8 @@ class StudentPersonalView(View):
                     if answer_forms[num] is GirderGeometryForm:  # we need pass extra args to this form
                         form = GirderGeometryForm(slab=self.get_slab(),
                                                   girder_length=self.get_girder_length())
+                    elif answer_forms[num] is InitialReinforcementForm:
+                        form = InitialReinforcementForm(girder_height=self.get_girder_height())
                     else:  # usual form
                         form = answer_forms[num]()
 
@@ -157,24 +164,23 @@ class StudentPersonalView(View):
             if model_form is GirderGeometryForm:
                 form = GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
                                           girder_length=self.get_girder_length())
+            elif model_form is InitialReinforcementForm:
+                form = InitialReinforcementForm(request.POST, instance=answer_instance,
+                                                girder_height=self.get_girder_height())
             else:
                 form = model_form(request.POST, instance=answer_instance)
         else:
             if model_form is GirderGeometryForm:
                 form = GirderGeometryForm(request.POST or None, slab=self.get_slab(),
                                           girder_length=self.get_girder_length())
+            elif model_form is InitialReinforcementForm:
+                form = InitialReinforcementForm(request.POST or None, girder_height=self.get_girder_height())
             else:
                 form = model_form(request.POST or None)
 
-        form.student = self.get_student()
-        print(form)
-        print("Student in form?", form.student)
-
         if form.is_valid():
-            print("Student in view?")
             answer = form.save(commit=False)
             answer.student = self.get_student()
-            print("Student in view?", answer.student)
             answer.save()
             if submit_button_name not in ["GirderGeometry", "MomentsForces", "InitialReinforcement"]:
                 validation.validate_answers(self.get_student(), submit_button_name)
