@@ -1,42 +1,127 @@
 {% load static %}
 
 <figure class="fig_center">
-  <div class="fig"><img style="max-width: 100%; height: auto;"
-                        src="{% static 'autograder/images/initial_reinforcement.jpg' %}"
-                        alt="Схема расстановки предварительной арматуры в ригеле"></div>
-  <figcaption>Рис. Схема расстановки предварительной арматуры в ригеле</figcaption>
+    <div class="fig"><img style="max-width: 100%; height: auto;"
+                          src="{% static 'autograder/images/initial_reinforcement.jpg' %}"
+                          alt="Схема расстановки предварительной арматуры в ригеле">
+    </div>
+    <figcaption>Рис. Схема расстановки предварительной арматуры в ригеле</figcaption>
 </figure>
 
-
 <form method="POST">
-        {% csrf_token %}
+    {% csrf_token %}
 
-        <table id={{form_name}}>
-                <tr>
-                    <th class="title"> Название параметра </th>
-                    <th class="value"> Значение </th>
-                </tr>
-            {% for field in form %}
-                {% if field.label != "header" %}
-                    <tr>
-                        <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
-                        <td> <div>{{field}}</div> </td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </table>
+    <table id={{form_name}} class="reinf">
+        <tr class="ini_header">
+            <th>
+                <div>Сечение на опоре слева</div>
+            </th>
+            <th>
+                <div>Сечение в середине пролёта</div>
+            </th>
+            <th>
+                <div>Сечение на опоре справа</div>
+            </th>
 
-        {% if form.non_field_errors or form.errors %}
-            <p> Для успешной отправки данных исправьте следующие ошибки: </p>
-            {{ form.non_field_errors }}
-            {% for field in form %}
-                {{ field.errors }}
-            {% endfor %}
-        {% endif %}
+        </tr>
 
-        {% if owner is True %}
-            <input class="button" type="submit" value="Submit" name={{form_name}}>
-        {% else %}
-            <p> You cannot change data in this form </p>
-        {% endif %}
+        <tr class="ini_top">
+            <td>
+                <table class="sec_pos">
+                    <caption>Верх</caption>
+                    {% for field in form%}
+                        {% if "section_2_top" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+            <td>
+                <table class="sec_pos">
+                    <caption>Верх</caption>
+                    {% for field in form%}
+                        {% if "section_1_top" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+            <td>
+                <table class="sec_pos">
+                    <caption>Верх</caption>
+                    {% for field in form%}
+                        {% if "section_3_top" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+        </tr>
+
+        <tr class="ini_bot">
+            <td>
+                <table class="sec_pos">
+                    <caption>Низ</caption>
+                    {% for field in form%}
+                        {% if "section_2_bot" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+            <td>
+                <table class="sec_pos">
+                    <caption>Низ</caption>
+                    {% for field in form%}
+                        {% if "section_1_bot" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+            <td>
+                <table class="sec_pos">
+                    <caption>Низ</caption>
+                    {% for field in form%}
+                        {% if "section_3_bot" in field.name %}
+                        <tr>
+                            <td> <label for="id_{{field.name}}"> {{field.label}} </label>  </td>
+                            <td> <div>{{field}}</div> </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    {% if form.non_field_errors or form.errors %}
+        <p> Для успешной отправки данных исправьте следующие ошибки: </p>
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            {{ field.errors }}
+        {% endfor %}
+    {% endif %}
+
+    {% if owner is True %}
+        <input class="button" type="submit" value="Submit" name={{form_name}}>
+    {% else %}
+        <p> You cannot change data in this form </p>
+    {% endif %}
+
 </form>

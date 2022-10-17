@@ -1,4 +1,5 @@
 from django.forms import ModelForm
+from betterforms.forms import BetterModelForm
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
@@ -166,21 +167,81 @@ class MomentsForcesForm(ModelForm):
 
 
 class InitialReinforcementForm(ModelForm):
-
     verbose_name = forms.CharField(label="header", required=False, initial="Предварительное армирование", disabled=True)
 
     class Meta:
         model = InitialReinforcement
-        # fields = "__all__"
-        exclude = ("student", )
+        exclude = ("student",)
+
+        labels = {
+            # SECTION 2 TOP
+            "section_2_top_d_external": mark_safe("d<sub>1</sub>"),
+            "section_2_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_2_top_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_2_top_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_2_top_distance": mark_safe("a"),
+            "section_2_top_reinforcement_area": mark_safe("A<sub>s</sub>"),
+            "section_2_top_effective_depth": mark_safe("h<sub>0</sub>"),
+            # SECTION 2 BOT
+            "section_2_bot_d_external": mark_safe("d<sub>1</sub>"),
+            "section_2_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_2_bot_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_2_bot_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_2_bot_distance": mark_safe("a'"),
+            "section_2_bot_reinforcement_area": mark_safe("A'<sub>s</sub>"),
+            "section_2_bot_effective_depth": mark_safe("h'<sub>0</sub>"),
+
+            # SECTION 1 TOP
+            "section_1_top_d_external": mark_safe("d<sub>1</sub>"),
+            "section_1_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_1_top_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_1_top_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_1_top_distance": mark_safe("a'"),
+            "section_1_top_reinforcement_area": mark_safe("A'<sub>s</sub>"),
+            "section_1_top_effective_depth": mark_safe("h'<sub>0</sub>"),
+            # SECTION 1 BOT
+            "section_1_bot_d_external": mark_safe("d<sub>1</sub>"),
+            "section_1_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_1_bot_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_1_bot_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_1_bot_distance": mark_safe("a"),
+            "section_1_bot_reinforcement_area": mark_safe("A<sub>s</sub>"),
+            "section_1_bot_effective_depth": mark_safe("h<sub>0</sub>"),
+
+            # SECTION 3 TOP
+            "section_3_top_d_external": mark_safe("d<sub>1</sub>"),
+            "section_3_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_3_top_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_3_top_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_3_top_distance": mark_safe("a"),
+            "section_3_top_reinforcement_area": mark_safe("A<sub>s</sub>"),
+            "section_3_top_effective_depth": mark_safe("h<sub>0</sub>"),
+            # SECTION 3 BOT
+            "section_3_bot_d_external": mark_safe("d<sub>1</sub>"),
+            "section_3_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_3_bot_d_internal": mark_safe("d<sub>2</sub>"),
+            "section_3_bot_n_internal": mark_safe("n<sub>2</sub>"),
+            "section_3_bot_distance": mark_safe("a'"),
+            "section_3_bot_reinforcement_area": mark_safe("A'<sub>a</sub>"),
+            "section_3_bot_effective_depth": mark_safe("h'<sub>0</sub>"),
+        }
 
     def __init__(self, *args, **kwargs):
         self.girder_height = kwargs.pop('girder_height')
         super(InitialReinforcementForm, self).__init__(*args, **kwargs)
         # self.fields['section_1_top_d_external'].widget = forms.HiddenInput()
 
+    def clean(self):
+        self.cleaned_data["section_1_top_effective_depth"] = self.get_effective_depths(section=1, surface="top")
+        self.cleaned_data["section_1_bot_effective_depth"] = self.get_effective_depths(section=1, surface="bot")
+        self.cleaned_data["section_2_top_effective_depth"] = self.get_effective_depths(section=2, surface="top")
+        self.cleaned_data["section_2_bot_effective_depth"] = self.get_effective_depths(section=2, surface="bot")
+        self.cleaned_data["section_3_top_effective_depth"] = self.get_effective_depths(section=3, surface="top")
+        self.cleaned_data["section_3_bot_effective_depth"] = self.get_effective_depths(section=3, surface="bot")
+
+        return self.cleaned_data
+
     def get_effective_depths(self, section: int, surface: str):
-        student_id = self.student
-        student_girder_height = GirderGeometry.objects.get(student_id=student_id).girder_height
-        distance_to_reinforcement = getattr(self, f"section_{section}_{surface}_distance")
+        student_girder_height = self.girder_height
+        distance_to_reinforcement = self.cleaned_data[f"section_{section}_{surface}_distance"]
         return student_girder_height - distance_to_reinforcement

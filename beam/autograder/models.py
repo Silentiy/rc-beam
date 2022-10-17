@@ -666,13 +666,13 @@ class InitialReinforcement(models.Model):
     # top reinforcement external
     section_1_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_top_external",
-                                                 on_delete=models.DO_NOTHING, null=True)
-    section_1_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
     # top reinforcement internal
     section_1_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_top_internal",
-                                                 on_delete=models.DO_NOTHING, null=True, default=2)
-    section_1_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
     # top reinforcement area
     section_1_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to top
@@ -682,18 +682,84 @@ class InitialReinforcement(models.Model):
     # bot reinforcement external
     section_1_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_bot_external",
-                                                 on_delete=models.DO_NOTHING, null=True)
-    section_1_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
     # bot reinforcement external
     section_1_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_bot_internal",
-                                                 on_delete=models.DO_NOTHING, null=True)
-    section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
     # bot reinforcement area
     section_1_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to bot
     section_1_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
     section_1_bot_effective_depth = models.FloatField(null=True, blank=True)
+
+    # SECTION 2
+    # top reinforcement external
+    section_2_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_top_external",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+    # top reinforcement internal
+    section_2_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_top_internal",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+    # top reinforcement area
+    section_2_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to top
+    section_2_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_2_top_effective_depth = models.FloatField(null=True, blank=True)
+
+    # bot reinforcement external
+    section_2_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_bot_external",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # bot reinforcement external
+    section_2_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_bot_internal",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # bot reinforcement area
+    section_2_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to bot
+    section_2_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_2_bot_effective_depth = models.FloatField(null=True, blank=True)
+
+    # SECTION 3
+    # top reinforcement external
+    section_3_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_top_external",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+    # top reinforcement internal
+    section_3_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_top_internal",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+    # top reinforcement area
+    section_3_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to top
+    section_3_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_3_top_effective_depth = models.FloatField(null=True, blank=True)
+
+    # bot reinforcement external
+    section_3_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_bot_external",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # bot reinforcement external
+    section_3_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_bot_internal",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # bot reinforcement area
+    section_3_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to bot
+    section_3_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_3_bot_effective_depth = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = "autograder_initial_reinforcement"
@@ -714,7 +780,7 @@ class InitialReinforcement(models.Model):
         number_internal_bars = getattr(self, f"section_{section}_{surface}_n_internal")
 
         reinforcement_area = external_bar_area * number_external_bars + \
-                                    internal_bar_area * number_internal_bars  # square mm
+                             internal_bar_area * number_internal_bars  # square mm
         return reinforcement_area / 100  # square cm
 
     def clean(self):
@@ -722,11 +788,11 @@ class InitialReinforcement(models.Model):
         self.section_1_top_reinforcement_area = self.get_reinforcement_area(section=1, surface="top")
         self.section_1_bot_reinforcement_area = self.get_reinforcement_area(section=1, surface="bot")
 
-        # self.section_2_top_reinforcement_area = self.get_reinforcement_area(section=2, surface="top")
-        # self.section_2_bot_reinforcement_area = self.get_reinforcement_area(section=2, surface="bot")
-        #
-        # self.section_3_top_reinforcement_area = self.get_reinforcement_area(section=3, surface="top")
-        # self.section_3_bot_reinforcement_area = self.get_reinforcement_area(section=3, surface="bot")
+        self.section_2_top_reinforcement_area = self.get_reinforcement_area(section=2, surface="top")
+        self.section_2_bot_reinforcement_area = self.get_reinforcement_area(section=2, surface="bot")
+
+        self.section_3_top_reinforcement_area = self.get_reinforcement_area(section=3, surface="top")
+        self.section_3_bot_reinforcement_area = self.get_reinforcement_area(section=3, surface="bot")
 
     def __str__(self):
         stud = self.student if hasattr(self, 'student') else "no student yet"

@@ -17,6 +17,20 @@ table {
   border: none;
 }
 
+table.reinf td {
+  border: none;
+}
+
+table.sec_pos td {
+  	border-style:solid;
+	border-width:2px;
+	padding: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	border-color: #7a6601;
+	overflow: auto;
+}
+
 td{
 	border-style:solid;
 	border-width:2px;
