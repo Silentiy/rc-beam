@@ -553,8 +553,8 @@ class ReinforcementAnswersStatistics(models.Model):
     R_sc_l = models.BooleanField()
     R_sc_sh = models.BooleanField()
     R_sw = models.BooleanField()
-    alpha_R = models.BooleanField(blank=True)
-    xi_R = models.BooleanField(blank=True)
+    alpha_R = models.BooleanField(null=True)
+    xi_R = models.BooleanField(null=True)
 
     class Meta:
         db_table = "autograder_reinforcement_answers_statistics"
@@ -797,3 +797,42 @@ class InitialReinforcement(models.Model):
     def __str__(self):
         stud = self.student if hasattr(self, 'student') else "no student yet"
         return f"Initial reinforcement {stud}"
+
+
+class CalculatedReinforcementMiddleStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    stud_alpha_m = models.FloatField()
+    stud_reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementMiddleProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementMiddleStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    alpha_m = models.BooleanField()
+    reinforcement_area = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"

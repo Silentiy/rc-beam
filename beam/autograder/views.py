@@ -5,9 +5,10 @@ from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry, SlabHeight,
-                     MomentsForces, InitialReinforcement)
+                     MomentsForces, InitialReinforcement,
+                     CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics)
 from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
-                    MomentsForcesForm, InitialReinforcementForm)
+                    MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -101,12 +102,13 @@ class StudentPersonalView(View):
     def get(self, request, **kwargs):
         forms = dict()
         answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
-                         MomentsForces, InitialReinforcement]
+                         MomentsForces, InitialReinforcement, CalculatedReinforcementMiddleStudent]
         answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
-                        MomentsForcesForm, InitialReinforcementForm]
+                        MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm]
         forms_names = ["GirderGeometry", "Concrete", "Reinforcement",
-                       "MomentsForces", "InitialReinforcement"]
-        statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics]
+                       "MomentsForces", "InitialReinforcement", "CalculatedReinforcementMiddle"]
+        statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
+                             CalculatedReinforcementMiddleStatistics]
 
         for num, model_name in enumerate(answer_models):
             answer = self.get_instance(model_name)
@@ -151,6 +153,8 @@ class StudentPersonalView(View):
                        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
                        "MomentsForces": [MomentsForces, MomentsForcesForm],
                        "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
+                       "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+                                                         CalculatedReinforcementMiddleStudentForm],
                        }
 
         for key in models_dict.keys():

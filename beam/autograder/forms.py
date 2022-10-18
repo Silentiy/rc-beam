@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
 from autograder.models import (Student,
                                ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
-                               MomentsForces, InitialReinforcement)
+                               MomentsForces, InitialReinforcement,
+                               CalculatedReinforcementMiddleStudent)
 from django.utils.safestring import mark_safe
 
 
@@ -330,4 +331,19 @@ class InitialReinforcementForm(ModelForm):
             return student_girder_height - distance_to_reinforcement
         else:
             return 0 - distance_to_reinforcement
+
+
+class CalculatedReinforcementMiddleStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Требуемая арматура в сечении 1-1",
+                                   disabled=True)
+
+    class Meta:
+        model = CalculatedReinforcementMiddleStudent
+        exclude = ("student",)
+
+        labels = {
+            "alpha_m": mark_safe("&alpha;<sub>m</sub>"),
+            "reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
+        }
+
 
