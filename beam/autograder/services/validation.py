@@ -5,6 +5,7 @@ from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswers
 from django.forms.models import model_to_dict
 
 
+
 def validate_answers(student, button_name):
     models_dict = {"Concrete": [Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics],
                    "Reinforcement": [Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics]}
@@ -36,10 +37,23 @@ def validate_answers(student, button_name):
     statistics = dict()
     for key, value in program_answers_dict.items():
         stud_dict_key = "stud_" + key
-        if student_answers_dict[stud_dict_key] == value:
-            statistics[key] = True
+        if key not in ["alpha_R", "xi_R", "reinforcement_class", "concrete_class"]:
+            if student_answers_dict[stud_dict_key] == value / 10:
+                statistics[key] = True
+            else:
+                statistics[key] = False
+        elif "reinforcement_class" in key or "concrete_class" in key:
+
+            if student_answers_dict[stud_dict_key] == program_answers.id:
+                statistics[key] = True
+            else:
+                statistics[key] = False
         else:
-            statistics[key] = False
+            if student_answers_dict[stud_dict_key] is not None:
+                if float(value) * 0.995 <= student_answers_dict[stud_dict_key] <= float(value) * 1.005:
+                    statistics[key] = True
+                else:
+                    statistics[key] = False
 
     statistics_model.objects.update_or_create(student_id=student_id,
                                               defaults={**statistics})

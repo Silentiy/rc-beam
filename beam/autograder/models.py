@@ -24,8 +24,6 @@ class Student(models.Model):
     personal_variant_number = models.PositiveSmallIntegerField()
     preferred_freefall_acceleration = models.FloatField(default=10)
 
-    first_access_password = models.CharField(max_length=12)
-
     group = models.ForeignKey("Group", on_delete=models.CASCADE, null=False)
 
     class Meta:
@@ -57,7 +55,7 @@ class ConcreteCreepCoefficient(models.Model):
         db_table = "autograder_concrete_creep_coefficient"
 
     def __str__(self):
-        return self.concrete_class
+        return f"{self.concrete_class}"
 
 
 class Reinforcement(models.Model):
@@ -68,11 +66,11 @@ class Reinforcement(models.Model):
     R_sc_l = models.PositiveSmallIntegerField()
     R_sc_sh = models.PositiveSmallIntegerField()
     R_sw = models.PositiveSmallIntegerField(null=True)
-    alpha_R = models.FloatField(null=True)
-    xi_R = models.FloatField(null=True)
+    alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
 
     def __str__(self):
-        return self.reinforcement_class
+        return f"{self.reinforcement_class}"
 
 
 class ReinforcementBarsDiameters(models.Model):
@@ -497,7 +495,8 @@ class VariantInfo(models.Model):
 
 class ConcreteStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_concrete_class = models.CharField(max_length=4)
+    stud_concrete_class = models.ForeignKey("Concrete",
+                                            on_delete=models.DO_NOTHING, null=False, default=1)
     stud_R_b_n = models.FloatField()
     stud_R_bt_n = models.FloatField()
     stud_R_b = models.FloatField()
@@ -529,14 +528,15 @@ class ConcreteAnswersStatistics(models.Model):
 
 class ReinforcementStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_reinforcement_class = models.CharField(max_length=8)
+    stud_reinforcement_class = models.ForeignKey("Reinforcement",
+                                                 on_delete=models.DO_NOTHING, null=False, default=1)
     stud_R_s_ser = models.FloatField()
     stud_R_s = models.FloatField()
     stud_R_sc_l = models.FloatField()
     stud_R_sc_sh = models.FloatField()
     stud_R_sw = models.FloatField(null=True)
-    stud_alpha_R = models.FloatField(null=True)
-    stud_xi_R = models.FloatField(null=True)
+    stud_alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    stud_xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
 
     class Meta:
         db_table = "autograder_reinforcement_student_answers"
