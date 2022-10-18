@@ -18,10 +18,14 @@ class ConcreteStudentAnswersForm(ModelForm):
         labels = {"stud_concrete_class": "Класс бетона по заданию",
                   "stud_R_b_n": mark_safe(
                       "Нормативное сопротивление бетона сжатию, R<sub>bn</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_bt_n": "Нормативное сопротивление бетона растяжению",
-                  "stud_R_b": "Расчётное сопротивление бетона сжатию",
-                  "stud_R_bt": "Расчётное сопротивление бетона растяжению",
-                  "stud_E_b": "Начальный модуль упругости бетона"
+                  "stud_R_bt_n": mark_safe(
+                      "Нормативное сопротивление бетона растяжению, R<sub>btn</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_b": mark_safe(
+                      "Расчётное сопротивление бетона сжатию, R<sub>b</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_bt": mark_safe(
+                      "Расчётное сопротивление бетона растяжению, R<sub>bt</sub> [кН/см<sup>2</sup>]"),
+                  "stud_E_b": mark_safe(
+                      "Начальный модуль упругости бетона, E<sub>b</sub> [кН/см<sup>2</sup>]")
                   }
 
     def __init__(self, *args, **kwargs):
@@ -29,19 +33,28 @@ class ConcreteStudentAnswersForm(ModelForm):
 
 
 class ReinforcementStudentAnswersForm(ModelForm):
-    verbose_name = forms.CharField(required=False, initial="Исходные данные по арматуре", disabled=True)
+    verbose_name = forms.CharField(label="header", required=False, initial="Исходные данные по арматуре", disabled=True)
 
     class Meta:
         model = ReinforcementStudentAnswers
         exclude = ("student",)
         labels = {"stud_reinforcement_class": "Класс продольной арматуры по заданию",
-                  "stud_R_s_ser": "Нормативное сопротивление арматуры растяжению",
-                  "stud_R_s": "Расчётное сопротивление арматуры растяжению",
-                  "stud_R_sc_l": "Расчётное сопротивление арматуры сжатию при действии длительных нагрзок",
-                  "stud_R_sc_sh": "Расчётное сопротивление арматуры сжатию при действии кратковременных нагрузок",
-                  "stud_R_sw": "Расчётное сопротивление хомутов",
-                  "stud_alpha_R": "Параметр alpha_R",
-                  "stud_xi_R": "Параметр xi_R"}
+                  "stud_R_s_ser": mark_safe(
+                      "Нормативное сопротивление арматуры растяжению, R<sub>s,ser</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_s": mark_safe(
+                      "Расчётное сопротивление арматуры растяжению, R<sub>s</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_sc_l": mark_safe(
+                      "Расчётное сопротивление арматуры сжатию при действии длительных нагрузок,"
+                      " R<sub>sc,l</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_sc_sh": mark_safe(
+                      "Расчётное сопротивление арматуры сжатию при действии кратковременных нагрузок, "
+                      "R<sub>sc,sh</sub> [кН/см<sup>2</sup>]"),
+                  "stud_R_sw": mark_safe(
+                      "Расчётное сопротивление хомутов, R<sub>sw</sub> [кН/см<sup>2</sup>]"),
+                  "stud_alpha_R": mark_safe(
+                      "Параметр &#945<sub>R</sub>"),
+                  "stud_xi_R": mark_safe(
+                      "Параметр &#958<sub>R</sub>")}
 
 
 class GirderGeometryForm(ModelForm):
@@ -176,60 +189,129 @@ class InitialReinforcementForm(ModelForm):
         labels = {
             # SECTION 2 TOP
             "section_2_top_d_external": mark_safe("d<sub>1</sub>"),
-            "section_2_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_2_top_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_2_top_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_2_top_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_2_top_distance": mark_safe("a"),
-            "section_2_top_reinforcement_area": mark_safe("A<sub>s</sub>"),
-            "section_2_top_effective_depth": mark_safe("h<sub>0</sub>"),
+            "section_2_top_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_2_top_distance": mark_safe("a [см]"),
+            "section_2_top_reinforcement_area": mark_safe("A<sub>s</sub> [см<sup>2</sup>]"),
+            "section_2_top_effective_depth": mark_safe("h<sub>0</sub> [см]"),
             # SECTION 2 BOT
             "section_2_bot_d_external": mark_safe("d<sub>1</sub>"),
-            "section_2_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_2_bot_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_2_bot_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_2_bot_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_2_bot_distance": mark_safe("a'"),
-            "section_2_bot_reinforcement_area": mark_safe("A'<sub>s</sub>"),
-            "section_2_bot_effective_depth": mark_safe("h'<sub>0</sub>"),
+            "section_2_bot_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_2_bot_distance": mark_safe("a' [см]"),
+            "section_2_bot_reinforcement_area": mark_safe("A'<sub>s</sub> [см<sup>2</sup>]"),
+            "section_2_bot_effective_depth": mark_safe("h'<sub>0</sub> [см]"),
 
             # SECTION 1 TOP
             "section_1_top_d_external": mark_safe("d<sub>1</sub>"),
-            "section_1_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_1_top_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_1_top_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_1_top_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_1_top_distance": mark_safe("a'"),
-            "section_1_top_reinforcement_area": mark_safe("A'<sub>s</sub>"),
-            "section_1_top_effective_depth": mark_safe("h'<sub>0</sub>"),
+            "section_1_top_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_1_top_distance": mark_safe("a' [см]"),
+            "section_1_top_reinforcement_area": mark_safe("A'<sub>s</sub> [см<sup>2</sup>]"),
+            "section_1_top_effective_depth": mark_safe("h'<sub>0</sub> [см]"),
             # SECTION 1 BOT
             "section_1_bot_d_external": mark_safe("d<sub>1</sub>"),
-            "section_1_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_1_bot_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_1_bot_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_1_bot_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_1_bot_distance": mark_safe("a"),
-            "section_1_bot_reinforcement_area": mark_safe("A<sub>s</sub>"),
-            "section_1_bot_effective_depth": mark_safe("h<sub>0</sub>"),
+            "section_1_bot_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_1_bot_distance": mark_safe("a [см]"),
+            "section_1_bot_reinforcement_area": mark_safe("A<sub>s</sub> [см<sup>2</sup>]"),
+            "section_1_bot_effective_depth": mark_safe("h<sub>0</sub> [см]"),
 
             # SECTION 3 TOP
             "section_3_top_d_external": mark_safe("d<sub>1</sub>"),
-            "section_3_top_n_external": mark_safe("n<sub>1</sub>"),
+            "section_3_top_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_3_top_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_3_top_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_3_top_distance": mark_safe("a"),
-            "section_3_top_reinforcement_area": mark_safe("A<sub>s</sub>"),
-            "section_3_top_effective_depth": mark_safe("h<sub>0</sub>"),
+            "section_3_top_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_3_top_distance": mark_safe("a [см]"),
+            "section_3_top_reinforcement_area": mark_safe("A<sub>s</sub> [см<sup>2</sup>]"),
+            "section_3_top_effective_depth": mark_safe("h<sub>0</sub> [см]"),
             # SECTION 3 BOT
             "section_3_bot_d_external": mark_safe("d<sub>1</sub>"),
-            "section_3_bot_n_external": mark_safe("n<sub>1</sub>"),
+            "section_3_bot_n_external": mark_safe("n<sub>1</sub> [шт]"),
             "section_3_bot_d_internal": mark_safe("d<sub>2</sub>"),
-            "section_3_bot_n_internal": mark_safe("n<sub>2</sub>"),
-            "section_3_bot_distance": mark_safe("a'"),
-            "section_3_bot_reinforcement_area": mark_safe("A'<sub>a</sub>"),
-            "section_3_bot_effective_depth": mark_safe("h'<sub>0</sub>"),
+            "section_3_bot_n_internal": mark_safe("n<sub>2</sub> [шт]"),
+            "section_3_bot_distance": mark_safe("a' [см]"),
+            "section_3_bot_reinforcement_area": mark_safe("A'<sub>a</sub> [см<sup>2</sup>]"),
+            "section_3_bot_effective_depth": mark_safe("h'<sub>0</sub> [см]"),
+        }
+
+        error_messages = {
+            "section_2_top_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 2-2, верх: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 2-2, верх: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
+            "section_2_bot_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 2-2, низ: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 2-2, низ: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
+            "section_1_top_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 1-1, верх: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 1-1, верх: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
+            "section_1_bot_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 1-1, низ: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 1-1, низ: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
+            "section_3_top_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 3-3, верх: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 3-3, верх: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
+            "section_3_bot_distance": {
+                'min_value': gettext_lazy(
+                    'Сечение 3-3, низ: расстояние до ЦТ арматуры должно быть не менее %(limit_value)s см'),
+                'max_value': gettext_lazy(
+                    'Сечение 3-3, низ: расстояние до ЦТ арматуры должно быть не более %(limit_value)s см')
+            },
         }
 
     def __init__(self, *args, **kwargs):
         self.girder_height = kwargs.pop('girder_height')
         super(InitialReinforcementForm, self).__init__(*args, **kwargs)
-        # self.fields['section_1_top_d_external'].widget = forms.HiddenInput()
+        self.fields["section_2_top_d_external"].disabled = True
+        self.fields["section_2_top_n_external"].disabled = True
+        self.fields["section_2_top_d_internal"].disabled = True
+        self.fields["section_2_top_n_internal"].disabled = True
+
+        self.fields["section_1_bot_d_external"].disabled = True
+        self.fields["section_1_bot_n_external"].disabled = True
+        self.fields["section_1_bot_d_internal"].disabled = True
+        self.fields["section_1_bot_n_internal"].disabled = True
+
+        self.fields["section_3_top_d_external"].disabled = True
+        self.fields["section_3_top_n_external"].disabled = True
+        self.fields["section_3_top_d_internal"].disabled = True
+        self.fields["section_3_top_n_internal"].disabled = True
+
+        self.fields["section_2_top_reinforcement_area"].disabled = True
+        self.fields["section_2_top_effective_depth"].disabled = True
+        self.fields["section_2_bot_reinforcement_area"].disabled = True
+        self.fields["section_2_bot_effective_depth"].disabled = True
+
+        self.fields["section_1_top_reinforcement_area"].disabled = True
+        self.fields["section_1_top_effective_depth"].disabled = True
+        self.fields["section_1_bot_reinforcement_area"].disabled = True
+        self.fields["section_1_bot_effective_depth"].disabled = True
+
+        self.fields["section_3_top_reinforcement_area"].disabled = True
+        self.fields["section_3_top_effective_depth"].disabled = True
+        self.fields["section_3_bot_reinforcement_area"].disabled = True
+        self.fields["section_3_bot_effective_depth"].disabled = True
+
+
 
     def clean(self):
         self.cleaned_data["section_1_top_effective_depth"] = self.get_effective_depths(section=1, surface="top")
@@ -244,4 +326,8 @@ class InitialReinforcementForm(ModelForm):
     def get_effective_depths(self, section: int, surface: str):
         student_girder_height = self.girder_height
         distance_to_reinforcement = self.cleaned_data[f"section_{section}_{surface}_distance"]
-        return student_girder_height - distance_to_reinforcement
+        if student_girder_height is not None:
+            return student_girder_height - distance_to_reinforcement
+        else:
+            return 0 - distance_to_reinforcement
+
