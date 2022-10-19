@@ -7,7 +7,7 @@ from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswers
                                CalculatedReinforcementMiddleStatistics
                                )
 from django.forms.models import model_to_dict
-import reiforcement_calculation
+from . import reiforcement_calculation
 
 
 def validate_answers(student, button_name):
@@ -19,7 +19,11 @@ def validate_answers(student, button_name):
                    }
 
     if "CalculatedReinforcementMiddle" in button_name:
-        reiforcement_calculation.calculate_middle_reinforcement(student=student)
+        reiforcement_calculation.calculate_reinforcement(student=student, section=1)
+    elif "CalculatedReinforcementLeft" in button_name:
+        reiforcement_calculation.calculate_reinforcement(student=student, section=2)
+    elif "CalculatedReinforcementRight" in button_name:
+        reiforcement_calculation.calculate_reinforcement(student=student, section=3)
 
     student_id = student.pk
     student_subgroup_variant = student.subgroup_variant_number
