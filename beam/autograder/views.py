@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from autograder.services import validation, girder_length
 from django.db import models
+from django.db.models import Model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
 
@@ -55,6 +56,19 @@ def redirect(request):
 
 
 class StudentPersonalView(View):
+
+    models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
+                   "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
+                   "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+                   "MomentsForces": [MomentsForces, MomentsForcesForm],
+                   "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
+                   "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+                                                     CalculatedReinforcementMiddleStudentForm],
+                   }
+
+    statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
+                         CalculatedReinforcementMiddleStatistics]
+
     forms_with_errors = {}
 
     def is_owner(self):
@@ -84,11 +98,11 @@ class StudentPersonalView(View):
         group = Group.objects.get(pk=group_id)
         return group.group_name
 
-    def get_instance(self, model_name):
-        return model_name.objects.filter(student_id=self.get_student_id()).first()
+    def get_instance(self, db_model: Model):
+        return db_model.objects.filter(student_id=self.get_student_id()).first()
 
-    def get_statistics_instance(self, model_name: models.Model):
-        return model_name.objects.filter(student_id=self.get_student_id()).first()
+    def get_statistics_instance(self, db_model: Model):
+        return db_model.objects.filter(student_id=self.get_student_id()).first()
 
     def get_slab(self):
         return SlabHeight.objects.get(student_id=self.get_student_id())
@@ -105,42 +119,43 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         forms = dict()
-        answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
-                         MomentsForces, InitialReinforcement, CalculatedReinforcementMiddleStudent]
-        answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
-                        MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm]
-        forms_names = ["GirderGeometry", "Concrete", "Reinforcement",
-                       "MomentsForces", "InitialReinforcement", "CalculatedReinforcementMiddle"]
-        statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
-                             CalculatedReinforcementMiddleStatistics]
+        # answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
+        #                  MomentsForces, InitialReinforcement, CalculatedReinforcementMiddleStudent]
+        # answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
+        #                 MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm]
+        # forms_names = ["GirderGeometry", "Concrete", "Reinforcement",
+        #                "MomentsForces", "InitialReinforcement", "CalculatedReinforcementMiddle"]
 
-        for num, model_name in enumerate(answer_models):
-            answer = self.get_instance(model_name)
+        for model_name, models_list in self.models_dict.items():
+            answer_model = models_list[0]
+            form_model = models_list[1]
+            answer = self.get_instance(answer_model)
             if answer is not None:
-                if answer_forms[num] is GirderGeometryForm:  # we need to pass extra arguments for this form
+                if form_model is GirderGeometryForm:  # we need to pass extra arguments for this form
                     form = GirderGeometryForm(instance=answer, slab=self.get_slab(),
                                               girder_length=self.get_girder_length())
-                elif answer_forms[num] is InitialReinforcementForm:  # and to this as well
+                elif form_model is InitialReinforcementForm:  # and to this as well
                     form = InitialReinforcementForm(instance=answer, girder_height=self.get_girder_height())
                 else:  # usual form
-                    form = answer_forms[num](instance=answer)
+                    form = form_model(instance=answer)
             else:  # answer was not saved, there could be errors in form
-                if self.forms_with_errors and self.forms_with_errors["user"].username == request.user.username:
-                    form = self.forms_with_errors[forms_names[num]]
-                else:  # no errors, return clean form
-                    if answer_forms[num] is GirderGeometryForm:  # we need pass extra args to this form
+                if self.forms_with_errors.get(model_name) and \
+                        self.forms_with_errors["user"].username == request.user.username:
+                    form = self.forms_with_errors[model_name]
+                else:  # no errors, return empty form
+                    if form_model is GirderGeometryForm:  # we need pass extra args to this form
                         form = GirderGeometryForm(slab=self.get_slab(),
                                                   girder_length=self.get_girder_length())
-                    elif answer_forms[num] is InitialReinforcementForm:
+                    elif form_model is InitialReinforcementForm:
                         form = InitialReinforcementForm(girder_height=self.get_girder_height())
                     else:  # usual form
-                        form = answer_forms[num]()
+                        form = form_model()
 
-            forms[forms_names[num]] = form
+            forms[model_name] = form
 
         statistics_dict = dict()
-        for model_name in statistics_models:
-            statistics = self.get_statistics_instance(model_name)
+        for statistics_model in self.statistics_models:
+            statistics = self.get_statistics_instance(statistics_model)
             if statistics is not None:
                 statistics_dict.update(model_to_dict(statistics, exclude=["id", "student"]))
 
@@ -148,25 +163,18 @@ class StudentPersonalView(View):
                                                                     "owner": self.is_owner(),
                                                                     "student_name": self.get_student_name(),
                                                                     "stat": statistics_dict,
-                                                                    "forms_names": forms_names,
-                                                                    })
+                                                                    "forms_names": list(self.models_dict.keys()),
+                                                                    }
+                      )
 
     def post(self, request, **kwargs):
-        models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
-                       "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
-                       "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
-                       "MomentsForces": [MomentsForces, MomentsForcesForm],
-                       "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
-                       "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
-                                                         CalculatedReinforcementMiddleStudentForm],
-                       }
 
-        for key in models_dict.keys():
+        for key in self.models_dict.keys():
             if key in request.POST:
                 submit_button_name = key
 
-        answer_instance = self.get_instance(models_dict[submit_button_name][0])
-        model_form = models_dict[submit_button_name][1]
+        answer_instance = self.get_instance(self.models_dict[submit_button_name][0])
+        model_form = self.models_dict[submit_button_name][1]
 
         if answer_instance is not None:
             if model_form is GirderGeometryForm:

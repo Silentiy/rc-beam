@@ -15,17 +15,17 @@ class ConcreteStudentAnswersForm(ModelForm):
 
     class Meta:
         model = ConcreteStudentAnswers
-        fields = ["stud_concrete_class", "stud_R_b_n", "stud_R_bt_n", "stud_R_b", "stud_R_bt", "stud_E_b"]
-        labels = {"stud_concrete_class": "Класс бетона по заданию",
-                  "stud_R_b_n": mark_safe(
+        fields = ["concrete_class", "R_b_n", "R_bt_n", "R_b", "R_bt", "E_b"]
+        labels = {"concrete_class": "Класс бетона по заданию",
+                  "R_b_n": mark_safe(
                       "Нормативное сопротивление бетона сжатию, R<sub>bn</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_bt_n": mark_safe(
+                  "R_bt_n": mark_safe(
                       "Нормативное сопротивление бетона растяжению, R<sub>btn</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_b": mark_safe(
+                  "R_b": mark_safe(
                       "Расчётное сопротивление бетона сжатию, R<sub>b</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_bt": mark_safe(
+                  "R_bt": mark_safe(
                       "Расчётное сопротивление бетона растяжению, R<sub>bt</sub> [кН/см<sup>2</sup>]"),
-                  "stud_E_b": mark_safe(
+                  "E_b": mark_safe(
                       "Начальный модуль упругости бетона, E<sub>b</sub> [кН/см<sup>2</sup>]")
                   }
 
@@ -39,22 +39,22 @@ class ReinforcementStudentAnswersForm(ModelForm):
     class Meta:
         model = ReinforcementStudentAnswers
         exclude = ("student",)
-        labels = {"stud_reinforcement_class": "Класс продольной арматуры по заданию",
-                  "stud_R_s_ser": mark_safe(
+        labels = {"reinforcement_class": "Класс продольной арматуры по заданию",
+                  "R_s_ser": mark_safe(
                       "Нормативное сопротивление арматуры растяжению, R<sub>s,ser</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_s": mark_safe(
+                  "R_s": mark_safe(
                       "Расчётное сопротивление арматуры растяжению, R<sub>s</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_sc_l": mark_safe(
+                  "R_sc_l": mark_safe(
                       "Расчётное сопротивление арматуры сжатию при действии длительных нагрузок,"
                       " R<sub>sc,l</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_sc_sh": mark_safe(
+                  "R_sc_sh": mark_safe(
                       "Расчётное сопротивление арматуры сжатию при действии кратковременных нагрузок, "
                       "R<sub>sc,sh</sub> [кН/см<sup>2</sup>]"),
-                  "stud_R_sw": mark_safe(
+                  "R_sw": mark_safe(
                       "Расчётное сопротивление хомутов, R<sub>sw</sub> [кН/см<sup>2</sup>]"),
-                  "stud_alpha_R": mark_safe(
+                  "alpha_R": mark_safe(
                       "Параметр &#945<sub>R</sub>"),
-                  "stud_xi_R": mark_safe(
+                  "xi_R": mark_safe(
                       "Параметр &#958<sub>R</sub>")}
 
 
@@ -165,7 +165,6 @@ class MomentsForcesForm(ModelForm):
         self.fields["right_support_status"].disabled = True
         self.fields["left_support_status"].disabled = True
         instance = getattr(self, 'instance', None)
-        # print(type(instance))
 
         if instance.middle_section_status is True:
             self.fields["middle_section_moment_top"].disabled = True
@@ -340,8 +339,8 @@ class CalculatedReinforcementMiddleStudentForm(ModelForm):
         exclude = ("student",)
 
         labels = {
-            "stud_alpha_m": mark_safe("&alpha;<sub>m</sub>"),
-            "stud_reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
+            "alpha_m": mark_safe("&alpha;<sub>m</sub>"),
+            "reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
         }
 
 

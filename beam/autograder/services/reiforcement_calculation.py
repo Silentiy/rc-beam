@@ -67,9 +67,9 @@ def get_materials_properties(student_id: int):
     materials = dict()
 
     if reinforcement is not None and concrete is not None:
-        materials["R_s"] = float(reinforcement.stud_R_s)
-        materials["R_sc"] = float(reinforcement.stud_R_sc_sh)
-        materials["R_b"] = float(concrete.stud_R_b)
+        materials["R_s"] = float(reinforcement.R_s)
+        materials["R_sc"] = float(reinforcement.R_sc_sh)
+        materials["R_b"] = float(concrete.R_b)
     else:
         materials["materials"] = None
 

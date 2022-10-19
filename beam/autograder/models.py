@@ -495,19 +495,19 @@ class VariantInfo(models.Model):
 
 class ConcreteStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_concrete_class = models.ForeignKey("Concrete",
-                                            on_delete=models.DO_NOTHING, null=False, default=1)
-    stud_R_b_n = models.FloatField()
-    stud_R_bt_n = models.FloatField()
-    stud_R_b = models.FloatField()
-    stud_R_bt = models.FloatField()
-    stud_E_b = models.PositiveIntegerField()
+    concrete_class = models.ForeignKey("Concrete",
+                                       on_delete=models.DO_NOTHING, null=False, default=1)
+    R_b_n = models.FloatField()
+    R_bt_n = models.FloatField()
+    R_b = models.FloatField()
+    R_bt = models.FloatField()
+    E_b = models.PositiveIntegerField()
 
     class Meta:
         db_table = "autograder_concrete_student_answers"
 
     def __str__(self):
-        return f"{self.student} {self.stud_concrete_class}"
+        return f"{self.student} {self.concrete_class}"
 
 
 class ConcreteAnswersStatistics(models.Model):
@@ -528,21 +528,21 @@ class ConcreteAnswersStatistics(models.Model):
 
 class ReinforcementStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_reinforcement_class = models.ForeignKey("Reinforcement",
-                                                 on_delete=models.DO_NOTHING, null=False, default=1)
-    stud_R_s_ser = models.FloatField()
-    stud_R_s = models.FloatField()
-    stud_R_sc_l = models.FloatField()
-    stud_R_sc_sh = models.FloatField()
-    stud_R_sw = models.FloatField(null=True)
-    stud_alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
-    stud_xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    reinforcement_class = models.ForeignKey("Reinforcement",
+                                            on_delete=models.DO_NOTHING, null=False, default=1)
+    R_s_ser = models.FloatField()
+    R_s = models.FloatField()
+    R_sc_l = models.FloatField()
+    R_sc_sh = models.FloatField()
+    R_sw = models.FloatField(null=True)
+    alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
 
     class Meta:
         db_table = "autograder_reinforcement_student_answers"
 
     def __str__(self):
-        return f"{self.student} {self.stud_reinforcement_class}"
+        return f"{self.student} {self.reinforcement_class}"
 
 
 class ReinforcementAnswersStatistics(models.Model):
@@ -802,8 +802,8 @@ class InitialReinforcement(models.Model):
 class CalculatedReinforcementMiddleStudent(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    stud_alpha_m = models.FloatField()
-    stud_reinforcement_area = models.FloatField()
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_middle_student"
@@ -833,6 +833,108 @@ class CalculatedReinforcementMiddleStatistics(models.Model):
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_middle_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementLeftStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.FloatField()
+    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation = models.FloatField()
+    overhanging_flange_area = models.FloatField()
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementLeftProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.FloatField()
+    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation = models.FloatField()
+    overhanging_flange_area = models.FloatField()
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementLeftStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.BooleanField()
+    is_neutral_axis_in_flange = models.BooleanField()
+    section_widths_for_calculation = models.BooleanField()
+    overhanging_flange_area = models.BooleanField()
+    alpha_m = models.BooleanField()
+    reinforcement_area = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementRightStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.FloatField()
+    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation = models.FloatField()
+    overhanging_flange_area = models.FloatField()
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementRightProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.FloatField()
+    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation = models.FloatField()
+    overhanging_flange_area = models.FloatField()
+    alpha_m = models.FloatField()
+    reinforcement_area = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area}"
+
+
+class CalculatedReinforcementRightStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment = models.BooleanField()
+    is_neutral_axis_in_flange = models.BooleanField()
+    section_widths_for_calculation = models.BooleanField()
+    overhanging_flange_area = models.BooleanField()
+    alpha_m = models.BooleanField()
+    reinforcement_area = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_statistics"
 
     def __str__(self):
         return f"{self.student} {self.reinforcement_area}"

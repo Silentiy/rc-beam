@@ -34,48 +34,95 @@ def validate_answers(student, button_name):
     student_answers_model = models_dict[button_name][1]
     statistics_model = models_dict[button_name][2]
 
-    student_answers = student_answers_model.objects.get(student_id=student_id)
+    student_answer = student_answers_model.objects.get(student_id=student_id)
 
     student_exclude = ["id", "student"]
     if button_name == "Concrete":
         program_exclude = ["id"]
         student_material_id = student_variant_data.girder_concrete_id
-        program_answers = program_answers_model.objects.get(pk=student_material_id)
+        program_answer = program_answers_model.objects.get(pk=student_material_id)
     elif button_name == "Reinforcement":
         program_exclude = ["id", "possible_diameters"]
         student_material_id = student_variant_data.girder_reinforcement_id
-        program_answers = program_answers_model.objects.get(pk=student_material_id)
-    elif button_name == "CalculatedReinforcementMiddle":
+        program_answer = program_answers_model.objects.get(pk=student_material_id)
+    else:
         program_exclude = ["id", "student"]
-        program_answers = program_answers_model.objects.get(student_id=student_id)
+        program_answer = program_answers_model.objects.get(student_id=student_id)
 
-    student_answers_dict = model_to_dict(student_answers, exclude=student_exclude)
-    program_answers_dict = model_to_dict(program_answers, exclude=program_exclude)
+    student_answers_dict = model_to_dict(student_answer, exclude=student_exclude)
+    program_answers_dict = model_to_dict(program_answer, exclude=program_exclude)
 
     statistics = dict()
-    for key, value in program_answers_dict.items():
-        stud_dict_key = "stud_" + key
-        if key not in ["alpha_R", "xi_R", "reinforcement_class", "concrete_class"]:
-            if student_answers_dict[stud_dict_key] == value / 10:
-                statistics[key] = True
-            else:
-                statistics[key] = False
-        elif "reinforcement_class" in key or "concrete_class" in key:
-            if student_answers_dict[stud_dict_key] == program_answers.id:
-                statistics[key] = True
-            else:
-                statistics[key] = False
-        else:
-            if student_answers_dict[stud_dict_key] is not None:
-                if float(value) * 0.995 <= student_answers_dict[stud_dict_key] <= float(value) * 1.005:
-                    statistics[key] = True
-                else:
-                    statistics[key] = False
+
+    if button_name == "Concrete" or button_name == "Reinforcement":
+        statistics = validate_concrete_and_reinforcement(program_answers=program_answers_dict,
+                                                         student_answers=student_answers_dict,
+                                                         program_answer_id=program_answer.id)
+    else:
+        statistics = tolerant_match_validation(program_answers=program_answers_dict,
+                                               student_answers=student_answers_dict,
+                                               tolerance=0.01)
 
     statistics_model.objects.update_or_create(student_id=student_id,
                                               defaults={**statistics}
                                               )
 
 
+def strict_match_validation(program_answers: dict, student_answers: dict):
+    statistics = dict()
+
+    for key, value in program_answers.items():
+        if student_answers[key] is not None and student_answers[key] == value:
+            statistics[key] = True
+        else:
+            statistics[key] = False
+
+    return statistics
 
 
+def tolerant_match_validation(program_answers: dict, student_answers: dict, tolerance: float):
+    statistics = dict()
+    min_bound = 1 - tolerance
+    max_bound = 1 + tolerance
+
+    for key, value in program_answers.items():
+        if student_answers[key] is not None:
+            if float(value) * min_bound <= student_answers[key] <= float(value) * max_bound:
+                statistics[key] = True
+            else:
+                statistics[key] = False
+        else:
+            statistics[key] = False
+
+    return statistics
+
+
+def validate_concrete_and_reinforcement(program_answers: dict, student_answers: dict, program_answer_id: int):
+    statistics = dict()
+    student_special_values = dict()
+    program_special_values = dict()
+    special_keys = ["alpha_R", "xi_R"]
+
+    if special_keys[0] in program_answers.keys() and special_keys[1] in program_answers.keys():
+        for key in special_keys:
+            student_special_values[key] = student_answers.pop(key)
+            program_special_values[key] = program_answers.pop(key)
+
+    if program_special_values:
+        statistics.update(tolerant_match_validation(program_answers=program_special_values,
+                                                    student_answers=student_special_values,
+                                                    tolerance=0.005))
+
+    for key, value in program_answers.items():
+        if key in ["reinforcement_class", "concrete_class"]:
+            if student_answers[key] == program_answer_id:
+                statistics[key] = True
+            else:
+                statistics[key] = False
+        else:
+            if student_answers[key] == value / 10:
+                statistics[key] = True
+            else:
+                statistics[key] = False
+
+    return statistics
