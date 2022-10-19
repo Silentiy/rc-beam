@@ -97,7 +97,11 @@ class StudentPersonalView(View):
         return girder_length.determine_girder_length(student=self.get_student())
 
     def get_girder_height(self):
-        return GirderGeometry.objects.get(student_id=self.get_student_id()).girder_height
+        girder_geometry = GirderGeometry.objects.filter(student_id=self.get_student_id()).first()
+        if girder_geometry is not None:
+            return girder_geometry.girder_height
+        else:
+            return None
 
     def get(self, request, **kwargs):
         forms = dict()
