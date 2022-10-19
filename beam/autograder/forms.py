@@ -312,8 +312,6 @@ class InitialReinforcementForm(ModelForm):
         self.fields["section_3_bot_reinforcement_area"].disabled = True
         self.fields["section_3_bot_effective_depth"].disabled = True
 
-
-
     def clean(self):
         self.cleaned_data["section_1_top_effective_depth"] = self.get_effective_depths(section=1, surface="top")
         self.cleaned_data["section_1_bot_effective_depth"] = self.get_effective_depths(section=1, surface="bot")
@@ -342,8 +340,8 @@ class CalculatedReinforcementMiddleStudentForm(ModelForm):
         exclude = ("student",)
 
         labels = {
-            "alpha_m": mark_safe("&alpha;<sub>m</sub>"),
-            "reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
+            "stud_alpha_m": mark_safe("&alpha;<sub>m</sub>"),
+            "stud_reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
         }
 
 

@@ -7,15 +7,15 @@ from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswers
                                CalculatedReinforcementMiddleStatistics
                                )
 from django.forms.models import model_to_dict
-
+from django.shortcuts import get_object_or_404
 
 
 def validate_answers(student, button_name):
     models_dict = {"Concrete": [Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics],
                    "Reinforcement": [Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics],
                    "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleProgram,
-                                                      CalculatedReinforcementMiddleStudent,
-                                                      CalculatedReinforcementMiddleStatistics],
+                                                     CalculatedReinforcementMiddleStudent,
+                                                     CalculatedReinforcementMiddleStatistics],
                    }
 
     if "CalculatedReinforcementMiddle" in button_name:
@@ -75,11 +75,11 @@ def validate_answers(student, button_name):
 
 def calculate_reinforcement(student: Student):
     student_id = student.pk
-    girder_geometry = GirderGeometry.objects.get(student_id=student_id)
-    concrete = ConcreteStudentAnswers.objects.get(student_id=student_id)
-    reinforcement = ReinforcementStudentAnswers.objects.get(student_id=student_id)
-    moments_forces = MomentsForces.objects.get(student_id=student_id)
-    initial_reinforcement = InitialReinforcement.objects.get(student_id=student_id)
+    girder_geometry = get_object_or_404(GirderGeometry, student_id=student_id)
+    concrete = get_object_or_404(ConcreteStudentAnswers, student_id=student_id)
+    reinforcement = get_object_or_404(ReinforcementStudentAnswers, student_id=student_id)
+    moments_forces = get_object_or_404(MomentsForces, student_id=student_id)
+    initial_reinforcement = get_object_or_404(InitialReinforcement, student_id=student_id)
 
     M_1 = float(moments_forces.middle_section_moment_bot)
     R_sc = float(reinforcement.stud_R_sc_sh)
@@ -92,11 +92,11 @@ def calculate_reinforcement(student: Student):
 
     alpha_m = (M_1 - R_sc * A_sc_1 * (h_0_1 - a_sc_1)) / (R_b * wall_b * h_0_1 ** 2)
     if alpha_m < 0:
-        pass
+        A_s_1 = M_1 / (R_s * (h_0_1 - a_sc_1))
     else:
         A_s_1 = R_b * wall_b * h_0_1 * (1 - (1 - 2 * alpha_m) ** 0.5) / R_s + A_sc_1 * R_sc / R_s
 
     CalculatedReinforcementMiddleProgram.objects.update_or_create(student=student,
                                                                   defaults={"alpha_m": alpha_m,
-                                                                            "reinforcement_area":  A_s_1}
+                                                                            "reinforcement_area": A_s_1}
                                                                   )
