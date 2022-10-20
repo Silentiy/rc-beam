@@ -5,13 +5,14 @@ from .models import (Group, Student,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry, SlabHeight,
-                     MomentsForces, InitialReinforcement,
+                     MomentsForces, InitialReinforcement, CalculatedReinforcement,
                      CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics,
                      CalculatedReinforcementLeftStudent, CalculatedReinforcementLeftStatistics,
                      CalculatedReinforcementRightStudent, CalculatedReinforcementRightStatistics)
 from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
                     MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm,
-                    CalculatedReinforcementLeftStudentForm, CalculatedReinforcementRightStudentForm)
+                    CalculatedReinforcementLeftStudentForm, CalculatedReinforcementRightStudentForm,
+                    CalculatedReinforcementForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -59,6 +60,8 @@ def redirect(request):
 
 
 class StudentPersonalView(View):
+    forms_with_errors = dict()
+
     models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
                    "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                    "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
@@ -76,7 +79,12 @@ class StudentPersonalView(View):
                          CalculatedReinforcementMiddleStatistics,
                          CalculatedReinforcementLeftStatistics, CalculatedReinforcementRightStatistics]
 
-    forms_with_errors = {}
+    models_second_part = {"CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
+                          }
+
+    def update_models_dict(self):  # we do not want to show some forms before previous forms are successfully filled
+        if self.get_initial_reinforcement() is not None:
+            self.models_dict.update(self.models_second_part)
 
     def is_owner(self):
         owner = False
@@ -124,8 +132,12 @@ class StudentPersonalView(View):
         else:
             return None
 
+    def get_initial_reinforcement(self):
+        return InitialReinforcement.objects.filter(student_id=self.get_student_id()).first()
+
     def get(self, request, **kwargs):
         forms = dict()
+        self.update_models_dict()
 
         for model_name, models_list in self.models_dict.items():
             answer_model = models_list[0]
@@ -137,6 +149,10 @@ class StudentPersonalView(View):
                                               girder_length=self.get_girder_length())
                 elif form_model is InitialReinforcementForm:  # and to this as well
                     form = InitialReinforcementForm(instance=answer, girder_height=self.get_girder_height())
+                elif form_model is CalculatedReinforcementForm:  # and to this too
+                    form = CalculatedReinforcementForm(instance=answer,
+                                                       girder_height=self.get_girder_height(),
+                                                       initial_reinforcement=self.get_initial_reinforcement())
                 else:  # usual form
                     form = form_model(instance=answer)
             else:  # answer was not saved, there could be errors in form.
@@ -149,6 +165,9 @@ class StudentPersonalView(View):
                                                   girder_length=self.get_girder_length())
                     elif form_model is InitialReinforcementForm:
                         form = InitialReinforcementForm(girder_height=self.get_girder_height())
+                    elif form_model is CalculatedReinforcementForm:
+                        form = CalculatedReinforcementForm(girder_height=self.get_girder_height(),
+                                                           initial_reinforcement=self.get_initial_reinforcement())
                     else:  # usual form
                         form = form_model()
 
@@ -170,6 +189,8 @@ class StudentPersonalView(View):
 
     def post(self, request, **kwargs):
 
+        self.update_models_dict()
+
         for key in self.models_dict.keys():
             if key in request.POST:
                 submit_button_name = key
@@ -184,6 +205,10 @@ class StudentPersonalView(View):
             elif model_form is InitialReinforcementForm:
                 form = InitialReinforcementForm(request.POST, instance=answer_instance,
                                                 girder_height=self.get_girder_height())
+            elif model_form is CalculatedReinforcementForm:
+                form = CalculatedReinforcementForm(request.POST, instance=answer_instance,
+                                                   girder_height=self.get_girder_height(),
+                                                   initial_reinforcement=self.get_initial_reinforcement())
             else:
                 form = model_form(request.POST, instance=answer_instance)
         else:
@@ -191,7 +216,12 @@ class StudentPersonalView(View):
                 form = GirderGeometryForm(request.POST or None, slab=self.get_slab(),
                                           girder_length=self.get_girder_length())
             elif model_form is InitialReinforcementForm:
-                form = InitialReinforcementForm(request.POST or None, girder_height=self.get_girder_height())
+                form = InitialReinforcementForm(request.POST or None,
+                                                girder_height=self.get_girder_height())
+            elif model_form is CalculatedReinforcementForm:
+                form = CalculatedReinforcementForm(request.POST or None,
+                                                   girder_height=self.get_girder_height(),
+                                                   initial_reinforcement=self.get_initial_reinforcement())
             else:
                 form = model_form(request.POST or None)
 
@@ -199,7 +229,8 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student = self.get_student()
             answer.save()
-            if submit_button_name not in ["GirderGeometry", "MomentsForces", "InitialReinforcement"]:
+            if submit_button_name not in ["GirderGeometry", "MomentsForces",
+                                          "InitialReinforcement", "CalculatedReinforcement"]:
                 validation.validate_answers(self.get_student(), submit_button_name)
         else:
             self.forms_with_errors[submit_button_name] = form

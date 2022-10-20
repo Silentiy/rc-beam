@@ -24,7 +24,7 @@
         {% include 'autograder/reinforcement_placement.html' %}
     {% endif %}
 
-    {% if form_name != "GirderGeometry" and form_name != "MomentsForces" and form_name != "InitialReinforcement" %}
+    {% if form_name != "GirderGeometry" and form_name != "MomentsForces" and form_name != "InitialReinforcement" and form_name != "CalculatedReinforcement"%}
 
     <form method="POST">
         {% csrf_token %}

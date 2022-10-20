@@ -1,5 +1,6 @@
 {% load static %}
 
+{% if form_name == "InitialReinforcement" %}
 <figure class="fig_center">
     <div class="fig"><img style="max-width: 100%; height: auto;"
                           src="{% static 'autograder/images/initial_reinforcement.jpg' %}"
@@ -7,6 +8,18 @@
     </div>
     <figcaption>Рис. Схема расстановки предварительной арматуры в ригеле</figcaption>
 </figure>
+{% endif %}
+
+{% if form_name == "CalculatedReinforcement" %}
+<figure class="fig_center">
+    <div class="fig"><img style="max-width: 100%; height: auto;"
+                          src="{% static 'autograder/images/calculated_reinforcement.jpg' %}"
+                          alt="Схема расстановки подсчитанной арматуры в ригеле">
+    </div>
+    <figcaption>Рис. Схема расстановки подсчитанной арматуры в ригеле</figcaption>
+</figure>
+{% endif %}
+
 
 <form method="POST">
     {% csrf_token %}
