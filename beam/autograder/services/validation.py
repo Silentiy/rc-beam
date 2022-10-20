@@ -4,7 +4,13 @@ from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswers
                                Student, GirderGeometry, MomentsForces, InitialReinforcement,
                                CalculatedReinforcementMiddleProgram,
                                CalculatedReinforcementMiddleStudent,
-                               CalculatedReinforcementMiddleStatistics
+                               CalculatedReinforcementMiddleStatistics,
+                               CalculatedReinforcementLeftProgram,
+                               CalculatedReinforcementLeftStudent,
+                               CalculatedReinforcementLeftStatistics,
+                               CalculatedReinforcementRightProgram,
+                               CalculatedReinforcementRightStudent,
+                               CalculatedReinforcementRightStatistics
                                )
 from django.forms.models import model_to_dict
 from . import reiforcement_calculation
@@ -16,6 +22,12 @@ def validate_answers(student, button_name):
                    "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleProgram,
                                                      CalculatedReinforcementMiddleStudent,
                                                      CalculatedReinforcementMiddleStatistics],
+                   "CalculatedReinforcementLeft": [CalculatedReinforcementLeftProgram,
+                                                   CalculatedReinforcementLeftStudent,
+                                                   CalculatedReinforcementLeftStatistics],
+                   "CalculatedReinforcementRight": [CalculatedReinforcementRightProgram,
+                                                    CalculatedReinforcementRightStudent,
+                                                    CalculatedReinforcementRightStatistics],
                    }
 
     if "CalculatedReinforcementMiddle" in button_name:
@@ -65,10 +77,10 @@ def validate_answers(student, button_name):
                 special_keys.append(key)
 
         if special_keys is not None:
-            statistics = strict_match_validation(program_answers=get_special_values_dict(program_answers_dict,
-                                                                                         special_keys),
-                                                 student_answers=get_special_values_dict(student_answers_dict,
-                                                                                         special_keys))
+            statistics = strict_match_validation(program_answers=get_dict_for_special_validation(program_answers_dict,
+                                                                                                 special_keys),
+                                                 student_answers=get_dict_for_special_validation(student_answers_dict,
+                                                                                                 special_keys))
 
         statistics.update(tolerant_match_validation(program_answers=program_answers_dict,
                                                     student_answers=student_answers_dict,
@@ -79,7 +91,7 @@ def validate_answers(student, button_name):
                                               )
 
 
-def get_special_values_dict(answers: dict, special_keys: list):
+def get_dict_for_special_validation(answers: dict, special_keys: list):
     special_answers = dict()
 
     for key in special_keys:

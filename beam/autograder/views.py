@@ -6,9 +6,12 @@ from .models import (Group, Student,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry, SlabHeight,
                      MomentsForces, InitialReinforcement,
-                     CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics)
+                     CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics,
+                     CalculatedReinforcementLeftStudent, CalculatedReinforcementLeftStatistics,
+                     CalculatedReinforcementRightStudent, CalculatedReinforcementRightStatistics)
 from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
-                    MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm)
+                    MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm,
+                    CalculatedReinforcementLeftStudentForm, CalculatedReinforcementRightStudentForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
@@ -56,7 +59,6 @@ def redirect(request):
 
 
 class StudentPersonalView(View):
-
     models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
                    "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                    "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
@@ -64,10 +66,15 @@ class StudentPersonalView(View):
                    "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
                    "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
                                                      CalculatedReinforcementMiddleStudentForm],
+                   "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
+                                                   CalculatedReinforcementLeftStudentForm],
+                   "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
+                                                    CalculatedReinforcementRightStudentForm],
                    }
 
     statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
-                         CalculatedReinforcementMiddleStatistics]
+                         CalculatedReinforcementMiddleStatistics,
+                         CalculatedReinforcementLeftStatistics, CalculatedReinforcementRightStatistics]
 
     forms_with_errors = {}
 
@@ -119,12 +126,6 @@ class StudentPersonalView(View):
 
     def get(self, request, **kwargs):
         forms = dict()
-        # answer_models = [GirderGeometry, ConcreteStudentAnswers, ReinforcementStudentAnswers,
-        #                  MomentsForces, InitialReinforcement, CalculatedReinforcementMiddleStudent]
-        # answer_forms = [GirderGeometryForm, ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm,
-        #                 MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm]
-        # forms_names = ["GirderGeometry", "Concrete", "Reinforcement",
-        #                "MomentsForces", "InitialReinforcement", "CalculatedReinforcementMiddle"]
 
         for model_name, models_list in self.models_dict.items():
             answer_model = models_list[0]
@@ -138,7 +139,7 @@ class StudentPersonalView(View):
                     form = InitialReinforcementForm(instance=answer, girder_height=self.get_girder_height())
                 else:  # usual form
                     form = form_model(instance=answer)
-            else:  # answer was not saved, there could be errors in form
+            else:  # answer was not saved, there could be errors in form.
                 if self.forms_with_errors.get(model_name) and \
                         self.forms_with_errors["user"].username == request.user.username:
                     form = self.forms_with_errors[model_name]

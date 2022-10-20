@@ -6,7 +6,9 @@ from django.utils.translation import gettext_lazy
 from autograder.models import (Student,
                                ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
                                MomentsForces, InitialReinforcement,
-                               CalculatedReinforcementMiddleStudent)
+                               CalculatedReinforcementMiddleStudent,
+                               CalculatedReinforcementLeftStudent,
+                               CalculatedReinforcementRightStudent)
 from django.utils.safestring import mark_safe
 
 
@@ -339,9 +341,54 @@ class CalculatedReinforcementMiddleStudentForm(ModelForm):
         exclude = ("student",)
 
         labels = {
-            "alpha_m": mark_safe("&alpha;<sub>m</sub>"),
-            "is_compressed_zone_capacity_sufficient": mark_safe("&alpha;<sub>m</sub> < &alpha;<sub>R</sub>"),
-            "reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
+            "alpha_m": mark_safe("Параметр &alpha;<sub>m</sub>"),
+            "is_compressed_zone_capacity_sufficient": mark_safe("Прочность сжатой зоны обеспечена "
+                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+            "reinforcement_area": mark_safe("Требуемая площадь арматуры в сечении 1-1, "
+                                            "A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
         }
 
+
+class CalculatedReinforcementLeftStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Требуемая арматура в сечении 2-2",
+                                   disabled=True)
+
+    class Meta:
+        model = CalculatedReinforcementLeftStudent
+        exclude = ("student",)
+
+        labels = {
+            "fully_compressed_flange_moment": mark_safe("Момент при полностью сжатой полке, M<sub>f</sub> [кНсм]"),
+            "is_neutral_axis_in_flange": mark_safe("Неатральная ось в полке (M<sub>f</sub> > M<sub>2</sub>)?"),
+            "section_widths_for_calculation": mark_safe("Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
+            "overhanging_flange_area": mark_safe("Площадь свесов полки (если нейтральная ось в полке, то 0),"
+                                                 " A<sub>0v</sub> [см<sup>2</sup>]"),
+            "alpha_m": mark_safe("Параметр &alpha;<sub>m</sub>"),
+            "is_compressed_zone_capacity_sufficient": mark_safe("Прочность сжатой зоны обеспечена "
+                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+            "reinforcement_area": mark_safe("Требуемая площадь арматуры в сечении 2-2, "
+                                            "A<sub>s</sub><sup>2</sup>, [см<sup>2</sup>]")
+        }
+
+
+class CalculatedReinforcementRightStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Требуемая арматура в сечении 3-3",
+                                   disabled=True)
+
+    class Meta:
+        model = CalculatedReinforcementRightStudent
+        exclude = ("student",)
+
+        labels = {
+            "fully_compressed_flange_moment": mark_safe("Момент при полностью сжатой полке, M<sub>f</sub> [кНсм]"),
+            "is_neutral_axis_in_flange": mark_safe("Неатральная ось в полке (M<sub>f</sub> > M<sub>3</sub>)?"),
+            "section_widths_for_calculation": mark_safe("Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
+            "overhanging_flange_area": mark_safe("Площадь свесов полки (если нейтральная ось в полке, то 0),"
+                                                 " A<sub>0v</sub> [см<sup>2</sup>]"),
+            "alpha_m": mark_safe("Параметр &alpha;<sub>m</sub>"),
+            "is_compressed_zone_capacity_sufficient": mark_safe("Прочность сжатой зоны обеспечена "
+                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+            "reinforcement_area": mark_safe("Требуемая площадь арматуры в сечении 3-3, "
+                                            "A<sub>s</sub><sup>3</sup>, [см<sup>2</sup>]")
+        }
 

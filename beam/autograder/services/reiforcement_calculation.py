@@ -79,6 +79,7 @@ def get_materials_properties(student_id: int):
         if reinforcement is not None and concrete is not None:
             materials["R_s"] = float(reinforcement.R_s / 10)
             materials["R_sc"] = float(reinforcement.R_sc_sh / 10)
+            materials["alpha_R"] = float(reinforcement.alpha_R)
             materials["R_b"] = float(concrete.R_b / 10)
         else:
             materials["materials"] = None
@@ -114,8 +115,10 @@ def filter_data_for_section(data: dict, section: int):
     filtered_data = dict()
     filtered_data["R_s"] = data["R_s"]
     filtered_data["R_sc"] = data["R_sc"]
+    filtered_data["alpha_R"] = data["alpha_R"]
     filtered_data["R_b"] = data["R_b"]
     filtered_data["h_0"] = data[f"h_0_{section}"]
+    filtered_data["h_f"] = data[f"h_f"]
     filtered_data["a_sc"] = data[f"a_sc_{section}"]
     filtered_data["A_sc"] = data[f"A_sc_{section}"]
 
@@ -144,15 +147,21 @@ def calculate_reinforcement_area(filtered_data: dict, alpha_m: float):
         return d["M"] / (d["R_s"] * (d["h_0"] - d["a_sc"]))
 
 
+def calculate_section_moment_full_flange_compressed(filtered_data: dict):
+    d = filtered_data
+    return d["R_b"] * d["b"] * d["h_f"] * (d["h_0"] - d["h_f"] / 2) + \
+           d["R_sc"] * d["A_sc"] * (d["h_0"] - d["a_sc"])
+
+
 def calculate_reinforcement(student: Student, section: int):
     is_section_valid(section)
 
     if section == 1:
         model = CalculatedReinforcementMiddleProgram
     elif section == 2:
-        pass
+        model = CalculatedReinforcementLeftProgram
     else:
-        pass
+        model = CalculatedReinforcementRightProgram
 
     defaults = dict()
 
@@ -161,18 +170,48 @@ def calculate_reinforcement(student: Student, section: int):
 
     if is_data_for_calculations(data):
         filtered_data = filter_data_for_section(data, section)
+
+        # special values for sections 2 and 3
+        if section != 1:
+            defaults["fully_compressed_flange_moment"] = calculate_section_moment_full_flange_compressed(filtered_data)
+            # is neutral axis in flange
+            if defaults["fully_compressed_flange_moment"] > filtered_data["M"]:
+                defaults["is_neutral_axis_in_flange"] = True
+            else:
+                defaults["is_neutral_axis_in_flange"] = False
+            # section width for calculations
+            if defaults["is_neutral_axis_in_flange"]:
+                defaults["section_widths_for_calculation"] = filtered_data["b"]
+                defaults["overhanging_flange_area"] = 0
+            else:
+                raise ValueError(f"Case M_f < M is not implemented!")
+
+        # common values (for sections 2 and 3 for case when M < M_f only!)
         defaults["alpha_m"] = calculate_alpha_m(filtered_data)
+        if defaults["alpha_m"] <= filtered_data["alpha_R"]:
+            defaults["is_compressed_zone_capacity_sufficient"] = True
+        else:
+            raise ValueError(f"Case alpha_m > alpha_R is not implemented!")
+
         defaults["reinforcement_area"] = calculate_reinforcement_area(filtered_data, defaults["alpha_m"])
 
         model.objects.update_or_create(student=student,
                                        defaults={**defaults}
                                        )
     else:
+        if section == 1:
+            defaults["alpha_m"] = -1
+            defaults["is_compressed_zone_capacity_sufficient"] = False
+            defaults["reinforcement_area"] = -1
+        else:
+            defaults["fully_compressed_flange_moment"] = -1
+            defaults["is_neutral_axis_in_flange"] = False
+            defaults["section_widths_for_calculation"] = -1
+            defaults["overhanging_flange_area"] = -1
+            defaults["alpha_m"] = -1
+            defaults["is_compressed_zone_capacity_sufficient"] = False
+            defaults["reinforcement_area"] = -1
+
         model.objects.update_or_create(student=student,
-                                       defaults={"alpha_m": -1,
-                                                 "reinforcement_area": -1}
+                                       defaults={**defaults}
                                        )
-
-
-def calculate_support_reinforcement(student: Student):
-    pass
