@@ -340,6 +340,7 @@ class CalculatedReinforcementMiddleStudentForm(ModelForm):
 
         labels = {
             "alpha_m": mark_safe("&alpha;<sub>m</sub>"),
+            "is_compressed_zone_capacity_sufficient": mark_safe("&alpha;<sub>m</sub> < &alpha;<sub>R</sub>"),
             "reinforcement_area": mark_safe("A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
         }
 

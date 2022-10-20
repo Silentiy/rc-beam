@@ -59,13 +59,34 @@ def validate_answers(student, button_name):
                                                          student_answers=student_answers_dict,
                                                          program_answer_id=program_answer.id)
     else:
-        statistics = tolerant_match_validation(program_answers=program_answers_dict,
-                                               student_answers=student_answers_dict,
-                                               tolerance=0.01)
+        special_keys = list()
+        for key in student_answers_dict.keys():  # for fields, that contain True / False
+            if str(key).startswith("is_"):
+                special_keys.append(key)
+
+        if special_keys is not None:
+            statistics = strict_match_validation(program_answers=get_special_values_dict(program_answers_dict,
+                                                                                         special_keys),
+                                                 student_answers=get_special_values_dict(student_answers_dict,
+                                                                                         special_keys))
+
+        statistics.update(tolerant_match_validation(program_answers=program_answers_dict,
+                                                    student_answers=student_answers_dict,
+                                                    tolerance=0.01))
 
     statistics_model.objects.update_or_create(student_id=student_id,
                                               defaults={**statistics}
                                               )
+
+
+def get_special_values_dict(answers: dict, special_keys: list):
+    special_answers = dict()
+
+    for key in special_keys:
+        if answers.get(key) is not None:
+            special_answers[key] = answers.pop(key)
+
+    return special_answers
 
 
 def strict_match_validation(program_answers: dict, student_answers: dict):

@@ -1,7 +1,9 @@
-from autograder.models import (ConcreteStudentAnswers,
-                               ReinforcementStudentAnswers,
-                               Student, GirderGeometry, MomentsForces, InitialReinforcement,
+from autograder.models import (Student, VariantInfo,
+                               Concrete, Reinforcement,
+                               GirderGeometry, MomentsForces, InitialReinforcement,
                                CalculatedReinforcementMiddleProgram,
+                               CalculatedReinforcementLeftProgram,
+                               CalculatedReinforcementRightProgram
                                )
 
 VALID_SECTIONS = {1, 2, 3}
@@ -62,14 +64,24 @@ def get_initial_reinforcement(student_id: int):
 
 
 def get_materials_properties(student_id: int):
-    concrete = ConcreteStudentAnswers.objects.filter(student_id=student_id).first()
-    reinforcement = ReinforcementStudentAnswers.objects.filter(student_id=student_id).first()
     materials = dict()
 
-    if reinforcement is not None and concrete is not None:
-        materials["R_s"] = float(reinforcement.R_s)
-        materials["R_sc"] = float(reinforcement.R_sc_sh)
-        materials["R_b"] = float(concrete.R_b)
+    student = Student.objects.filter(pk=student_id).first()
+
+    if student is not None:
+        student_subgroup_variant = student.subgroup_variant_number
+        student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
+        concrete_id = student_variant_data.girder_concrete_id
+        reinforcement_id = student_variant_data.girder_reinforcement_id
+        concrete = Concrete.objects.filter(pk=concrete_id).first()
+        reinforcement = Reinforcement.objects.filter(pk=reinforcement_id).first()
+
+        if reinforcement is not None and concrete is not None:
+            materials["R_s"] = float(reinforcement.R_s / 10)
+            materials["R_sc"] = float(reinforcement.R_sc_sh / 10)
+            materials["R_b"] = float(concrete.R_b / 10)
+        else:
+            materials["materials"] = None
     else:
         materials["materials"] = None
 

@@ -803,6 +803,7 @@ class CalculatedReinforcementMiddleStudent(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -816,6 +817,7 @@ class CalculatedReinforcementMiddleProgram(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -829,6 +831,7 @@ class CalculatedReinforcementMiddleStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
     alpha_m = models.BooleanField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.BooleanField()
 
     class Meta:
@@ -846,6 +849,7 @@ class CalculatedReinforcementLeftStudent(models.Model):
     section_widths_for_calculation = models.FloatField()
     overhanging_flange_area = models.FloatField()
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -863,6 +867,7 @@ class CalculatedReinforcementLeftProgram(models.Model):
     section_widths_for_calculation = models.FloatField()
     overhanging_flange_area = models.FloatField()
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -880,6 +885,7 @@ class CalculatedReinforcementLeftStatistics(models.Model):
     section_widths_for_calculation = models.BooleanField()
     overhanging_flange_area = models.BooleanField()
     alpha_m = models.BooleanField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.BooleanField()
 
     class Meta:
@@ -897,6 +903,7 @@ class CalculatedReinforcementRightStudent(models.Model):
     section_widths_for_calculation = models.FloatField()
     overhanging_flange_area = models.FloatField()
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -914,6 +921,7 @@ class CalculatedReinforcementRightProgram(models.Model):
     section_widths_for_calculation = models.FloatField()
     overhanging_flange_area = models.FloatField()
     alpha_m = models.FloatField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.FloatField()
 
     class Meta:
@@ -931,6 +939,7 @@ class CalculatedReinforcementRightStatistics(models.Model):
     section_widths_for_calculation = models.BooleanField()
     overhanging_flange_area = models.BooleanField()
     alpha_m = models.BooleanField()
+    is_compressed_zone_capacity_sufficient = models.BooleanField()
     reinforcement_area = models.BooleanField()
 
     class Meta:
