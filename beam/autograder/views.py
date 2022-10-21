@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic, View
-from .models import (Group, Student,
+from .models import (Group, Student, StudentOpenForms,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry, SlabHeight,
@@ -61,44 +61,29 @@ def redirect(request):
 
 class StudentPersonalView(View):
     forms_with_errors = dict()
-    # initial data models
-    models_dict = {"GirderGeometry": [GirderGeometry, GirderGeometryForm],
+
+    models_dict = {  # initial data models
+                   "GirderGeometry": [GirderGeometry, GirderGeometryForm],
                    "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
                    "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
                    "MomentsForces": [MomentsForces, MomentsForcesForm],
                    "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
+                     # models for reinforcement calculations
+                   "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+                                                     CalculatedReinforcementMiddleStudentForm],
+                   "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
+                                                   CalculatedReinforcementLeftStudentForm],
+                   "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
+                                                    CalculatedReinforcementRightStudentForm],
+                     # models with final reinforcement placement
+                   "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
+                     # models with bearing capacity calculations
+
                    }
-    # models for reinforcement calculations
-    models_dict.update({"CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
-                                                          CalculatedReinforcementMiddleStudentForm],
-                        "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
-                                                        CalculatedReinforcementLeftStudentForm],
-                        "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
-                                                         CalculatedReinforcementRightStudentForm],
-                        }
-                       )
-    # models with final reinforcement placement
-    models_dict.update({"CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
-                        }
-                       )
-    # models with bearing capacity calculations
-    models_dict.update({})
 
     statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
                          CalculatedReinforcementMiddleStatistics,
                          CalculatedReinforcementLeftStatistics, CalculatedReinforcementRightStatistics]
-    models_part = 1
-
-    # we do not want to show some forms before previous forms are successfully filled
-    def update_models_dict(self):
-        instances = list()
-        for key, value in self.models_dict.items():
-            instances.append(self.get_instance(value[0]))
-        self.models_part += 1
-
-        if None not in instances:
-            self.models_dict.update(getattr(self, f"models_part_{self.models_part}"))
-            self.update_models_dict()
 
     def is_owner(self):
         owner = False
@@ -146,11 +131,30 @@ class StudentPersonalView(View):
         else:
             return None
 
+    # we do not want to show some forms before previous forms are successfully filled
+    def update_student_models_dict(self):
+        student = self.get_student()
+        opened_forms_names = list()
+        for key, value in self.models_dict.items():
+            if self.get_instance(value[0]) is not None:
+                opened_forms_names.append(key)
+        opened_forms_number = len(opened_forms_names)
+        StudentOpenForms.objects.update_or_create(student=student,
+                                                  defaults={"max_opened_form_number": opened_forms_number})
+
+    def get_student_models_dict(self):
+        opened_forms_number = self.get_instance(StudentOpenForms).max_opened_form_number + 1
+        # if opened_forms_number == 0:
+        #     opened_forms_number = 1  # we need to start somewhere initial data granted to anyone
+        student_models_dict = dict(list(self.models_dict.items())[:opened_forms_number])
+        return student_models_dict
+
     def get(self, request, **kwargs):
         forms = dict()
-        self.update_models_dict()
+        self.update_student_models_dict()
+        student_models_dict = self.get_student_models_dict()
 
-        for model_name, models_list in self.models_dict.items():
+        for model_name, models_list in student_models_dict.items():
             answer_model = models_list[0]
             form_model = models_list[1]
             answer = self.get_instance(answer_model)
@@ -195,20 +199,20 @@ class StudentPersonalView(View):
                                                                     "owner": self.is_owner(),
                                                                     "student_name": self.get_student_name(),
                                                                     "stat": statistics_dict,
-                                                                    "forms_names": list(self.models_dict.keys()),
+                                                                    "forms_names": list(student_models_dict.keys()),
                                                                     }
                       )
 
     def post(self, request, **kwargs):
 
-        self.update_models_dict()
+        student_models_dict = self.get_student_models_dict()
 
-        for key in self.models_dict.keys():
+        for key in student_models_dict.keys():
             if key in request.POST:
                 submit_button_name = key
 
-        answer_instance = self.get_instance(self.models_dict[submit_button_name][0])
-        model_form = self.models_dict[submit_button_name][1]
+        answer_instance = self.get_instance(student_models_dict[submit_button_name][0])
+        model_form = student_models_dict[submit_button_name][1]
 
         if answer_instance is not None:
             if model_form is GirderGeometryForm:
@@ -241,6 +245,8 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student = self.get_student()
             answer.save()
+            self.update_student_models_dict()
+
             if submit_button_name not in ["GirderGeometry", "MomentsForces",
                                           "InitialReinforcement", "CalculatedReinforcement"]:
                 validation.validate_answers(self.get_student())
