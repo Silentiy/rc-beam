@@ -976,12 +976,12 @@ class CalculatedReinforcement(models.Model):
     section_1_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_bot_external_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_1_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+    section_1_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
     # bot reinforcement external
     section_1_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_1_bot_internal_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+    section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
     # bot reinforcement area
     section_1_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to bot
@@ -993,12 +993,12 @@ class CalculatedReinforcement(models.Model):
     section_2_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_2_top_external_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_2_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+    section_2_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
     # top reinforcement internal
     section_2_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_2_top_internal_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_2_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+    section_2_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
     # top reinforcement area
     section_2_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to top
@@ -1026,12 +1026,12 @@ class CalculatedReinforcement(models.Model):
     section_3_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_3_top_external_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_3_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=0)
+    section_3_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
     # top reinforcement internal
     section_3_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
                                                  related_name="section_3_top_internal_calc",
                                                  on_delete=models.DO_NOTHING, null=True, default=1)
-    section_3_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=0)
+    section_3_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
     # top reinforcement area
     section_3_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
     # effective depths to top
@@ -1075,3 +1075,13 @@ class CalculatedReinforcement(models.Model):
         stud = self.student if hasattr(self, 'student') else "no student yet"
         return f"Calculated reinforcement {stud}"
 
+
+class StudentOpenForms(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    max_opened_form_number = models.SmallIntegerField(default=5)
+
+    class Meta:
+        db_table = "autograder_student_open_forms"
+
+    def __str__(self):
+        return f"{self.max_opened_form_number} opened to {self.student}"
