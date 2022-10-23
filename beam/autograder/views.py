@@ -4,7 +4,7 @@ from django.views import generic, View
 from .models import (Group, Student, StudentOpenForms,
                      ConcreteStudentAnswers, ConcreteAnswersStatistics,
                      ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
-                     GirderGeometry, SlabHeight,
+                     GirderGeometry,
                      MomentsForces, InitialReinforcement, CalculatedReinforcement,
                      CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics,
                      CalculatedReinforcementLeftStudent, CalculatedReinforcementLeftStatistics,
@@ -18,7 +18,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
-from autograder.services import validation, girder_length
+from autograder.services import validation, girder_length, slab_height
 from django.db import models
 from django.db.models import Model
 from django.core.exceptions import ValidationError
@@ -63,23 +63,23 @@ class StudentPersonalView(View):
     forms_with_errors = dict()
 
     models_dict = {  # initial data models
-                   "GirderGeometry": [GirderGeometry, GirderGeometryForm],
-                   "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
-                   "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
-                   "MomentsForces": [MomentsForces, MomentsForcesForm],
-                   "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
-                     # models for reinforcement calculations
-                   "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
-                                                     CalculatedReinforcementMiddleStudentForm],
-                   "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
-                                                   CalculatedReinforcementLeftStudentForm],
-                   "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
-                                                    CalculatedReinforcementRightStudentForm],
-                     # models with final reinforcement placement
-                   "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
-                     # models with bearing capacity calculations
+        "GirderGeometry": [GirderGeometry, GirderGeometryForm],
+        "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
+        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+        "MomentsForces": [MomentsForces, MomentsForcesForm],
+        "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
+        # models for reinforcement calculations
+        "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+                                          CalculatedReinforcementMiddleStudentForm],
+        "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
+                                        CalculatedReinforcementLeftStudentForm],
+        "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
+                                         CalculatedReinforcementRightStudentForm],
+        # models with final reinforcement placement
+        "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
+        # models with bearing capacity calculations
 
-                   }
+    }
 
     statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
                          CalculatedReinforcementMiddleStatistics,
@@ -119,7 +119,7 @@ class StudentPersonalView(View):
         return db_model.objects.filter(student_id=self.get_student_id()).first()
 
     def get_slab(self):
-        return SlabHeight.objects.get(student_id=self.get_student_id())
+        return slab_height.get_slab(self.get_student(), self.get_student_group_name())
 
     def get_girder_length(self):
         return girder_length.determine_girder_length(student=self.get_student())
