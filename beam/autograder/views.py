@@ -62,23 +62,33 @@ def redirect(request):
 class StudentPersonalView(View):
     forms_with_errors = dict()
 
-    models_dict = {  # initial data models
-        "GirderGeometry": [GirderGeometry, GirderGeometryForm],
-        "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
-        "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
-        "MomentsForces": [MomentsForces, MomentsForcesForm],
-        "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm],
-        # models for reinforcement calculations
-        "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
-                                          CalculatedReinforcementMiddleStudentForm],
-        "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
-                                        CalculatedReinforcementLeftStudentForm],
-        "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
-                                         CalculatedReinforcementRightStudentForm],
-        # models with final reinforcement placement
-        "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm],
-        # models with bearing capacity calculations
-
+    models_dict = {
+        "initial_data_models": {
+            "GirderGeometry": [GirderGeometry, GirderGeometryForm],
+            "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
+            "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+            "MomentsForces": [MomentsForces, MomentsForcesForm],
+            "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm]
+        },
+        "reinforcement_calculations_models": {
+            "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+                                              CalculatedReinforcementMiddleStudentForm],
+            "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
+                                            CalculatedReinforcementLeftStudentForm],
+            "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
+                                             CalculatedReinforcementRightStudentForm]
+        },
+        "reinforcement_placement_models": {
+            "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm]
+        },
+        # "capacity_calculations_models": {
+        #     "BearingCapacityMiddleTop": [],
+        #     "BearingCapacityMiddleBot": [],
+        #     "BearingCapacityLeftTop": [],
+        #     "BearingCapacityLeftBot": [],
+        #     "BearingCapacityRightTop": [],
+        #     "BearingCapacityRightBot": [],
+        # }
     }
 
     statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
@@ -132,26 +142,47 @@ class StudentPersonalView(View):
             return None
 
     # we do not want to show some forms before previous forms are successfully filled
-    def update_student_models_dict(self):
+    def update_student_opened_blocks(self):
         student = self.get_student()
+        current_blocks = self.get_instance(StudentOpenForms)
+        opened_blocks_number = 0
         opened_forms_names = list()
-        for key, value in self.models_dict.items():
-            if self.get_instance(value[0]) is not None:
-                opened_forms_names.append(key)
-        opened_forms_number = len(opened_forms_names)
-        StudentOpenForms.objects.update_or_create(student=student,
-                                                  defaults={"max_opened_form_number": opened_forms_number})
+
+        for block_name, block_models in self.models_dict.items():
+            number_models_in_block = len(list(block_models.items()))
+            print("number_models_in_block", number_models_in_block)
+            for key, value in block_models.items():
+                if self.get_instance(value[0]) is not None and key in block_models.keys():
+                    opened_forms_names.append(key)
+
+            opened_forms_number = len(opened_forms_names)
+            print("opened_forms_number", opened_forms_number)
+
+            if opened_forms_number == number_models_in_block:  # all models in block are filled
+                opened_blocks_number += 1
+                StudentOpenForms.objects.update_or_create(student=student,
+                                                          defaults={"max_opened_form_number": opened_blocks_number})
+            opened_forms_names.clear()
 
     def get_student_models_dict(self):
-        opened_forms_number = self.get_instance(StudentOpenForms).max_opened_form_number + 1
-        # if opened_forms_number == 0:
-        #     opened_forms_number = 1  # we need to start somewhere initial data granted to anyone
-        student_models_dict = dict(list(self.models_dict.items())[:opened_forms_number])
+        current_blocks = self.get_instance(StudentOpenForms)
+
+        if current_blocks is not None:  # we have instance in table "StudentOpenForm" for this student
+            opened_blocks_number = current_blocks.max_opened_form_number + 1  # one form more to show
+        else:
+            opened_blocks_number = 1  # one block is opened for everyone
+
+        student_models_blocks = dict(list(self.models_dict.items())[:opened_blocks_number])
+
+        student_models_dict = dict()
+        for key, value in student_models_blocks.items():
+            student_models_dict.update(value)
+
         return student_models_dict
 
     def get(self, request, **kwargs):
         forms = dict()
-        self.update_student_models_dict()
+
         student_models_dict = self.get_student_models_dict()
 
         for model_name, models_list in student_models_dict.items():
@@ -245,7 +276,7 @@ class StudentPersonalView(View):
             answer = form.save(commit=False)
             answer.student = self.get_student()
             answer.save()
-            self.update_student_models_dict()
+            self.update_student_opened_blocks()
 
             if submit_button_name not in ["GirderGeometry", "MomentsForces",
                                           "InitialReinforcement", "CalculatedReinforcement"]:
