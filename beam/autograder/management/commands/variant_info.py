@@ -233,17 +233,18 @@ class Command(BaseCommand):
                                                                  subgroup_variant_number=variant_number,
                                                                  personal_variant_number=personal_variant_number,
                                                                  defaults={"full_name": student_full_name,
-                                                                           "user": user,
-                                                                           "first_access_password":
-                                                                               first_access_password}
+                                                                           "user": user
+                                                                           }
                                                                  )
-                            # data for firs login
+                            # data for first login
                             password = None
                             try:
                                 password = first_access_password
                             except UnboundLocalError:
-                                student_id = student[0].pk
-                                password = Student.objects.get(pk=student_id).first_access_password
+                                pass
+                                print("Password to file is one-time option")
+                                # student_id = student[0].pk
+                                # password = Student.objects.get(pk=student_id).first_access_password
 
                             first_login_data["fullname"].append(student_full_name)
                             first_login_data["login"].append(username)
