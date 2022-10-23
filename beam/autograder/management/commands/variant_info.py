@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
         page_number = 0
         defaults = dict()
-        first_login_data = {"fullname": [], "login": [], "password": []}
+        first_login_data = {}
         for doc_name in pdf_files_list:
             # check if file is accessible
             try:
@@ -116,7 +116,11 @@ class Command(BaseCommand):
 
                     # city
                     city_name = lines[6]
-                    defaults["city"] = Cities.objects.get(city_name=city_name)
+                    try:
+                        defaults["city"] = Cities.objects.get(city_name=city_name)
+                    except defaults["city"].DoesNotExist:
+                        print("Add Cities data to DB by running 'reference_information' command")
+                        quit()
 
                     # girder
                     defaults["girder_type"] = lines[26]
@@ -211,7 +215,7 @@ class Command(BaseCommand):
 
                             try:
                                 user = User.objects.get_by_natural_key(username=username)
-                                # we have user object therefore we have student object with first_access_password
+                                # we have user object therefore we have first_access_password for student
                                 # we may want to update student name, but we surely do not want to update password!
                                 student = Student.objects.update_or_create(group=group,
                                                                            subgroup_variant_number=
@@ -221,7 +225,7 @@ class Command(BaseCommand):
                                                                            defaults={"full_name": student_full_name,
                                                                                      "user": user}
                                                                            )
-                            except ObjectDoesNotExist:
+                            except ObjectDoesNotExist:  # we have to create user and assign password to them
                                 first_access_password = secrets.token_urlsafe(6)
                                 user = User.objects.create_user(username=username,
                                                                 first_name=student_first_name if student_first_name
@@ -236,19 +240,10 @@ class Command(BaseCommand):
                                                                            "user": user
                                                                            }
                                                                  )
-                            # data for first login
-                            password = None
-                            try:
-                                password = first_access_password
-                            except UnboundLocalError:
-                                pass
-                                print("Password to file is one-time option")
-                                # student_id = student[0].pk
-                                # password = Student.objects.get(pk=student_id).first_access_password
-
-                            first_login_data["fullname"].append(student_full_name)
-                            first_login_data["login"].append(username)
-                            first_login_data["password"].append(password)
+                                # data for first login
+                                first_login_data["fullname"].append(student_full_name)
+                                first_login_data["login"].append(username)
+                                first_login_data["password"].append(first_access_password)
 
                 else:  # even page
                     # roof slab materials
@@ -286,12 +281,13 @@ class Command(BaseCommand):
                                                          variant_number=variant_number,
                                                          defaults={**defaults})
 
-            # write first login data into file
-            folder_path = "autograder/login_data"
-            Path(folder_path).mkdir(parents=True, exist_ok=True)
-            file_name = folder_path + f"/login_data_{group_number}.txt"
-            login_data_dataframe = pd.DataFrame(data=first_login_data)
-            login_data_dataframe.to_csv(file_name, sep=' ')
+            # write first login data into the file
+            if first_login_data:
+                folder_path = "autograder/login_data"
+                Path(folder_path).mkdir(parents=True, exist_ok=True)
+                file_name = folder_path + f"/login_data_{group_number}.txt"
+                login_data_dataframe = pd.DataFrame(data=first_login_data)
+                login_data_dataframe.to_csv(file_name, sep=' ')
 
             print(f"Variants data for group {group_name} inserted into DB")
             print(f"Login data is written into file '{file_name}'")
