@@ -1085,3 +1085,343 @@ class StudentOpenForms(models.Model):
 
     def __str__(self):
         return f"{self.max_opened_form_number} opened to {self.student}"
+
+
+# MIDDLE BOT
+class BearingCapacityMiddleBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.FloatField()
+    relative_compressed_zone_height_a_middle_bot = models.FloatField()
+    bearing_capacity_a_middle_bot = models.FloatField()
+    compressed_zone_height_b_middle_bot = models.FloatField()
+    bearing_capacity_b_middle_bot = models.FloatField()
+    bearing_capacity_middle_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+class BearingCapacityMiddleBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.FloatField()
+    relative_compressed_zone_height_a_middle_bot = models.FloatField()
+    bearing_capacity_a_middle_bot = models.FloatField()
+    compressed_zone_height_b_middle_bot = models.FloatField()
+    bearing_capacity_b_middle_bot = models.FloatField()
+    bearing_capacity_middle_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+class BearingCapacityMiddleBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.BooleanField()
+    relative_compressed_zone_height_a_middle_bot = models.BooleanField()
+    bearing_capacity_a_middle_bot = models.BooleanField()
+    compressed_zone_height_b_middle_bot = models.BooleanField()
+    bearing_capacity_b_middle_bot = models.BooleanField()
+    bearing_capacity_middle_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+# LEFT BOT
+class BearingCapacityLeftBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.FloatField()
+    relative_compressed_zone_height_a_left_bot = models.FloatField()
+    bearing_capacity_a_left_bot = models.FloatField()
+    compressed_zone_height_b_left_bot = models.FloatField()
+    bearing_capacity_b_left_bot = models.FloatField()
+    bearing_capacity_left_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+class BearingCapacityLeftBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.FloatField()
+    relative_compressed_zone_height_a_left_bot = models.FloatField()
+    bearing_capacity_a_left_bot = models.FloatField()
+    compressed_zone_height_b_left_bot = models.FloatField()
+    bearing_capacity_b_left_bot = models.FloatField()
+    bearing_capacity_left_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+class BearingCapacityLeftBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.BooleanField()
+    relative_compressed_zone_height_a_left_bot = models.BooleanField()
+    bearing_capacity_a_left_bot = models.BooleanField()
+    compressed_zone_height_b_left_bot = models.BooleanField()
+    bearing_capacity_b_left_bot = models.BooleanField()
+    bearing_capacity_left_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+# RIGHT BOT
+class BearingCapacityRightBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.FloatField()
+    relative_compressed_zone_height_a_right_bot = models.FloatField()
+    bearing_capacity_a_right_bot = models.FloatField()
+    compressed_zone_height_b_right_bot = models.FloatField()
+    bearing_capacity_b_right_bot = models.FloatField()
+    bearing_capacity_right_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+
+
+class BearingCapacityRightBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.FloatField()
+    relative_compressed_zone_height_a_right_bot = models.FloatField()
+    bearing_capacity_a_right_bot = models.FloatField()
+    compressed_zone_height_b_right_bot = models.FloatField()
+    bearing_capacity_b_right_bot = models.FloatField()
+    bearing_capacity_right_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+
+
+class BearingCapacityRightBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.BooleanField()
+    relative_compressed_zone_height_a_right_bot = models.BooleanField()
+    bearing_capacity_a_right_bot = models.BooleanField()
+    compressed_zone_height_b_right_bot = models.BooleanField()
+    bearing_capacity_b_right_bot = models.BooleanField()
+    bearing_capacity_right_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+    
+
+# MIDDLE TOP
+class BearingCapacityMiddleTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.FloatField()
+    ultimate_compressive_force_middle_top = models.FloatField()
+
+    compressed_zone_height_a_middle_top = models.FloatField()
+    relative_compressed_zone_height_a_middle_top = models.FloatField()
+    bearing_capacity_a_middle_top = models.FloatField()
+    compressed_zone_height_b_middle_top = models.FloatField()
+    bearing_capacity_b_middle_top = models.FloatField()
+    bearing_capacity_middle_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+class BearingCapacityMiddleTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.FloatField()
+    ultimate_compressive_force_middle_top = models.FloatField()
+
+    compressed_zone_height_a_middle_top = models.FloatField()
+    relative_compressed_zone_height_a_middle_top = models.FloatField()
+    bearing_capacity_a_middle_top = models.FloatField()
+    compressed_zone_height_b_middle_top = models.FloatField()
+    bearing_capacity_b_middle_top = models.FloatField()
+    bearing_capacity_middle_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+class BearingCapacityMiddleTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.BooleanField()
+    ultimate_compressive_force_middle_top = models.BooleanField()
+
+    compressed_zone_height_a_middle_top = models.BooleanField()
+    relative_compressed_zone_height_a_middle_top = models.BooleanField()
+    bearing_capacity_a_middle_top = models.BooleanField()
+    compressed_zone_height_b_middle_top = models.BooleanField()
+    bearing_capacity_b_middle_top = models.BooleanField()
+    bearing_capacity_middle_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+# LEFT TOP
+class BearingCapacityLeftTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.FloatField()
+    ultimate_compressive_force_left_top = models.FloatField()
+
+    compressed_zone_height_a_left_top = models.FloatField()
+    relative_compressed_zone_height_a_left_top = models.FloatField()
+    bearing_capacity_a_left_top = models.FloatField()
+    compressed_zone_height_b_left_top = models.FloatField()
+    bearing_capacity_b_left_top = models.FloatField()
+    bearing_capacity_left_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+class BearingCapacityLeftTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.FloatField()
+    ultimate_compressive_force_left_top = models.FloatField()
+
+    compressed_zone_height_a_left_top = models.FloatField()
+    relative_compressed_zone_height_a_left_top = models.FloatField()
+    bearing_capacity_a_left_top = models.FloatField()
+    compressed_zone_height_b_left_top = models.FloatField()
+    bearing_capacity_b_left_top = models.FloatField()
+    bearing_capacity_left_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+class BearingCapacityLeftTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.BooleanField()
+    ultimate_compressive_force_left_top = models.BooleanField()
+
+    compressed_zone_height_a_left_top = models.BooleanField()
+    relative_compressed_zone_height_a_left_top = models.BooleanField()
+    bearing_capacity_a_left_top = models.BooleanField()
+    compressed_zone_height_b_left_top = models.BooleanField()
+    bearing_capacity_b_left_top = models.BooleanField()
+    bearing_capacity_left_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+# RIGHT TOP
+class BearingCapacityRightTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.FloatField()
+    ultimate_compressive_force_right_top = models.FloatField()
+
+    compressed_zone_height_a_right_top = models.FloatField()
+    relative_compressed_zone_height_a_right_top = models.FloatField()
+    bearing_capacity_a_right_top = models.FloatField()
+    compressed_zone_height_b_right_top = models.FloatField()
+    bearing_capacity_b_right_top = models.FloatField()
+    bearing_capacity_right_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+
+
+class BearingCapacityRightTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.FloatField()
+    ultimate_compressive_force_right_top = models.FloatField()
+
+    compressed_zone_height_a_right_top = models.FloatField()
+    relative_compressed_zone_height_a_right_top = models.FloatField()
+    bearing_capacity_a_right_top = models.FloatField()
+    compressed_zone_height_b_right_top = models.FloatField()
+    bearing_capacity_b_right_top = models.FloatField()
+    bearing_capacity_right_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+
+
+class BearingCapacityRightTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.BooleanField()
+    ultimate_compressive_force_right_top = models.BooleanField()
+
+    compressed_zone_height_a_right_top = models.BooleanField()
+    relative_compressed_zone_height_a_right_top = models.BooleanField()
+    bearing_capacity_a_right_top = models.BooleanField()
+    compressed_zone_height_b_right_top = models.BooleanField()
+    bearing_capacity_b_right_top = models.BooleanField()
+    bearing_capacity_right_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+

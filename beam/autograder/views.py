@@ -1,35 +1,25 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.views import generic, View
-from .models import (Group, Student, StudentOpenForms,
-                     Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics,
-                     Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
-                     GirderGeometry,
-                     MomentsForces, InitialReinforcement, CalculatedReinforcement,
-                     CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics,
-                     CalculatedReinforcementMiddleProgram,
-                     CalculatedReinforcementLeftStudent, CalculatedReinforcementLeftStatistics,
-                     CalculatedReinforcementLeftProgram,
-                     CalculatedReinforcementRightStudent, CalculatedReinforcementRightStatistics,
-                     CalculatedReinforcementRightProgram)
+import autograder.models as md
 from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
                     MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm,
                     CalculatedReinforcementLeftStudentForm, CalculatedReinforcementRightStudentForm,
-                    CalculatedReinforcementForm)
+                    CalculatedReinforcementForm,
+                    BearingCapacityMiddleBotStudentForm, BearingCapacityLeftBotStudentForm,
+                    BearingCapacityRightBotStudentForm,
+                    BearingCapacityMiddleTopStudentForm, BearingCapacityLeftTopStudentForm,
+                    BearingCapacityRightTopStudentForm)
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from autograder.services import validation, girder_length, slab_height
-from django.db import models
 from django.db.models import Model
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy
 
 
 class GroupList(generic.ListView):
-    model = Group
+    model = md.Group
 
     template_name = "RC_beam/group_list.html"
     context_object_name = "group_list"
@@ -37,7 +27,7 @@ class GroupList(generic.ListView):
 
 
 class StudentList(generic.ListView):
-    model = Student
+    model = md.Student
 
     def get_group_id(self):
         return self.kwargs['group_id']
@@ -45,13 +35,13 @@ class StudentList(generic.ListView):
     def get_queryset(self):
         """ Return a list of students from group with given 'group_id' """
         group_id = self.get_group_id()
-        return Student.objects.filter(group_id=group_id)
+        return md.Student.objects.filter(group_id=group_id)
 
     def get_context_data(self, **kwargs):
         group_id = self.get_group_id()
-        context = super(StudentList, self).get_context_data(**kwargs)
+        context = super(md.StudentList, self).get_context_data(**kwargs)
         context["group_id"] = group_id
-        context["group_name"] = Group.objects.filter(pk=group_id)[0]
+        context["group_name"] = md.Group.objects.filter(pk=group_id)[0]
         return context
 
 
@@ -67,44 +57,55 @@ class StudentPersonalView(View):
 
     models_dict = {
         "initial_data_models": {
-            "GirderGeometry": [GirderGeometry, GirderGeometryForm],
-            "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm, Concrete,
-                         ConcreteAnswersStatistics],
-            "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm,
-                              Reinforcement, ReinforcementAnswersStatistics],
-            "MomentsForces": [MomentsForces, MomentsForcesForm],
-            "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm]
+            "GirderGeometry": [md.GirderGeometry, GirderGeometryForm],
+            "Concrete": [md.ConcreteStudentAnswers, ConcreteStudentAnswersForm, md.Concrete,
+                         md.ConcreteAnswersStatistics],
+            "Reinforcement": [md.ReinforcementStudentAnswers, ReinforcementStudentAnswersForm,
+                              md.Reinforcement, md.ReinforcementAnswersStatistics],
+            "MomentsForces": [md.MomentsForces, MomentsForcesForm],
+            "InitialReinforcement": [md.InitialReinforcement, InitialReinforcementForm]
         },
         "reinforcement_calculations_models": {
-            "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
+            "CalculatedReinforcementMiddle": [md.CalculatedReinforcementMiddleStudent,
                                               CalculatedReinforcementMiddleStudentForm,
-                                              CalculatedReinforcementMiddleProgram,
-                                              CalculatedReinforcementMiddleStatistics],
-            "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
+                                              md.CalculatedReinforcementMiddleProgram,
+                                              md.CalculatedReinforcementMiddleStatistics],
+            "CalculatedReinforcementLeft": [md.CalculatedReinforcementLeftStudent,
                                             CalculatedReinforcementLeftStudentForm,
-                                            CalculatedReinforcementLeftProgram,
-                                            CalculatedReinforcementLeftStatistics],
-            "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
+                                            md.CalculatedReinforcementLeftProgram,
+                                            md.CalculatedReinforcementLeftStatistics],
+            "CalculatedReinforcementRight": [md.CalculatedReinforcementRightStudent,
                                              CalculatedReinforcementRightStudentForm,
-                                             CalculatedReinforcementRightProgram,
-                                             CalculatedReinforcementRightStatistics]
+                                             md.CalculatedReinforcementRightProgram,
+                                             md.CalculatedReinforcementRightStatistics]
         },
         "reinforcement_placement_models": {
-            "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm]
+            "CalculatedReinforcement": [md.CalculatedReinforcement, CalculatedReinforcementForm]
         },
-        # "capacity_calculations_models": {
-        #     "BearingCapacityMiddleTop": [],
-        #     "BearingCapacityMiddleBot": [],
-        #     "BearingCapacityLeftTop": [],
-        #     "BearingCapacityLeftBot": [],
-        #     "BearingCapacityRightTop": [],
-        #     "BearingCapacityRightBot": [],
-        # }
+        "capacity_calculations_models": {
+            "BearingCapacityMiddleBot": [md.BearingCapacityMiddleBotStudent, BearingCapacityMiddleBotStudentForm,
+                                         md.BearingCapacityMiddleBotProgram, md.BearingCapacityMiddleBotStatistics, ],
+            "BearingCapacityLeftBot": [md.BearingCapacityLeftBotStudent, BearingCapacityLeftBotStudentForm,
+                                       md.BearingCapacityLeftBotProgram, md.BearingCapacityLeftBotStatistics, ],
+            "BearingCapacityRightBot": [md.BearingCapacityRightBotStudent, BearingCapacityRightBotStudentForm,
+                                        md.BearingCapacityRightBotProgram, md.BearingCapacityRightBotStatistics, ],
+            "BearingCapacityMiddleTop": [md.BearingCapacityMiddleTopStudent, BearingCapacityMiddleTopStudentForm,
+                                         md.BearingCapacityMiddleTopProgram, md.BearingCapacityMiddleTopStatistics, ],
+            "BearingCapacityLeftTop": [md.BearingCapacityLeftTopStudent, BearingCapacityLeftTopStudentForm,
+                                       md.BearingCapacityLeftTopProgram, md.BearingCapacityLeftTopStatistics, ],
+            "BearingCapacityRightTop": [md.BearingCapacityRightTopStudent, BearingCapacityRightTopStudentForm,
+                                        md.BearingCapacityRightTopProgram, md.BearingCapacityRightTopStatistics, ],
+
+        }
     }
 
-    statistics_models = [ConcreteAnswersStatistics, ReinforcementAnswersStatistics,
-                         CalculatedReinforcementMiddleStatistics,
-                         CalculatedReinforcementLeftStatistics, CalculatedReinforcementRightStatistics]
+    def get_statistics_models(self):
+        statistics_models = list()
+        for block_name, block_dict in self.models_dict.items():
+            for model_name, models_list in block_dict.items():
+                if len(models_list) > 2:
+                    statistics_models.append(models_list[3])
+        return statistics_models
 
     def is_owner(self):
         owner = False
@@ -114,7 +115,7 @@ class StudentPersonalView(View):
 
     def get_student(self):
         user_id = User.objects.get_by_natural_key(username=self.get_user_name())
-        return Student.objects.get(user_id=user_id)
+        return md.Student.objects.get(user_id=user_id)
 
     def get_student_id(self):
         student = self.get_student()
@@ -130,7 +131,7 @@ class StudentPersonalView(View):
     def get_student_group_name(self):
         student = self.get_student()
         group_id = student.group_id
-        group = Group.objects.get(pk=group_id)
+        group = md.Group.objects.get(pk=group_id)
         return group.group_name
 
     def get_instance(self, db_model):
@@ -146,7 +147,7 @@ class StudentPersonalView(View):
         return girder_length.determine_girder_length(student=self.get_student())
 
     def get_girder_height(self):
-        girder_geometry = GirderGeometry.objects.filter(student_id=self.get_student_id()).first()
+        girder_geometry = md.GirderGeometry.objects.filter(student_id=self.get_student_id()).first()
         if girder_geometry is not None:
             return girder_geometry.girder_height
         else:
@@ -155,7 +156,7 @@ class StudentPersonalView(View):
     # we do not want to show some forms before previous forms are successfully filled
     def update_student_opened_blocks(self):
         student = self.get_student()
-        current_blocks = self.get_instance(StudentOpenForms)
+        current_blocks = self.get_instance(md.StudentOpenForms)
         opened_blocks_number = 0
         opened_forms_names = list()
 
@@ -171,12 +172,12 @@ class StudentPersonalView(View):
 
             if opened_forms_number == number_models_in_block:  # all models in block are filled
                 opened_blocks_number += 1
-                StudentOpenForms.objects.update_or_create(student=student,
-                                                          defaults={"max_opened_form_number": opened_blocks_number})
+                md.StudentOpenForms.objects.update_or_create(student=student,
+                                                             defaults={"max_opened_form_number": opened_blocks_number})
             opened_forms_names.clear()
 
     def get_student_models_dict(self):
-        current_blocks = self.get_instance(StudentOpenForms)
+        current_blocks = self.get_instance(md.StudentOpenForms)
 
         if current_blocks is not None:  # we have instance in table "StudentOpenForm" for this student
             opened_blocks_number = current_blocks.max_opened_form_number + 1  # one form more to show
@@ -209,7 +210,7 @@ class StudentPersonalView(View):
                 elif form_model is CalculatedReinforcementForm:  # and to this too
                     form = CalculatedReinforcementForm(instance=answer,
                                                        girder_height=self.get_girder_height(),
-                                                       initial_reinforcement=self.get_instance(InitialReinforcement))
+                                                       initial_reinforcement=self.get_instance(md.InitialReinforcement))
                 else:  # usual form
                     form = form_model(instance=answer)
             else:  # answer was not saved, there could be errors in form.
@@ -225,14 +226,14 @@ class StudentPersonalView(View):
                     elif form_model is CalculatedReinforcementForm:
                         form = CalculatedReinforcementForm(girder_height=self.get_girder_height(),
                                                            initial_reinforcement=self.get_instance(
-                                                               InitialReinforcement))
+                                                               md.InitialReinforcement))
                     else:  # usual form
                         form = form_model()
 
             forms[model_name] = form
 
         statistics_dict = dict()
-        for statistics_model in self.statistics_models:
+        for statistics_model in self.get_statistics_models():
             statistics = self.get_statistics_instance(statistics_model)
             if statistics is not None:
                 statistics_dict.update(model_to_dict(statistics, exclude=["id", "student"]))
@@ -257,29 +258,29 @@ class StudentPersonalView(View):
         model_form = student_models_dict[submit_button_name][1]
 
         if answer_instance is not None:
-            if model_form is GirderGeometryForm:
-                form = GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
-                                          girder_length=self.get_girder_length())
+            if model_form is md.GirderGeometryForm:
+                form = md.GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
+                                             girder_length=self.get_girder_length())
             elif model_form is InitialReinforcementForm:
                 form = InitialReinforcementForm(request.POST, instance=answer_instance,
                                                 girder_height=self.get_girder_height())
             elif model_form is CalculatedReinforcementForm:
                 form = CalculatedReinforcementForm(request.POST, instance=answer_instance,
                                                    girder_height=self.get_girder_height(),
-                                                   initial_reinforcement=self.get_instance(InitialReinforcement))
+                                                   initial_reinforcement=self.get_instance(md.InitialReinforcement))
             else:
                 form = model_form(request.POST, instance=answer_instance)
         else:
-            if model_form is GirderGeometryForm:
-                form = GirderGeometryForm(request.POST or None, slab=self.get_slab(),
-                                          girder_length=self.get_girder_length())
+            if model_form is md.GirderGeometryForm:
+                form = md.GirderGeometryForm(request.POST or None, slab=self.get_slab(),
+                                             girder_length=self.get_girder_length())
             elif model_form is InitialReinforcementForm:
                 form = InitialReinforcementForm(request.POST or None,
                                                 girder_height=self.get_girder_height())
             elif model_form is CalculatedReinforcementForm:
                 form = CalculatedReinforcementForm(request.POST or None,
                                                    girder_height=self.get_girder_height(),
-                                                   initial_reinforcement=self.get_instance(InitialReinforcement))
+                                                   initial_reinforcement=self.get_instance(md.InitialReinforcement))
             else:
                 form = model_form(request.POST or None)
 

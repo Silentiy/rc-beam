@@ -2,12 +2,14 @@ from django.forms import ModelForm
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
-from .models import (Student,
-                     ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
+from .models import (ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
                      MomentsForces, InitialReinforcement, CalculatedReinforcement,
                      CalculatedReinforcementMiddleStudent,
                      CalculatedReinforcementLeftStudent,
-                     CalculatedReinforcementRightStudent)
+                     CalculatedReinforcementRightStudent,
+                     BearingCapacityMiddleBotStudent, BearingCapacityMiddleTopStudent,
+                     BearingCapacityLeftBotStudent, BearingCapacityLeftTopStudent,
+                     BearingCapacityRightBotStudent, BearingCapacityRightTopStudent, )
 from django.utils.safestring import mark_safe
 
 
@@ -526,7 +528,7 @@ class CalculatedReinforcementForm(ModelForm):
                 for position in ["external", "internal"]:
                     if (surface == "top" and (sec == 2 or sec == 3)) or (surface == "bot" and sec == 1):
                         continue
-                    self.fields[f"section_{sec}_{surface}_d_{position}"].initial =\
+                    self.fields[f"section_{sec}_{surface}_d_{position}"].initial = \
                         self.get_initial_diameter(section=sec, surface=surface, bar_position=position)
                     self.fields[f"section_{sec}_{surface}_d_{position}"].disabled = True
 
@@ -536,7 +538,7 @@ class CalculatedReinforcementForm(ModelForm):
                 for position in ["external", "internal"]:
                     if (surface == "top" and (sec == 2 or sec == 3)) or (surface == "bot" and sec == 1):
                         continue
-                    self.fields[f"section_{sec}_{surface}_n_{position}"].initial =\
+                    self.fields[f"section_{sec}_{surface}_n_{position}"].initial = \
                         self.get_initial_bars_number(section=sec, surface=surface, bar_position=position)
                     self.fields[f"section_{sec}_{surface}_n_{position}"].disabled = True
 
@@ -655,5 +657,203 @@ class CalculatedReinforcementForm(ModelForm):
                                                     f'в сечении {section_to} составляет {clearance} мм; '
                                                     f'допустимо от {min_distance} до {max_distance} мм!'
                                                     )
-                                       )
                                    )
+                                   )
+
+
+class BearingCapacityMiddleBotStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 1-1, низ",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityMiddleBotStudent
+        exclude = ("student",)
+
+        labels = {
+            "compressed_zone_height_a_middle_bot": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_middle_bot": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"
+            ),
+            "bearing_capacity_a_middle_bot": mark_safe(
+                "Первый предельный момент сечения, M<sub>ult1(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_middle_bot": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_middle_bot": mark_safe(
+                "Второй предельный момент сечения, M<sub>ult1(b)</sub> [кНсм] (если вычисление не требуется, то 0)"
+            ),
+            "bearing_capacity_middle_bot": mark_safe(
+                "Итоговый предельный момент сечения, M<sub>ult1</sub> [кНсм]"
+            )
+        }
+
+
+class BearingCapacityLeftBotStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 2-2, низ",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityLeftBotStudent
+        exclude = ("student",)
+
+        labels = {
+            "compressed_zone_height_a_left_bot": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_left_bot": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"
+            ),
+            "bearing_capacity_a_left_bot": mark_safe(
+                "Первый предельный момент сечения, M<sub>ult2(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_left_bot": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_left_bot": mark_safe(
+                "Второй предельный момент сечения, M<sub>ult2(b)</sub> [кНсм] (если вычисление не требуется, то 0)"),
+            "bearing_capacity_left_bot": mark_safe(
+                "Итоговый предельный момент сечения, M<sub>ult2</sub> [кНсм]"
+            )
+        }
+
+
+class BearingCapacityRightBotStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 3-3, низ",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityRightBotStudent
+        exclude = ("student",)
+
+        labels = {
+            "compressed_zone_height_a_right_bot": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_right_bot": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"
+            ),
+            "bearing_capacity_a_right_bot": mark_safe(
+                "Первый предельный момент сечения, M<sub>ult3(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_right_bot": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_right_bot": mark_safe(
+                "Второй предельный момент сечения, M<sub>ult3(b)</sub> [кНсм] (если вычисление не требуется, то 0)"
+            ),
+            "bearing_capacity_right_bot": mark_safe(
+                "Итоговый предельный момент сечения, M<sub>ult3</sub> [кНсм]"
+            )
+        }
+
+
+class BearingCapacityMiddleTopStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 1-1, верх",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityMiddleTopStudent
+        exclude = ("student",)
+
+        labels = {
+            "ultimate_tensile_force_middle_top": mark_safe(
+                "Предельное усилие, воспринимаемое растянутой частью сечения, R<sub>s</sub>A<sub>s</sub> [кН]"
+            ),
+            "ultimate_compressive_force_middle_top": mark_safe(
+                "Предельное усилие, воспринимаемое сжатой частью сечения,"
+                " R<sub>b</sub>b'<sub>f</sub>h'<sub>f</sub>+R<sub>sc</sub>A'<sub>s</sub> [кН]"
+            ),
+            "compressed_zone_height_a_middle_top": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_middle_top": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"),
+            "bearing_capacity_a_middle_top": mark_safe(
+                "Первый предельный момент сечения, M'<sub>ult1(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_middle_top": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_middle_top": mark_safe(
+                "Второй предельный момент сечения, M'<sub>ult1(b)</sub> [кНсм] (если вычисление не требуется, то 0)"
+            ),
+            "bearing_capacity_middle_top": mark_safe(
+                "Итоговый предельный момент сечения, M'<sub>ult1</sub> [кНсм]"
+            )
+        }
+
+
+class BearingCapacityLeftTopStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 2-2, верх",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityLeftTopStudent
+        exclude = ("student",)
+
+        labels = {
+            "ultimate_tensile_force_left_top": mark_safe(
+                "Предельное усилие, воспринимаемое растянутой частью сечения, R<sub>s</sub>A<sub>s</sub> [кН]"
+            ),
+            "ultimate_compressive_force_left_top": mark_safe(
+                "Предельное усилие, воспринимаемое сжатой частью сечения,"
+                " R<sub>b</sub>b'<sub>f</sub>h'<sub>f</sub>+R<sub>sc</sub>A'<sub>s</sub> [кН]"
+            ),
+            "compressed_zone_height_a_left_top": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_left_top": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"),
+            "bearing_capacity_a_left_top": mark_safe(
+                "Первый предельный момент сечения, M'<sub>ult2(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_left_top": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_left_top": mark_safe(
+                "Второй предельный момент сечения, M'<sub>ult2(b)</sub> [кНсм] (если вычисление не требуется, то 0)"
+            ),
+            "bearing_capacity_left_top": mark_safe(
+                "Итоговый предельный момент сечения, M'<sub>ult2</sub> [кНсм]"
+            )
+        }
+        
+
+class BearingCapacityRightTopStudentForm(ModelForm):
+    verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 3-3, верх",
+                                   disabled=True)
+
+    class Meta:
+        model = BearingCapacityRightTopStudent
+        exclude = ("student",)
+
+        labels = {
+            "ultimate_tensile_force_right_top": mark_safe(
+                "Предельное усилие, воспринимаемое растянутой частью сечения, R<sub>s</sub>A<sub>s</sub> [кН]"
+            ),
+            "ultimate_compressive_force_right_top": mark_safe(
+                "Предельное усилие, воспринимаемое сжатой частью сечения,"
+                " R<sub>b</sub>b'<sub>f</sub>h'<sub>f</sub>+R<sub>sc</sub>A'<sub>s</sub> [кН]"
+            ),
+            "compressed_zone_height_a_right_top": mark_safe(
+                "Высота сжатой зоны с учётом сжатой арматуры, x<sub>a</sub> [см]"
+            ),
+            "relative_compressed_zone_height_a_right_top": mark_safe(
+                "Относительная высота сжатой зоны, &xi;"),
+            "bearing_capacity_a_right_top": mark_safe(
+                "Первый предельный момент сечения, M'<sub>ult3(a)</sub> [кНсм]"
+            ),
+            "compressed_zone_height_b_right_top": mark_safe(
+                "Высота сжатой зоны без учёта сжатой арматуры, x<sub>b</sub> [см]"
+            ),
+            "bearing_capacity_b_right_top": mark_safe(
+                "Второй предельный момент сечения, M'<sub>ult3(b)</sub> [кНсм] (если вычисление не требуется, то 0)"
+            ),
+            "bearing_capacity_right_top": mark_safe(
+                "Итоговый предельный момент сечения, M'<sub>ult3</sub> [кНсм]"
+            )
+        }
+
