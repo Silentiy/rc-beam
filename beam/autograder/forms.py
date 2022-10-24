@@ -2,12 +2,12 @@ from django.forms import ModelForm
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
-from . models import (Student,
-                               ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
-                               MomentsForces, InitialReinforcement, CalculatedReinforcement,
-                               CalculatedReinforcementMiddleStudent,
-                               CalculatedReinforcementLeftStudent,
-                               CalculatedReinforcementRightStudent)
+from .models import (Student,
+                     ConcreteStudentAnswers, ReinforcementStudentAnswers, GirderGeometry,
+                     MomentsForces, InitialReinforcement, CalculatedReinforcement,
+                     CalculatedReinforcementMiddleStudent,
+                     CalculatedReinforcementLeftStudent,
+                     CalculatedReinforcementRightStudent)
 from django.utils.safestring import mark_safe
 
 
@@ -497,21 +497,6 @@ class CalculatedReinforcementForm(ModelForm):
         # print(type(self.initial_reinforcement))
         super(CalculatedReinforcementForm, self).__init__(*args, **kwargs)
 
-        self.fields["section_2_bot_d_external"].disabled = True
-        self.fields["section_2_bot_n_external"].disabled = True
-        self.fields["section_2_bot_d_internal"].disabled = True
-        self.fields["section_2_bot_n_internal"].disabled = True
-
-        self.fields["section_1_top_d_external"].disabled = True
-        self.fields["section_1_top_n_external"].disabled = True
-        self.fields["section_1_top_d_internal"].disabled = True
-        self.fields["section_1_top_n_internal"].disabled = True
-
-        self.fields["section_3_bot_d_external"].disabled = True
-        self.fields["section_3_bot_n_external"].disabled = True
-        self.fields["section_3_bot_d_internal"].disabled = True
-        self.fields["section_3_bot_n_internal"].disabled = True
-
         self.fields["section_2_top_reinforcement_area"].disabled = True
         self.fields["section_2_top_effective_depth"].disabled = True
         self.fields["section_2_bot_reinforcement_area"].disabled = True
@@ -535,8 +520,25 @@ class CalculatedReinforcementForm(ModelForm):
         self.fields["section_3_top_distance"].initial = self.get_initial_distance_value(section=3, surface="top")
         self.fields["section_3_bot_distance"].initial = self.get_initial_distance_value(section=3, surface="bot")
 
-        # default values for non-calculated reinforcement (from InitialReinforcement model)
-        self.fields["section_2_top_distance"].initial = self.get_initial_distance_value(section=2, surface="top")
+        # default diameters for non-calculated reinforcement (from InitialReinforcement model)
+        for sec in range(1, 4):
+            for surface in self.surface_localized.keys():
+                for position in ["external", "internal"]:
+                    if (surface == "top" and (sec == 2 or sec == 3)) or (surface == "bot" and sec == 1):
+                        continue
+                    self.fields[f"section_{sec}_{surface}_d_{position}"].initial =\
+                        self.get_initial_diameter(section=sec, surface=surface, bar_position=position)
+                    self.fields[f"section_{sec}_{surface}_d_{position}"].disabled = True
+
+        # default nu,ber of bars for non-calculated reinforcement (from InitialReinforcement model)
+        for sec in range(1, 4):
+            for surface in self.surface_localized.keys():
+                for position in ["external", "internal"]:
+                    if (surface == "top" and (sec == 2 or sec == 3)) or (surface == "bot" and sec == 1):
+                        continue
+                    self.fields[f"section_{sec}_{surface}_n_{position}"].initial =\
+                        self.get_initial_bars_number(section=sec, surface=surface, bar_position=position)
+                    self.fields[f"section_{sec}_{surface}_n_{position}"].disabled = True
 
     def clean(self):
         # reinforcement overlapping
@@ -597,7 +599,7 @@ class CalculatedReinforcementForm(ModelForm):
         else:
             return 0  # we should not end up here, but... just in case
 
-    def get_initial_diameters(self, section: int, surface: str, bar_position: str):
+    def get_initial_diameter(self, section: int, surface: str, bar_position: str):
         initial_data = self.initial_reinforcement
         if initial_data is not None:
             return getattr(initial_data, f"section_{section}_{surface}_d_{bar_position}", 0)
@@ -647,10 +649,11 @@ class CalculatedReinforcementForm(ModelForm):
                 print(clearance)
                 if clearance < min_distance or clearance > max_distance:
                     self.add_error(None,
-                                   ValidationError(gettext_lazy(f'Сечение {section}, {self.surface_localized[surface]}: '
-                                                                f'расстояние в свету до стержней арматуры '
-                                                                f'в сечении {section_to} составляет {clearance} мм; '
-                                                                f'допустимо от {min_distance} до {max_distance} мм!'
-                                                                )
-                                                   )
+                                   ValidationError(
+                                       gettext_lazy(f'Сечение {section}, {self.surface_localized[surface]}: '
+                                                    f'расстояние в свету до стержней арматуры '
+                                                    f'в сечении {section_to} составляет {clearance} мм; '
+                                                    f'допустимо от {min_distance} до {max_distance} мм!'
+                                                    )
+                                       )
                                    )

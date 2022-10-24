@@ -32,11 +32,11 @@ def validate_answers(student: Student, opened_models_dict: dict, button_name: st
                                      "CalculatedReinforcementRight"]
     revalidate_capacity_list = []
 
-    if "InitialReinforcement" in button_name:
+    if "InitialReinforcement" in button_name or "GirderGeometry":
         for name in revalidate_reinforcement_list:
             if name in models_dict.keys():  # do we have CalculatedReinforcement models opened for student
-                if models_dict[name][0].objects.filter(student_id=student_id).first() is not None:
-                    button_names.append(name)
+                if models_dict[name][0].objects.filter(student_id=student_id).first() is not None:  # answer is there
+                    button_names.append(name)  # revalidate reinforcement calculations
 
     for button_name in button_names:
         if button_name in models_dict.keys():  # work with models that allow validation
