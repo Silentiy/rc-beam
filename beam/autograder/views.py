@@ -2,13 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic, View
 from .models import (Group, Student, StudentOpenForms,
-                     ConcreteStudentAnswers, ConcreteAnswersStatistics,
-                     ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
+                     Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics,
+                     Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
                      GirderGeometry,
                      MomentsForces, InitialReinforcement, CalculatedReinforcement,
                      CalculatedReinforcementMiddleStudent, CalculatedReinforcementMiddleStatistics,
+                     CalculatedReinforcementMiddleProgram,
                      CalculatedReinforcementLeftStudent, CalculatedReinforcementLeftStatistics,
-                     CalculatedReinforcementRightStudent, CalculatedReinforcementRightStatistics)
+                     CalculatedReinforcementLeftProgram,
+                     CalculatedReinforcementRightStudent, CalculatedReinforcementRightStatistics,
+                     CalculatedReinforcementRightProgram)
 from .forms import (ConcreteStudentAnswersForm, ReinforcementStudentAnswersForm, GirderGeometryForm,
                     MomentsForcesForm, InitialReinforcementForm, CalculatedReinforcementMiddleStudentForm,
                     CalculatedReinforcementLeftStudentForm, CalculatedReinforcementRightStudentForm,
@@ -65,18 +68,26 @@ class StudentPersonalView(View):
     models_dict = {
         "initial_data_models": {
             "GirderGeometry": [GirderGeometry, GirderGeometryForm],
-            "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm],
-            "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm],
+            "Concrete": [ConcreteStudentAnswers, ConcreteStudentAnswersForm, Concrete,
+                         ConcreteAnswersStatistics],
+            "Reinforcement": [ReinforcementStudentAnswers, ReinforcementStudentAnswersForm,
+                              Reinforcement, ReinforcementAnswersStatistics],
             "MomentsForces": [MomentsForces, MomentsForcesForm],
             "InitialReinforcement": [InitialReinforcement, InitialReinforcementForm]
         },
         "reinforcement_calculations_models": {
             "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleStudent,
-                                              CalculatedReinforcementMiddleStudentForm],
+                                              CalculatedReinforcementMiddleStudentForm,
+                                              CalculatedReinforcementMiddleProgram,
+                                              CalculatedReinforcementMiddleStatistics],
             "CalculatedReinforcementLeft": [CalculatedReinforcementLeftStudent,
-                                            CalculatedReinforcementLeftStudentForm],
+                                            CalculatedReinforcementLeftStudentForm,
+                                            CalculatedReinforcementLeftProgram,
+                                            CalculatedReinforcementLeftStatistics],
             "CalculatedReinforcementRight": [CalculatedReinforcementRightStudent,
-                                             CalculatedReinforcementRightStudentForm]
+                                             CalculatedReinforcementRightStudentForm,
+                                             CalculatedReinforcementRightProgram,
+                                             CalculatedReinforcementRightStatistics]
         },
         "reinforcement_placement_models": {
             "CalculatedReinforcement": [CalculatedReinforcement, CalculatedReinforcementForm]
@@ -278,9 +289,7 @@ class StudentPersonalView(View):
             answer.save()
             self.update_student_opened_blocks()
 
-            if submit_button_name not in ["GirderGeometry", "MomentsForces",
-                                          "InitialReinforcement", "CalculatedReinforcement"]:
-                validation.validate_answers(self.get_student())
+            validation.validate_answers(self.get_student(), student_models_dict, submit_button_name)
 
         else:
             self.forms_with_errors[submit_button_name] = form

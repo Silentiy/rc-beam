@@ -16,85 +16,90 @@ from django.forms.models import model_to_dict
 from . import reiforcement_calculation
 
 
-def validate_answers(student):
-    models_dict = {"Concrete": [Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics],
-                   "Reinforcement": [Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics],
-                   "CalculatedReinforcementMiddle": [CalculatedReinforcementMiddleProgram,
-                                                     CalculatedReinforcementMiddleStudent,
-                                                     CalculatedReinforcementMiddleStatistics],
-                   "CalculatedReinforcementLeft": [CalculatedReinforcementLeftProgram,
-                                                   CalculatedReinforcementLeftStudent,
-                                                   CalculatedReinforcementLeftStatistics],
-                   "CalculatedReinforcementRight": [CalculatedReinforcementRightProgram,
-                                                    CalculatedReinforcementRightStudent,
-                                                    CalculatedReinforcementRightStatistics],
-                   }
+def validate_answers(student: Student, opened_models_dict: dict, button_name: str):
+    models_dict = dict()
+    button_names = list()
+
+    button_names.append(button_name)
+
+    for model_name, models_list in opened_models_dict.items():
+        if len(models_list) > 2:  # there are models for statistics
+            models_dict[model_name] = models_list
+
     student_id = student.pk
-    student_subgroup_variant = student.subgroup_variant_number
-    student_personal_variant = student.personal_variant_number
-    student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
 
-    validate_objects = list()
-    for key in models_dict.keys():
-        student_answers_model = models_dict[key][1]
-        if student_answers_model.objects.filter(student_id=student_id).first() is not None:
-            validate_objects.append(key)
+    revalidate_reinforcement_list = ["CalculatedReinforcementMiddle", "CalculatedReinforcementLeft",
+                                     "CalculatedReinforcementRight"]
+    revalidate_capacity_list = []
 
-    for button_name in validate_objects:
-        if "CalculatedReinforcementMiddle" in button_name:
-            reiforcement_calculation.calculate_reinforcement(student=student, section=1)
-        elif "CalculatedReinforcementLeft" in button_name:
-            reiforcement_calculation.calculate_reinforcement(student=student, section=2)
-        elif "CalculatedReinforcementRight" in button_name:
-            reiforcement_calculation.calculate_reinforcement(student=student, section=3)
+    if "InitialReinforcement" in button_name:
+        for name in revalidate_reinforcement_list:
+            if name in models_dict.keys():  # do we have CalculatedReinforcement models opened for student
+                if models_dict[name][0].objects.filter(student_id=student_id).first() is not None:
+                    button_names.append(name)
 
-        program_answers_model = models_dict[button_name][0]
-        student_answers_model = models_dict[button_name][1]
-        statistics_model = models_dict[button_name][2]
+    for button_name in button_names:
+        if button_name in models_dict.keys():  # work with models that allow validation
+            student_subgroup_variant = student.subgroup_variant_number
+            student_personal_variant = student.personal_variant_number
+            student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
 
-        student_answer = student_answers_model.objects.get(student_id=student_id)
+            program_answers_model = models_dict[button_name][2]
+            student_answers_model = models_dict[button_name][0]
+            statistics_model = models_dict[button_name][3]
 
-        student_exclude = ["id", "student"]
-        if button_name == "Concrete":
-            program_exclude = ["id"]
-            student_material_id = student_variant_data.girder_concrete_id
-            program_answer = program_answers_model.objects.get(pk=student_material_id)
-        elif button_name == "Reinforcement":
-            program_exclude = ["id", "possible_diameters"]
-            student_material_id = student_variant_data.girder_reinforcement_id
-            program_answer = program_answers_model.objects.get(pk=student_material_id)
-        else:
-            program_exclude = ["id", "student"]
-            program_answer = program_answers_model.objects.get(student_id=student_id)
+            if "CalculatedReinforcementMiddle" in button_name:
+                reiforcement_calculation.calculate_reinforcement(student=student, section=1)
+            elif "CalculatedReinforcementLeft" in button_name:
+                reiforcement_calculation.calculate_reinforcement(student=student, section=2)
+            elif "CalculatedReinforcementRight" in button_name:
+                reiforcement_calculation.calculate_reinforcement(student=student, section=3)
 
-        student_answers_dict = model_to_dict(student_answer, exclude=student_exclude)
-        program_answers_dict = model_to_dict(program_answer, exclude=program_exclude)
+            student_answer = student_answers_model.objects.get(student_id=student_id)
 
-        statistics = dict()
+            student_exclude = ["id", "student"]
+            if button_name == "Concrete":
+                program_exclude = ["id"]
+                student_material_id = student_variant_data.girder_concrete_id
+                program_answer = program_answers_model.objects.get(pk=student_material_id)
+            elif button_name == "Reinforcement":
+                program_exclude = ["id", "possible_diameters"]
+                student_material_id = student_variant_data.girder_reinforcement_id
+                program_answer = program_answers_model.objects.get(pk=student_material_id)
+            else:
+                program_exclude = ["id", "student"]
+                program_answer = program_answers_model.objects.get(student_id=student_id)
 
-        if button_name == "Concrete" or button_name == "Reinforcement":
-            statistics = validate_concrete_and_reinforcement(program_answers=program_answers_dict,
-                                                             student_answers=student_answers_dict,
-                                                             program_answer_id=program_answer.id)
-        else:
-            special_keys = list()
-            for key in student_answers_dict.keys():  # for fields, that contain True / False
-                if str(key).startswith("is_"):
-                    special_keys.append(key)
+            student_answers_dict = model_to_dict(student_answer, exclude=student_exclude)
+            program_answers_dict = model_to_dict(program_answer, exclude=program_exclude)
 
-            if special_keys is not None:
-                statistics = strict_match_validation(program_answers=get_dict_for_special_validation(program_answers_dict,
-                                                                                                     special_keys),
-                                                     student_answers=get_dict_for_special_validation(student_answers_dict,
-                                                                                                     special_keys))
+            statistics = dict()
 
-            statistics.update(tolerant_match_validation(program_answers=program_answers_dict,
-                                                        student_answers=student_answers_dict,
-                                                        tolerance=0.01))
+            if button_name == "Concrete" or button_name == "Reinforcement":
+                statistics = validate_concrete_and_reinforcement(program_answers=program_answers_dict,
+                                                                 student_answers=student_answers_dict,
+                                                                 program_answer_id=program_answer.id)
+            else:
+                special_keys = list()
+                for key in student_answers_dict.keys():  # for fields, that contain True / False
+                    if str(key).startswith("is_"):
+                        special_keys.append(key)
 
-        statistics_model.objects.update_or_create(student_id=student_id,
-                                                  defaults={**statistics}
-                                                  )
+                if special_keys:
+                    statistics = strict_match_validation(program_answers=
+                                                         get_dict_for_special_validation(program_answers_dict,
+                                                                                         special_keys),
+                                                         student_answers=
+                                                         get_dict_for_special_validation(student_answers_dict,
+                                                                                         special_keys))
+
+                statistics.update(tolerant_match_validation(program_answers=program_answers_dict,
+                                                            student_answers=student_answers_dict,
+                                                            tolerance=0.01)
+                                  )
+            statistics_model.objects.update_or_create(student_id=student_id,
+                                                      defaults={**statistics}
+                                                      )
 
 
 def get_dict_for_special_validation(answers: dict, special_keys: list):

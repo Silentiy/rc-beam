@@ -802,151 +802,151 @@ class InitialReinforcement(models.Model):
 class CalculatedReinforcementMiddleStudent(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    alpha_m_middle = models.FloatField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_middle_student"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_middle}"
 
 
 class CalculatedReinforcementMiddleProgram(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    alpha_m_middle = models.FloatField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_middle_program"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_middle}"
 
 
 class CalculatedReinforcementMiddleStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    alpha_m = models.BooleanField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.BooleanField()
+    alpha_m_middle = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.BooleanField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_middle_statistics"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_middle}"
 
 
 class CalculatedReinforcementLeftStudent(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.FloatField()
-    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
-    section_widths_for_calculation = models.FloatField()
-    overhanging_flange_area = models.FloatField()
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    fully_compressed_flange_moment_left = models.FloatField()
+    is_neutral_axis_in_flange_left = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_left = models.FloatField()
+    overhanging_flange_area_left = models.FloatField()
+    alpha_m_left = models.FloatField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_left_student"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_left}"
 
 
 class CalculatedReinforcementLeftProgram(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.FloatField()
-    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
-    section_widths_for_calculation = models.FloatField()
-    overhanging_flange_area = models.FloatField()
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    fully_compressed_flange_moment_left = models.FloatField()
+    is_neutral_axis_in_flange_left = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_left = models.FloatField()
+    overhanging_flange_area_left = models.FloatField()
+    alpha_m_left = models.FloatField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_left_program"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_left}"
 
 
 class CalculatedReinforcementLeftStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.BooleanField()
-    is_neutral_axis_in_flange = models.BooleanField()
-    section_widths_for_calculation = models.BooleanField()
-    overhanging_flange_area = models.BooleanField()
-    alpha_m = models.BooleanField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.BooleanField()
+    fully_compressed_flange_moment_left = models.BooleanField()
+    is_neutral_axis_in_flange_left = models.BooleanField()
+    section_widths_for_calculation_left = models.BooleanField()
+    overhanging_flange_area_left = models.BooleanField()
+    alpha_m_left = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.BooleanField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_left_statistics"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_left}"
 
 
 class CalculatedReinforcementRightStudent(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.FloatField()
-    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
-    section_widths_for_calculation = models.FloatField()
-    overhanging_flange_area = models.FloatField()
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    fully_compressed_flange_moment_right = models.FloatField()
+    is_neutral_axis_in_flange_right = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_right = models.FloatField()
+    overhanging_flange_area_right = models.FloatField()
+    alpha_m_right = models.FloatField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_right_student"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_right}"
 
 
 class CalculatedReinforcementRightProgram(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.FloatField()
-    is_neutral_axis_in_flange = models.BooleanField(null=False, blank=False)
-    section_widths_for_calculation = models.FloatField()
-    overhanging_flange_area = models.FloatField()
-    alpha_m = models.FloatField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.FloatField()
+    fully_compressed_flange_moment_right = models.FloatField()
+    is_neutral_axis_in_flange_right = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_right = models.FloatField()
+    overhanging_flange_area_right = models.FloatField()
+    alpha_m_right = models.FloatField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.FloatField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_right_program"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_right}"
 
 
 class CalculatedReinforcementRightStatistics(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE)
 
-    fully_compressed_flange_moment = models.BooleanField()
-    is_neutral_axis_in_flange = models.BooleanField()
-    section_widths_for_calculation = models.BooleanField()
-    overhanging_flange_area = models.BooleanField()
-    alpha_m = models.BooleanField()
-    is_compressed_zone_capacity_sufficient = models.BooleanField()
-    reinforcement_area = models.BooleanField()
+    fully_compressed_flange_moment_right = models.BooleanField()
+    is_neutral_axis_in_flange_right = models.BooleanField()
+    section_widths_for_calculation_right = models.BooleanField()
+    overhanging_flange_area_right = models.BooleanField()
+    alpha_m_right = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.BooleanField()
 
     class Meta:
         db_table = "autograder_calculated_reinforcement_right_statistics"
 
     def __str__(self):
-        return f"{self.student} {self.reinforcement_area}"
+        return f"{self.student} {self.reinforcement_area_right}"
 
 
 class CalculatedReinforcement(models.Model):

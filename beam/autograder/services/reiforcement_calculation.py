@@ -158,10 +158,13 @@ def calculate_reinforcement(student: Student, section: int):
 
     if section == 1:
         model = CalculatedReinforcementMiddleProgram
+        postfix = "_middle"
     elif section == 2:
         model = CalculatedReinforcementLeftProgram
+        postfix = "_left"
     else:
         model = CalculatedReinforcementRightProgram
+        postfix = "_right"
 
     defaults = dict()
 
@@ -173,44 +176,47 @@ def calculate_reinforcement(student: Student, section: int):
 
         # special values for sections 2 and 3
         if section != 1:
-            defaults["fully_compressed_flange_moment"] = calculate_section_moment_full_flange_compressed(filtered_data)
+            defaults["fully_compressed_flange_moment" + postfix] = \
+                calculate_section_moment_full_flange_compressed(filtered_data)
             # is neutral axis in flange
-            if defaults["fully_compressed_flange_moment"] > filtered_data["M"]:
-                defaults["is_neutral_axis_in_flange"] = True
+            if defaults["fully_compressed_flange_moment" + postfix] > filtered_data["M"]:
+                defaults["is_neutral_axis_in_flange" + postfix] = True
             else:
-                defaults["is_neutral_axis_in_flange"] = False
+                defaults["is_neutral_axis_in_flange" + postfix] = False
             # section width for calculations
-            if defaults["is_neutral_axis_in_flange"]:
-                defaults["section_widths_for_calculation"] = filtered_data["b"]
-                defaults["overhanging_flange_area"] = 0
+            if defaults["is_neutral_axis_in_flange" + postfix]:
+                defaults["section_widths_for_calculation" + postfix] = filtered_data["b"]
+                defaults["overhanging_flange_area" + postfix] = 0
             else:
                 raise ValueError(f"Case M_f < M is not implemented!")
 
         # common values (for sections 2 and 3 for case when M < M_f only!)
-        defaults["alpha_m"] = calculate_alpha_m(filtered_data)
-        if defaults["alpha_m"] <= filtered_data["alpha_R"]:
-            defaults["is_compressed_zone_capacity_sufficient"] = True
+        defaults["alpha_m" + postfix] = calculate_alpha_m(filtered_data)
+        if defaults["alpha_m" + postfix] <= filtered_data["alpha_R"]:
+            defaults["is_compressed_zone_capacity_sufficient" + postfix] = True
         else:
             raise ValueError(f"Case alpha_m > alpha_R is not implemented!")
 
-        defaults["reinforcement_area"] = calculate_reinforcement_area(filtered_data, defaults["alpha_m"])
+        defaults["reinforcement_area" + postfix] = calculate_reinforcement_area(filtered_data,
+                                                                                defaults["alpha_m" + postfix])
 
         model.objects.update_or_create(student=student,
                                        defaults={**defaults}
                                        )
+        print("Reinf calc", model, filtered_data)
     else:
         if section == 1:
-            defaults["alpha_m"] = -1
-            defaults["is_compressed_zone_capacity_sufficient"] = False
-            defaults["reinforcement_area"] = -1
+            defaults["alpha_m" + postfix] = -1
+            defaults["is_compressed_zone_capacity_sufficient" + postfix] = False
+            defaults["reinforcement_area" + postfix] = -1
         else:
-            defaults["fully_compressed_flange_moment"] = -1
-            defaults["is_neutral_axis_in_flange"] = False
-            defaults["section_widths_for_calculation"] = -1
-            defaults["overhanging_flange_area"] = -1
-            defaults["alpha_m"] = -1
-            defaults["is_compressed_zone_capacity_sufficient"] = False
-            defaults["reinforcement_area"] = -1
+            defaults["fully_compressed_flange_moment" + postfix] = -1
+            defaults["is_neutral_axis_in_flange" + postfix] = False
+            defaults["section_widths_for_calculation" + postfix] = -1
+            defaults["overhanging_flange_area" + postfix] = -1
+            defaults["alpha_m" + postfix] = -1
+            defaults["is_compressed_zone_capacity_sufficient" + postfix] = False
+            defaults["reinforcement_area" + postfix] = -1
 
         model.objects.update_or_create(student=student,
                                        defaults={**defaults}

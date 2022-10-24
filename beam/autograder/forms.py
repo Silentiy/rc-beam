@@ -535,6 +535,9 @@ class CalculatedReinforcementForm(ModelForm):
         self.fields["section_3_top_distance"].initial = self.get_initial_distance_value(section=3, surface="top")
         self.fields["section_3_bot_distance"].initial = self.get_initial_distance_value(section=3, surface="bot")
 
+        # default values for non-calculated reinforcement (from InitialReinforcement model)
+        self.fields["section_2_top_distance"].initial = self.get_initial_distance_value(section=2, surface="top")
+
     def clean(self):
         # reinforcement overlapping
         print("!!!!! reinforcement overlapping")
@@ -591,6 +594,20 @@ class CalculatedReinforcementForm(ModelForm):
         initial_data = self.initial_reinforcement
         if initial_data is not None:
             return getattr(initial_data, f"section_{section}_{surface}_distance", 0)
+        else:
+            return 0  # we should not end up here, but... just in case
+
+    def get_initial_diameters(self, section: int, surface: str, bar_position: str):
+        initial_data = self.initial_reinforcement
+        if initial_data is not None:
+            return getattr(initial_data, f"section_{section}_{surface}_d_{bar_position}", 0)
+        else:
+            return 1
+
+    def get_initial_bars_number(self, section: int, surface: str, bar_position: str):
+        initial_data = self.initial_reinforcement
+        if initial_data is not None:
+            return getattr(initial_data, f"section_{section}_{surface}_n_{bar_position}", 0)
         else:
             return 0
 
