@@ -258,8 +258,8 @@ class StudentPersonalView(View):
         model_form = student_models_dict[submit_button_name][1]
 
         if answer_instance is not None:
-            if model_form is md.GirderGeometryForm:
-                form = md.GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
+            if model_form is GirderGeometryForm:
+                form = GirderGeometryForm(request.POST, instance=answer_instance, slab=self.get_slab(),
                                              girder_length=self.get_girder_length())
             elif model_form is InitialReinforcementForm:
                 form = InitialReinforcementForm(request.POST, instance=answer_instance,
@@ -271,8 +271,8 @@ class StudentPersonalView(View):
             else:
                 form = model_form(request.POST, instance=answer_instance)
         else:
-            if model_form is md.GirderGeometryForm:
-                form = md.GirderGeometryForm(request.POST or None, slab=self.get_slab(),
+            if model_form is GirderGeometryForm:
+                form = GirderGeometryForm(request.POST or None, slab=self.get_slab(),
                                              girder_length=self.get_girder_length())
             elif model_form is InitialReinforcementForm:
                 form = InitialReinforcementForm(request.POST or None,

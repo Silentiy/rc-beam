@@ -1,19 +1,6 @@
-from autograder.models import (Concrete, ConcreteStudentAnswers, ConcreteAnswersStatistics,
-                               Reinforcement, ReinforcementStudentAnswers, ReinforcementAnswersStatistics,
-                               VariantInfo, PersonalVariantsArchitects, PersonalVariantsCivilEngineers,
-                               Student, GirderGeometry, MomentsForces, InitialReinforcement,
-                               CalculatedReinforcementMiddleProgram,
-                               CalculatedReinforcementMiddleStudent,
-                               CalculatedReinforcementMiddleStatistics,
-                               CalculatedReinforcementLeftProgram,
-                               CalculatedReinforcementLeftStudent,
-                               CalculatedReinforcementLeftStatistics,
-                               CalculatedReinforcementRightProgram,
-                               CalculatedReinforcementRightStudent,
-                               CalculatedReinforcementRightStatistics
-                               )
+from autograder.models import VariantInfo, Student
 from django.forms.models import model_to_dict
-from . import reiforcement_calculation
+from . import reiforcement_calculation, bearing_capacity
 
 
 def validate_answers(student: Student, opened_models_dict: dict, button_name: str):
@@ -30,13 +17,21 @@ def validate_answers(student: Student, opened_models_dict: dict, button_name: st
 
     revalidate_reinforcement_list = ["CalculatedReinforcementMiddle", "CalculatedReinforcementLeft",
                                      "CalculatedReinforcementRight"]
-    revalidate_capacity_list = []
+    revalidate_capacity_list = ["BearingCapacityMiddleBot", "BearingCapacityLeftBot", "BearingCapacityRightBot",
+                                "BearingCapacityMiddleTop", "BearingCapacityLeftTop", "BearingCapacityRightTop"]
 
-    if "InitialReinforcement" in button_name or "GirderGeometry":
+    if "InitialReinforcement" in button_name or "GirderGeometry" in button_name:
         for name in revalidate_reinforcement_list:
-            if name in models_dict.keys():  # do we have CalculatedReinforcement models opened for student
+            if name in models_dict.keys():  # do we have CalculatedReinforcement... models opened for student
                 if models_dict[name][0].objects.filter(student_id=student_id).first() is not None:  # answer is there
                     button_names.append(name)  # revalidate reinforcement calculations
+
+    if "InitialReinforcement" in button_name or "GirderGeometry" in button_name or\
+            "CalculatedReinforcement" in button_name:
+        for name in revalidate_capacity_list:
+            if name in models_dict.keys():  # do we have BearingCapacity... models opened for student
+                if models_dict[name][0].objects.filter(student_id=student_id).first() is not None:  # answer is there
+                    button_names.append(name)  # revalidate bearing capacity calculations
 
     for button_name in button_names:
         if button_name in models_dict.keys():  # work with models that allow validation
@@ -54,6 +49,12 @@ def validate_answers(student: Student, opened_models_dict: dict, button_name: st
                 reiforcement_calculation.calculate_reinforcement(student=student, section=2)
             elif "CalculatedReinforcementRight" in button_name:
                 reiforcement_calculation.calculate_reinforcement(student=student, section=3)
+
+            if "BearingCapacity" in button_name:
+                if "Bot" in button_name:  # bot surface in tension
+                    bearing_capacity.calculate_bearing_capacity(student, surface="bot")
+                else:
+                    bearing_capacity.calculate_bearing_capacity(student, surface="top")
 
             student_answer = student_answers_model.objects.get(student_id=student_id)
 

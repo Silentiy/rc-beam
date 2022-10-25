@@ -17,6 +17,7 @@ def get_section_geometry(student_id: int):
         geometry["b_f"] = float(girder_geometry.girder_effective_flange_width)
         geometry["h_f"] = float(girder_geometry.girder_flange_bevel_height +
                                 girder_geometry.girder_flange_slab_height)
+        geometry["h"] = float(girder_geometry.girder_height)
     else:
         geometry["geometry"] = None
 
