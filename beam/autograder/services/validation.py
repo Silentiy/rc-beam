@@ -132,10 +132,16 @@ def tolerant_match_validation(program_answers: dict, student_answers: dict, tole
 
     for key, value in program_answers.items():
         if student_answers[key] is not None:
-            if float(value) * min_bound <= student_answers[key] <= float(value) * max_bound:
-                statistics[key] = True
+            if value >= 0:
+                if float(value) * min_bound <= student_answers[key] <= float(value) * max_bound:
+                    statistics[key] = True
+                else:
+                    statistics[key] = False
             else:
-                statistics[key] = False
+                if float(value) * min_bound >= student_answers[key] >= float(value) * max_bound:
+                    statistics[key] = True
+                else:
+                    statistics[key] = False
         else:
             statistics[key] = False
 

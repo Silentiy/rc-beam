@@ -83,7 +83,7 @@ def calculate_bearing_capacity(student: Student, surface: str):
         d["b"] = d["b_w"]
 
     defaults = dict()
-
+    print(d)
     if is_data_for_calculations(d):
         for section in VALID_SECTIONS:
             section_name = get_section_name(section)
@@ -101,20 +101,22 @@ def calculate_bearing_capacity(student: Student, surface: str):
             compressed_zone_height = (d["R_s"] * d[f"A_{section}_{surface}"] -
                                       d["R_sc"] * d[f"A_{section}_{opp_surface}"]) / (d["R_b"] * d["b"])
 
-            relative_compressed_zone_height = compressed_zone_height / d["h"]
+            relative_compressed_zone_height = compressed_zone_height / d[f"h_0_{section}_{surface}"]
 
             if compressed_zone_height < d[f"a_s_{section}_{opp_surface}"] * 1.01:
                 bearing_capacity_a = d["R_s"] * d[f"A_{section}_{surface}"] * (d[f"h_0_{section}_{surface}"] -
                                                                                d[f"a_s_{section}_{opp_surface}"])
             else:
                 bearing_capacity_a = d["R_b"] * d["b"] * compressed_zone_height * (d[f"h_0_{section}_{surface}"] -
-                                                                                   compressed_zone_height / 2)
+                                                                                   compressed_zone_height / 2) + \
+                    d["R_sc"] * d[f"A_{section}_{opp_surface}"] * (d[f"h_0_{section}_{surface}"] -
+                                                                               d[f"a_s_{section}_{opp_surface}"])
 
             compressed_zone_height_b = (d["R_s"] * d[f"A_{section}_{surface}"]) / (d["R_b"] * d["b"])
 
             if compressed_zone_height_b < 2 * d[f"a_s_{section}_{opp_surface}"]:
                 bearing_capacity_b = d["R_s"] * d[f"A_{section}_{surface}"] * (d[f"h_0_{section}_{surface}"] -
-                                                                               compressed_zone_height / 2)
+                                                                               compressed_zone_height_b / 2)
             else:
                 bearing_capacity_b = 0
 
