@@ -1,27 +1,31 @@
 {% extends "base_bootstrap.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block welcome %}
+    {% include 'header.html' %}
+{% endblock %}
 
 {% block content %}
+
     <h1> Добро пожаловать на сайт! </h1>
+    <p> Для перехода на страницу проверки ригеля воспользуйтесь нижеприведённой ссылкой: </p>
+    <nav class="menu">
+        <a href="{% url 'grader:redirect' %}"> Автоматизированная проверка ригеля </a>
+    </nav>
 
-    <ul>
-        <li> <p> <a href="{% url 'grader:redirect' %}"> Автоматизированная проверка ригеля </a> </p> </li>
-    </ul>
-        
-    {% if session_data_list %}
-        <ul>
-            {% for item in session_data_list %}
-                <li> {{item}} </li>
-            {% endfor %}
-        </ul>
-    
-    {% else %}
-        <p> Error: There are no session data to show </p>
-    
-    {% endif %}
+    <figure class="fig_center">
+      <div class="fig"><img style="max-width: 50%; height: auto;"
+                            src="{% static 'home/images/rigel_2_1_.png' %}"
+                            alt="Поперечное сечение ригеля"></div>
+      <figcaption> </figcaption>
+    </figure>
 
+{% endblock %}
 
-    
-    <p>You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.</p>
-
-
+{% block footer %}
+    {% include 'footer.html' %}
 {% endblock %}

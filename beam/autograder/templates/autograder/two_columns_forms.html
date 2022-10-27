@@ -1,11 +1,13 @@
 {% load static %}
 
-<figure class="fig_center">
-  <div class="fig"><img style="max-width: 45%; height: auto;"
-                        src="{% static 'autograder/images/girder_cross_section.jpg' %}"
-                        alt="Поперечное сечение ригеля"></div>
-  <figcaption>Рис. Размеры поперечного сечения ригеля</figcaption>
-</figure>
+{% if form_name == "GirderGeometry" %}
+    <figure class="fig_center">
+      <div class="fig"><img style="max-width: 50%; height: auto;"
+                            src="{% static 'autograder/images/girder_cross_section.png' %}"
+                            alt="Поперечное сечение ригеля"></div>
+      <figcaption>Рис. Размеры поперечного сечения ригеля</figcaption>
+    </figure>
+{% endif %}
 
 <form method="POST">
         {% csrf_token %}
@@ -24,6 +26,7 @@
                 {% endif %}
             {% endfor %}
         </table>
+
         {% if form.non_field_errors or form.errors %}
             <p> Для успешной отправки данных исправьте следующие ошибки: </p>
             {{ form.non_field_errors }}
@@ -35,6 +38,6 @@
         {% if owner is True %}
             <input class="button" type="submit" value="Submit" name={{form_name}}>
         {% else %}
-            <p> You cannot change data in this form </p>
+            <p class="instead_button"> You cannot change data in this form </p>
         {% endif %}
 </form>
