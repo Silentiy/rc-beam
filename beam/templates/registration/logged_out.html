@@ -1,7 +1,13 @@
 {% extends "base_bootstrap.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
 
 {% block content %}
-  <p>Logged out!</p>
-  <a href="{% url 'login'%}">Login again</a>
-  <a href="{% url 'home:home'%}">To home page</a>
+  <h2 class="login">Вы успешно вышли из системы!</h2>
+  <nav class="menu">
+    <a href="{% url 'login'%}">Войти ещё раз</a>
+    <a href="{% url 'home:home'%}">На главную</a>
+  </nav>
 {% endblock %}

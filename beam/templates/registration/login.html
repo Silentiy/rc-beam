@@ -1,6 +1,28 @@
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Log In</button>
+{% extends "base_bootstrap.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2 class="login">Вход</h2>
+
+<form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <table>
+            {% for field in form %}
+                    <tr>
+                        <td> <label for="id_{{field.name}}"> {{field.label}} {{ field.errors }} </label>  </td>
+                        <td> <div>{{field}}</div> {{ field.errors }} </td>
+                    </tr>
+
+            {% endfor %}
+        </table>
+
+        <input class="button" type="submit" value="Войти" >
+
 </form>
+
+{% endblock %}

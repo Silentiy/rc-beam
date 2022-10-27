@@ -495,19 +495,19 @@ class VariantInfo(models.Model):
 
 class ConcreteStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_concrete_class = models.ForeignKey("Concrete",
-                                            on_delete=models.DO_NOTHING, null=False, default=1)
-    stud_R_b_n = models.FloatField()
-    stud_R_bt_n = models.FloatField()
-    stud_R_b = models.FloatField()
-    stud_R_bt = models.FloatField()
-    stud_E_b = models.PositiveIntegerField()
+    concrete_class = models.ForeignKey("Concrete",
+                                       on_delete=models.DO_NOTHING, null=False, default=1)
+    R_b_n = models.FloatField()
+    R_bt_n = models.FloatField()
+    R_b = models.FloatField()
+    R_bt = models.FloatField()
+    E_b = models.PositiveIntegerField()
 
     class Meta:
         db_table = "autograder_concrete_student_answers"
 
     def __str__(self):
-        return f"{self.student} {self.stud_concrete_class}"
+        return f"{self.student} {self.concrete_class}"
 
 
 class ConcreteAnswersStatistics(models.Model):
@@ -528,21 +528,21 @@ class ConcreteAnswersStatistics(models.Model):
 
 class ReinforcementStudentAnswers(models.Model):
     student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
-    stud_reinforcement_class = models.ForeignKey("Reinforcement",
-                                                 on_delete=models.DO_NOTHING, null=False, default=1)
-    stud_R_s_ser = models.FloatField()
-    stud_R_s = models.FloatField()
-    stud_R_sc_l = models.FloatField()
-    stud_R_sc_sh = models.FloatField()
-    stud_R_sw = models.FloatField(null=True)
-    stud_alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
-    stud_xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    reinforcement_class = models.ForeignKey("Reinforcement",
+                                            on_delete=models.DO_NOTHING, null=False, default=1)
+    R_s_ser = models.FloatField()
+    R_s = models.FloatField()
+    R_sc_l = models.FloatField()
+    R_sc_sh = models.FloatField()
+    R_sw = models.FloatField(null=True)
+    alpha_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
+    xi_R = models.DecimalField(null=True, blank=True, max_digits=4, decimal_places=3)
 
     class Meta:
         db_table = "autograder_reinforcement_student_answers"
 
     def __str__(self):
-        return f"{self.student} {self.stud_reinforcement_class}"
+        return f"{self.student} {self.reinforcement_class}"
 
 
 class ReinforcementAnswersStatistics(models.Model):
@@ -553,8 +553,8 @@ class ReinforcementAnswersStatistics(models.Model):
     R_sc_l = models.BooleanField()
     R_sc_sh = models.BooleanField()
     R_sw = models.BooleanField()
-    alpha_R = models.BooleanField(blank=True)
-    xi_R = models.BooleanField(blank=True)
+    alpha_R = models.BooleanField(null=True)
+    xi_R = models.BooleanField(null=True)
 
     class Meta:
         db_table = "autograder_reinforcement_answers_statistics"
@@ -797,3 +797,631 @@ class InitialReinforcement(models.Model):
     def __str__(self):
         stud = self.student if hasattr(self, 'student') else "no student yet"
         return f"Initial reinforcement {stud}"
+
+
+class CalculatedReinforcementMiddleStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    alpha_m_middle = models.FloatField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_middle}"
+
+
+class CalculatedReinforcementMiddleProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    alpha_m_middle = models.FloatField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_middle}"
+
+
+class CalculatedReinforcementMiddleStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    alpha_m_middle = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_middle = models.BooleanField()
+    reinforcement_area_middle = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_middle_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_middle}"
+
+
+class CalculatedReinforcementLeftStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_left = models.FloatField()
+    is_neutral_axis_in_flange_left = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_left = models.FloatField()
+    overhanging_flange_area_left = models.FloatField()
+    alpha_m_left = models.FloatField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_left}"
+
+
+class CalculatedReinforcementLeftProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_left = models.FloatField()
+    is_neutral_axis_in_flange_left = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_left = models.FloatField()
+    overhanging_flange_area_left = models.FloatField()
+    alpha_m_left = models.FloatField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_left}"
+
+
+class CalculatedReinforcementLeftStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_left = models.BooleanField()
+    is_neutral_axis_in_flange_left = models.BooleanField()
+    section_widths_for_calculation_left = models.BooleanField()
+    overhanging_flange_area_left = models.BooleanField()
+    alpha_m_left = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_left = models.BooleanField()
+    reinforcement_area_left = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_left_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_left}"
+
+
+class CalculatedReinforcementRightStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_right = models.FloatField()
+    is_neutral_axis_in_flange_right = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_right = models.FloatField()
+    overhanging_flange_area_right = models.FloatField()
+    alpha_m_right = models.FloatField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_student"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_right}"
+
+
+class CalculatedReinforcementRightProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_right = models.FloatField()
+    is_neutral_axis_in_flange_right = models.BooleanField(null=False, blank=False)
+    section_widths_for_calculation_right = models.FloatField()
+    overhanging_flange_area_right = models.FloatField()
+    alpha_m_right = models.FloatField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_program"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_right}"
+
+
+class CalculatedReinforcementRightStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    fully_compressed_flange_moment_right = models.BooleanField()
+    is_neutral_axis_in_flange_right = models.BooleanField()
+    section_widths_for_calculation_right = models.BooleanField()
+    overhanging_flange_area_right = models.BooleanField()
+    alpha_m_right = models.BooleanField()
+    is_compressed_zone_capacity_sufficient_right = models.BooleanField()
+    reinforcement_area_right = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement_right_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.reinforcement_area_right}"
+
+
+class CalculatedReinforcement(models.Model):
+    NUMBER_EXTERNAL_BARS = [(0, 0), (2, 2)]
+    NUMBER_INTERNAL_BARS = [(0, 0), (1, 1), (2, 2)]
+
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+
+    # SECTION 1
+    # top reinforcement external
+    section_1_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_1_top_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # top reinforcement internal
+    section_1_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_1_top_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # top reinforcement area
+    section_1_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to top
+    section_1_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_1_top_effective_depth = models.FloatField(null=True, blank=True)
+
+    # bot reinforcement external
+    section_1_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_1_bot_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # bot reinforcement external
+    section_1_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_1_bot_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_1_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # bot reinforcement area
+    section_1_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to bot
+    section_1_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_1_bot_effective_depth = models.FloatField(null=True, blank=True)
+
+    # SECTION 2
+    # top reinforcement external
+    section_2_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_top_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # top reinforcement internal
+    section_2_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_top_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # top reinforcement area
+    section_2_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to top
+    section_2_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_2_top_effective_depth = models.FloatField(null=True, blank=True)
+
+    # bot reinforcement external
+    section_2_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_bot_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # bot reinforcement external
+    section_2_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_2_bot_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_2_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # bot reinforcement area
+    section_2_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to bot
+    section_2_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_2_bot_effective_depth = models.FloatField(null=True, blank=True)
+
+    # SECTION 3
+    # top reinforcement external
+    section_3_top_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_top_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_top_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # top reinforcement internal
+    section_3_top_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_top_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_top_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # top reinforcement area
+    section_3_top_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to top
+    section_3_top_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_3_top_effective_depth = models.FloatField(null=True, blank=True)
+
+    # bot reinforcement external
+    section_3_bot_d_external = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_bot_external_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_bot_n_external = models.PositiveSmallIntegerField(choices=NUMBER_EXTERNAL_BARS, default=2)
+    # bot reinforcement external
+    section_3_bot_d_internal = models.ForeignKey("ReinforcementBarsDiameters",
+                                                 related_name="section_3_bot_internal_calc",
+                                                 on_delete=models.DO_NOTHING, null=True, default=1)
+    section_3_bot_n_internal = models.PositiveSmallIntegerField(choices=NUMBER_INTERNAL_BARS, default=1)
+    # bot reinforcement area
+    section_3_bot_reinforcement_area = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=3)
+    # effective depths to bot
+    section_3_bot_distance = models.FloatField(validators=[MinValueValidator(2.5), MaxValueValidator(6.5)])
+    section_3_bot_effective_depth = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        db_table = "autograder_calculated_reinforcement"
+
+    def clean(self):
+        self.section_1_top_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=1, surface="top")
+        self.section_1_bot_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=1, surface="bot")
+        self.section_2_top_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=2, surface="top")
+        self.section_2_bot_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=2, surface="bot")
+        self.section_3_top_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=3, surface="top")
+        self.section_3_bot_reinforcement_area = InitialReinforcement.get_reinforcement_area(self,
+                                                                                            section=3, surface="bot")
+
+    def __str__(self):
+        stud = self.student if hasattr(self, 'student') else "no student yet"
+        return f"Calculated reinforcement {stud}"
+
+
+class StudentOpenForms(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE, null=False)
+    max_opened_form_number = models.SmallIntegerField(default=5)
+
+    class Meta:
+        db_table = "autograder_student_open_forms"
+
+    def __str__(self):
+        return f"{self.max_opened_form_number} opened to {self.student}"
+
+
+# MIDDLE BOT
+class BearingCapacityMiddleBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.FloatField()
+    relative_compressed_zone_height_a_middle_bot = models.FloatField()
+    bearing_capacity_a_middle_bot = models.FloatField()
+    compressed_zone_height_b_middle_bot = models.FloatField()
+    bearing_capacity_b_middle_bot = models.FloatField()
+    bearing_capacity_middle_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+class BearingCapacityMiddleBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.FloatField()
+    relative_compressed_zone_height_a_middle_bot = models.FloatField()
+    bearing_capacity_a_middle_bot = models.FloatField()
+    compressed_zone_height_b_middle_bot = models.FloatField()
+    bearing_capacity_b_middle_bot = models.FloatField()
+    bearing_capacity_middle_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+class BearingCapacityMiddleBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_middle_bot = models.BooleanField()
+    relative_compressed_zone_height_a_middle_bot = models.BooleanField()
+    bearing_capacity_a_middle_bot = models.BooleanField()
+    compressed_zone_height_b_middle_bot = models.BooleanField()
+    bearing_capacity_b_middle_bot = models.BooleanField()
+    bearing_capacity_middle_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_bot}"
+
+
+# LEFT BOT
+class BearingCapacityLeftBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.FloatField()
+    relative_compressed_zone_height_a_left_bot = models.FloatField()
+    bearing_capacity_a_left_bot = models.FloatField()
+    compressed_zone_height_b_left_bot = models.FloatField()
+    bearing_capacity_b_left_bot = models.FloatField()
+    bearing_capacity_left_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+class BearingCapacityLeftBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.FloatField()
+    relative_compressed_zone_height_a_left_bot = models.FloatField()
+    bearing_capacity_a_left_bot = models.FloatField()
+    compressed_zone_height_b_left_bot = models.FloatField()
+    bearing_capacity_b_left_bot = models.FloatField()
+    bearing_capacity_left_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+class BearingCapacityLeftBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_left_bot = models.BooleanField()
+    relative_compressed_zone_height_a_left_bot = models.BooleanField()
+    bearing_capacity_a_left_bot = models.BooleanField()
+    compressed_zone_height_b_left_bot = models.BooleanField()
+    bearing_capacity_b_left_bot = models.BooleanField()
+    bearing_capacity_left_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_bot}"
+
+
+# RIGHT BOT
+class BearingCapacityRightBotStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.FloatField()
+    relative_compressed_zone_height_a_right_bot = models.FloatField()
+    bearing_capacity_a_right_bot = models.FloatField()
+    compressed_zone_height_b_right_bot = models.FloatField()
+    bearing_capacity_b_right_bot = models.FloatField()
+    bearing_capacity_right_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+
+
+class BearingCapacityRightBotProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.FloatField()
+    relative_compressed_zone_height_a_right_bot = models.FloatField()
+    bearing_capacity_a_right_bot = models.FloatField()
+    compressed_zone_height_b_right_bot = models.FloatField()
+    bearing_capacity_b_right_bot = models.FloatField()
+    bearing_capacity_right_bot = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+
+
+class BearingCapacityRightBotStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    compressed_zone_height_a_right_bot = models.BooleanField()
+    relative_compressed_zone_height_a_right_bot = models.BooleanField()
+    bearing_capacity_a_right_bot = models.BooleanField()
+    compressed_zone_height_b_right_bot = models.BooleanField()
+    bearing_capacity_b_right_bot = models.BooleanField()
+    bearing_capacity_right_bot = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_bot_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_bot}"
+    
+
+# MIDDLE TOP
+class BearingCapacityMiddleTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.FloatField()
+    ultimate_compressive_force_middle_top = models.FloatField()
+
+    compressed_zone_height_a_middle_top = models.FloatField()
+    relative_compressed_zone_height_a_middle_top = models.FloatField()
+    bearing_capacity_a_middle_top = models.FloatField()
+    compressed_zone_height_b_middle_top = models.FloatField()
+    bearing_capacity_b_middle_top = models.FloatField()
+    bearing_capacity_middle_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+class BearingCapacityMiddleTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.FloatField()
+    ultimate_compressive_force_middle_top = models.FloatField()
+
+    compressed_zone_height_a_middle_top = models.FloatField()
+    relative_compressed_zone_height_a_middle_top = models.FloatField()
+    bearing_capacity_a_middle_top = models.FloatField()
+    compressed_zone_height_b_middle_top = models.FloatField()
+    bearing_capacity_b_middle_top = models.FloatField()
+    bearing_capacity_middle_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+class BearingCapacityMiddleTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_middle_top = models.BooleanField()
+    ultimate_compressive_force_middle_top = models.BooleanField()
+
+    compressed_zone_height_a_middle_top = models.BooleanField()
+    relative_compressed_zone_height_a_middle_top = models.BooleanField()
+    bearing_capacity_a_middle_top = models.BooleanField()
+    compressed_zone_height_b_middle_top = models.BooleanField()
+    bearing_capacity_b_middle_top = models.BooleanField()
+    bearing_capacity_middle_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_middle_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_middle_top}"
+
+
+# LEFT TOP
+class BearingCapacityLeftTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.FloatField()
+    ultimate_compressive_force_left_top = models.FloatField()
+
+    compressed_zone_height_a_left_top = models.FloatField()
+    relative_compressed_zone_height_a_left_top = models.FloatField()
+    bearing_capacity_a_left_top = models.FloatField()
+    compressed_zone_height_b_left_top = models.FloatField()
+    bearing_capacity_b_left_top = models.FloatField()
+    bearing_capacity_left_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+class BearingCapacityLeftTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.FloatField()
+    ultimate_compressive_force_left_top = models.FloatField()
+
+    compressed_zone_height_a_left_top = models.FloatField()
+    relative_compressed_zone_height_a_left_top = models.FloatField()
+    bearing_capacity_a_left_top = models.FloatField()
+    compressed_zone_height_b_left_top = models.FloatField()
+    bearing_capacity_b_left_top = models.FloatField()
+    bearing_capacity_left_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+class BearingCapacityLeftTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_left_top = models.BooleanField()
+    ultimate_compressive_force_left_top = models.BooleanField()
+
+    compressed_zone_height_a_left_top = models.BooleanField()
+    relative_compressed_zone_height_a_left_top = models.BooleanField()
+    bearing_capacity_a_left_top = models.BooleanField()
+    compressed_zone_height_b_left_top = models.BooleanField()
+    bearing_capacity_b_left_top = models.BooleanField()
+    bearing_capacity_left_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_left_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_left_top}"
+
+
+# RIGHT TOP
+class BearingCapacityRightTopStudent(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.FloatField()
+    ultimate_compressive_force_right_top = models.FloatField()
+
+    compressed_zone_height_a_right_top = models.FloatField()
+    relative_compressed_zone_height_a_right_top = models.FloatField()
+    bearing_capacity_a_right_top = models.FloatField()
+    compressed_zone_height_b_right_top = models.FloatField()
+    bearing_capacity_b_right_top = models.FloatField()
+    bearing_capacity_right_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_student"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+
+
+class BearingCapacityRightTopProgram(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.FloatField()
+    ultimate_compressive_force_right_top = models.FloatField()
+
+    compressed_zone_height_a_right_top = models.FloatField()
+    relative_compressed_zone_height_a_right_top = models.FloatField()
+    bearing_capacity_a_right_top = models.FloatField()
+    compressed_zone_height_b_right_top = models.FloatField()
+    bearing_capacity_b_right_top = models.FloatField()
+    bearing_capacity_right_top = models.FloatField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_program"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+
+
+class BearingCapacityRightTopStatistics(models.Model):
+    student = models.OneToOneField("Student", on_delete=models.CASCADE)
+
+    ultimate_tensile_force_right_top = models.BooleanField()
+    ultimate_compressive_force_right_top = models.BooleanField()
+
+    compressed_zone_height_a_right_top = models.BooleanField()
+    relative_compressed_zone_height_a_right_top = models.BooleanField()
+    bearing_capacity_a_right_top = models.BooleanField()
+    compressed_zone_height_b_right_top = models.BooleanField()
+    bearing_capacity_b_right_top = models.BooleanField()
+    bearing_capacity_right_top = models.BooleanField()
+
+    class Meta:
+        db_table = "autograder_bearing_capacity_right_top_statistics"
+
+    def __str__(self):
+        return f"{self.student} {self.bearing_capacity_right_top}"
+
