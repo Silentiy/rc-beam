@@ -2,14 +2,35 @@
 {% load template_filters %}
 {% load static %}
 {% block head %}
-<link rel="stylesheet" href="{% static 'autograder/style.css' %}">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block welcome %}
+    {% include 'header.html' %}
+    <div class="page_header">
+        <p class="name">Автоматизированная проверка ригеля</p>
+    </div>
+{% endblock %}
+
+{% block navbar %}
+    {% include 'navbar.html' %}
 {% endblock %}
 
 {% block content %}
 
-<a href="{% url 'logout' %}">Log Out</a>
-
 <h1> Добро пожаловать, {{ student_name }}!</h1>
+<h3> Краткие указания</h3>
+<p> Для проверки курсового проекта заполните предложенные ниже формы. После заполнения каждой следующей формы
+    не забывайте нажать кнопку "Submit" для отправки данных. Если Вы заполните несколько форм и нажмёте кнопку "Submit"
+    в одной из них, то данные в других заполненных формах не сохранятся!
+</p>
+<p> Обратите внимание, что некоторые формы могут быть отправлены только после устранения ошибок в данных
+    (описания ошибок появляются под формой при попытке отправить ошибочные данные).
+</p>
+</p>
+<p> Некоторые поля в формах заполнять не нужно (в них нельзя поместить курсор) - значения в них будут вычислены
+    автоматически на основании данных в других полях.
+</p>
 
 
 {% for form_name, form in forms.items %}
@@ -56,7 +77,7 @@
         {% if owner is True %}
             <input class="button" type="submit" value="Submit" name={{form_name}}>
         {% else %}
-            <p> You cannot change data in this form </p>
+            <p class="instead_button"> You cannot change data in this form </p>
         {% endif %}
 
     </form>
@@ -65,4 +86,10 @@
 {% endfor %}
 
 {% endblock %}
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+
 

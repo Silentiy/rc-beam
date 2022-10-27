@@ -1,6 +1,4 @@
-from autograder.models import (Student, VariantInfo,
-                               Concrete, Reinforcement,
-                               GirderGeometry, MomentsForces, CalculatedReinforcement,
+from autograder.models import (Student, CalculatedReinforcement,
                                BearingCapacityMiddleBotProgram, BearingCapacityMiddleTopProgram,
                                BearingCapacityLeftBotProgram, BearingCapacityLeftTopProgram,
                                BearingCapacityRightBotProgram, BearingCapacityRightTopProgram,
@@ -27,7 +25,8 @@ def get_calculated_reinforcement(student_id: int):
             for surface in VALID_SURFACES:
                 reinforcement[f"A_{section}_{surface}"] = \
                     float(getattr(calculated_reinforcement, f"section_{section}_{surface}_reinforcement_area"))
-                reinforcement[f"a_s_{section}_{surface}"] = float(getattr(calculated_reinforcement, f"section_{section}_{surface}_distance"))
+                reinforcement[f"a_s_{section}_{surface}"] = float(getattr(calculated_reinforcement,
+                                                                          f"section_{section}_{surface}_distance"))
                 reinforcement[f"h_0_{section}_{surface}"] = h - reinforcement[f"a_s_{section}_{surface}"]
     else:
         reinforcement["reinforcement"] = None
@@ -83,7 +82,7 @@ def calculate_bearing_capacity(student: Student, surface: str):
         d["b"] = d["b_w"]
 
     defaults = dict()
-    print(d)
+
     if is_data_for_calculations(d):
         for section in VALID_SECTIONS:
             section_name = get_section_name(section)

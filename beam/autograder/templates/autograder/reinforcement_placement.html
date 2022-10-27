@@ -3,7 +3,7 @@
 {% if form_name == "InitialReinforcement" %}
 <figure class="fig_center">
     <div class="fig"><img style="max-width: 100%; height: auto;"
-                          src="{% static 'autograder/images/initial_reinforcement.jpg' %}"
+                          src="{% static 'autograder/images/initial_reinforcement.png' %}"
                           alt="Схема расстановки предварительной арматуры в ригеле">
     </div>
     <figcaption>Рис. Схема расстановки предварительной арматуры в ригеле</figcaption>
@@ -13,7 +13,7 @@
 {% if form_name == "CalculatedReinforcement" %}
 <figure class="fig_center">
     <div class="fig"><img style="max-width: 100%; height: auto;"
-                          src="{% static 'autograder/images/calculated_reinforcement.jpg' %}"
+                          src="{% static 'autograder/images/calculated_reinforcement.png' %}"
                           alt="Схема расстановки подсчитанной арматуры в ригеле">
     </div>
     <figcaption>Рис. Схема расстановки подсчитанной арматуры в ригеле</figcaption>
@@ -27,21 +27,26 @@
     <table id={{form_name}} class="reinf">
         <tr class="ini_header">
             <th>
-                <div>Сечение на опоре слева</div>
+                <div>Сечение 2-2</div>
             </th>
             <th>
-                <div>Сечение в середине пролёта</div>
+                <div>Сечение 1-1</div>
             </th>
             <th>
-                <div>Сечение на опоре справа</div>
+                <div>Сечение 3-3</div>
             </th>
 
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="girder_surface_name"> Верхняя грань </div>
+            </td>
         </tr>
 
         <tr class="ini_top">
             <td>
                 <table class="sec_pos">
-                    <caption>Верх</caption>
+
                     {% for field in form%}
                         {% if "section_2_top" in field.name %}
                         <tr>
@@ -54,7 +59,7 @@
             </td>
             <td>
                 <table class="sec_pos">
-                    <caption>Верх</caption>
+
                     {% for field in form%}
                         {% if "section_1_top" in field.name %}
                         <tr>
@@ -67,7 +72,7 @@
             </td>
             <td>
                 <table class="sec_pos">
-                    <caption>Верх</caption>
+
                     {% for field in form%}
                         {% if "section_3_top" in field.name %}
                         <tr>
@@ -80,10 +85,16 @@
             </td>
         </tr>
 
+        <tr>
+            <td colspan="3">
+                <div class="girder_surface_name"> Нижняя грань </div>
+            </td>
+        </tr>
+
         <tr class="ini_bot">
             <td>
                 <table class="sec_pos">
-                    <caption>Низ</caption>
+
                     {% for field in form%}
                         {% if "section_2_bot" in field.name %}
                         <tr>
@@ -96,7 +107,7 @@
             </td>
             <td>
                 <table class="sec_pos">
-                    <caption>Низ</caption>
+
                     {% for field in form%}
                         {% if "section_1_bot" in field.name %}
                         <tr>
@@ -109,7 +120,7 @@
             </td>
             <td>
                 <table class="sec_pos">
-                    <caption>Низ</caption>
+
                     {% for field in form%}
                         {% if "section_3_bot" in field.name %}
                         <tr>
@@ -134,7 +145,7 @@
     {% if owner is True %}
         <input class="button" type="submit" value="Submit" name={{form_name}}>
     {% else %}
-        <p> You cannot change data in this form </p>
+        <p class="instead_button"> You cannot change data in this form </p>
     {% endif %}
 
 </form>

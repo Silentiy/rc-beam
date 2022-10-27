@@ -204,7 +204,6 @@ def calculate_reinforcement(student: Student, section: int):
         model.objects.update_or_create(student=student,
                                        defaults={**defaults}
                                        )
-        print("Reinf calc", model, filtered_data)
     else:
         if section == 1:
             defaults["alpha_m" + postfix] = -1

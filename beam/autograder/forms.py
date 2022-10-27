@@ -68,36 +68,82 @@ class GirderGeometryForm(ModelForm):
         model = GirderGeometry
         exclude = ("student", "slab", "girder_effective_flange_width")
 
-        labels = {"girder_flange_bevel_height": "Высота скоса полки, см",
-                  "girder_flange_slab_height": "Высота прямого участка полки",
-                  "girder_wall_height": "Высота стенки",
-                  "girder_wall_width": "Ширина стенки",
-                  "girder_flange_bevel_width": "Ширина скоса полки",
-                  "girder_height": "Высота сечения ригеля",
-                  "girder_flange_full_width": "Ширина полки ригеля",
-                  "girder_flange_console_widths": "Вылет полки ригеля",
-                  "girder_length": "Длина ригеля",
+        labels = {"girder_flange_bevel_height": mark_safe(
+                       "Высота скоса полки, h<sub>fb</sub> [см]"
+                  ),
+                  "girder_flange_slab_height": mark_safe(
+                      "Высота прямого участка полки, h<sub>fs</sub> [см]"
+                  ),
+                  "girder_wall_height": mark_safe(
+                      "Высота стенки, h<sub>w</sub> [см]"
+                  ),
+                  "girder_wall_width": mark_safe(
+                      "Ширина стенки, b<sub>w</sub> [см]"
+                  ),
+                  "girder_flange_bevel_width": mark_safe(
+                      "Ширина скоса полки, b<sub>fb</sub> [см]"
+                  ),
+                  "girder_height": mark_safe(
+                      "Высота сечения ригеля, h [см]"
+                  ),
+                  "girder_flange_full_width": mark_safe(
+                      "Ширина полки ригеля, b<sub>f</sub> [см]"
+                  ),
+                  "girder_flange_console_widths": mark_safe(
+                      "Вылет полки ригеля, b<sub>fc</sub> [см]"
+                  ),
+                  "girder_length": mark_safe(
+                      "Конструктивная длина ригеля, l<sub>k</sub> [см]"
+                  ),
                   }
         error_messages = {
             "girder_flange_bevel_height": {
-                'min_value': gettext_lazy(
-                    'Высота скоса полки должна быть более или равна %(limit_value)s см'),
-                'max_value': gettext_lazy(
-                    'Высота скоса полки должна быть менее или равна %(limit_value)s см')
+                'min_value': mark_safe(
+                    gettext_lazy(
+                        'Высота скоса полки должна быть более или равна %(limit_value)s см'
+                    )
+                ),
+                'max_value': mark_safe(
+                    gettext_lazy(
+                        'Высота скоса полки должна быть менее или равна %(limit_value)s см'
+                    )
+                )
             },
             "girder_flange_slab_height": {
-                'min_value': gettext_lazy(
-                    'Высота прямого участка полки должна быть более или равна %(limit_value)s см'),
-                'max_value': gettext_lazy(
-                    'Высота прямого участка полки должна быть менее или равна %(limit_value)s см')
+                'min_value': mark_safe(
+                    gettext_lazy(
+                        'Высота прямого участка полки должна быть более или равна %(limit_value)s см'
+                    )
+                ),
+                'max_value': mark_safe(
+                    gettext_lazy(
+                        'Высота прямого участка полки должна быть менее или равна %(limit_value)s см'
+                    )
+                )
             },
             "girder_wall_width": {
-                'min_value': gettext_lazy('Ширина стенки должна быть более или равна %(limit_value)s см'),
-                'max_value': gettext_lazy('Ширина стенки должна быть менее или равна %(limit_value)s см')
+                'min_value': mark_safe(
+                    gettext_lazy(
+                        'Ширина стенки должна быть более или равна %(limit_value)s см'
+                    )
+                ),
+                'max_value': mark_safe(
+                    gettext_lazy(
+                        'Ширина стенки должна быть менее или равна %(limit_value)s см'
+                    )
+                )
             },
             'girder_flange_bevel_width': {
-                'min_value': gettext_lazy('Ширина скоса полки должна быть более или равна %(limit_value)s см'),
-                'max_value': gettext_lazy('Ширина скоса полки должна быть менее или равна %(limit_value)s см')
+                'min_value': mark_safe(
+                    gettext_lazy(
+                        'Ширина скоса полки должна быть более или равна %(limit_value)s см'
+                    )
+                ),
+                'max_value': mark_safe(
+                    gettext_lazy(
+                        'Ширина скоса полки должна быть менее или равна %(limit_value)s см'
+                    )
+                )
             }
         }
 
@@ -344,9 +390,9 @@ class CalculatedReinforcementMiddleStudentForm(ModelForm):
         labels = {
             "alpha_m_middle": mark_safe("Параметр &alpha;<sub>m</sub>"),
             "is_compressed_zone_capacity_sufficient_middle": mark_safe("Прочность сжатой зоны обеспечена "
-                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+                                                                       "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
             "reinforcement_area_middle": mark_safe("Требуемая площадь арматуры в сечении 1-1, "
-                                            "A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
+                                                   "A<sub>s</sub><sup>1</sup>, [см<sup>2</sup>]")
         }
 
 
@@ -361,14 +407,15 @@ class CalculatedReinforcementLeftStudentForm(ModelForm):
         labels = {
             "fully_compressed_flange_moment_left": mark_safe("Момент при полностью сжатой полке, M<sub>f</sub> [кНсм]"),
             "is_neutral_axis_in_flange_left": mark_safe("Неатральная ось в полке (M<sub>f</sub> > M<sub>2</sub>)?"),
-            "section_widths_for_calculation_left": mark_safe("Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
+            "section_widths_for_calculation_left": mark_safe(
+                "Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
             "overhanging_flange_area_left": mark_safe("Площадь свесов полки (если нейтральная ось в полке, то 0),"
-                                                 " A<sub>0v</sub> [см<sup>2</sup>]"),
+                                                      " A<sub>0v</sub> [см<sup>2</sup>]"),
             "alpha_m_left": mark_safe("Параметр &alpha;<sub>m</sub>"),
             "is_compressed_zone_capacity_sufficient_left": mark_safe("Прочность сжатой зоны обеспечена "
-                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+                                                                     "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
             "reinforcement_area_left": mark_safe("Требуемая площадь арматуры в сечении 2-2, "
-                                            "A<sub>s</sub><sup>2</sup>, [см<sup>2</sup>]")
+                                                 "A<sub>s</sub><sup>2</sup>, [см<sup>2</sup>]")
         }
 
 
@@ -381,16 +428,18 @@ class CalculatedReinforcementRightStudentForm(ModelForm):
         exclude = ("student",)
 
         labels = {
-            "fully_compressed_flange_moment_right": mark_safe("Момент при полностью сжатой полке, M<sub>f</sub> [кНсм]"),
+            "fully_compressed_flange_moment_right": mark_safe(
+                "Момент при полностью сжатой полке, M<sub>f</sub> [кНсм]"),
             "is_neutral_axis_in_flange_right": mark_safe("Неатральная ось в полке (M<sub>f</sub> > M<sub>3</sub>)?"),
-            "section_widths_for_calculation_right": mark_safe("Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
+            "section_widths_for_calculation_right": mark_safe(
+                "Ширина сечения, используемая в расчёте, b<sub>f</sub> [см]"),
             "overhanging_flange_area_right": mark_safe("Площадь свесов полки (если нейтральная ось в полке, то 0),"
-                                                 " A<sub>0v</sub> [см<sup>2</sup>]"),
+                                                       " A<sub>0v</sub> [см<sup>2</sup>]"),
             "alpha_m_right": mark_safe("Параметр &alpha;<sub>m</sub>"),
             "is_compressed_zone_capacity_sufficient_right": mark_safe("Прочность сжатой зоны обеспечена "
-                                                                "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
+                                                                      "(&alpha;<sub>m</sub> < &alpha;<sub>R</sub>)?"),
             "reinforcement_area_right": mark_safe("Требуемая площадь арматуры в сечении 3-3, "
-                                            "A<sub>s</sub><sup>3</sup>, [см<sup>2</sup>]")
+                                                  "A<sub>s</sub><sup>3</sup>, [см<sup>2</sup>]")
         }
 
 
@@ -496,7 +545,6 @@ class CalculatedReinforcementForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.girder_height = kwargs.pop('girder_height')
         self.initial_reinforcement = kwargs.pop('initial_reinforcement')
-        # print(type(self.initial_reinforcement))
         super(CalculatedReinforcementForm, self).__init__(*args, **kwargs)
 
         self.fields["section_2_top_reinforcement_area"].disabled = True
@@ -544,14 +592,12 @@ class CalculatedReinforcementForm(ModelForm):
 
     def clean(self):
         # reinforcement overlapping
-        print("!!!!! reinforcement overlapping")
         self.check_inappropriate_overlapping(section=2, section_to=1, surface="top")
         self.check_inappropriate_overlapping(section=1, section_to=3, surface="top")
         self.check_inappropriate_overlapping(section=2, section_to=1, surface="bot")
         self.check_inappropriate_overlapping(section=1, section_to=3, surface="bot")
 
         # new effective depths
-        print("!!!!! new effective depths")
         self.cleaned_data["section_1_top_effective_depth"] = self.get_effective_depths(section=1, surface="top")
         self.cleaned_data["section_1_bot_effective_depth"] = self.get_effective_depths(section=1, surface="bot")
         self.cleaned_data["section_2_top_effective_depth"] = self.get_effective_depths(section=2, surface="top")
@@ -565,7 +611,6 @@ class CalculatedReinforcementForm(ModelForm):
 
     # distance to reinforcement's center of gravity cannot be bigger, than it was before; recalculation needed otherwise
     def clean_section_2_top_distance(self):
-        print("!!!! clean_section_2_top_distance")
         return self.compare_distances(section=2, surface="top")
 
     def clean_section_2_bot_distance(self):
@@ -584,7 +629,6 @@ class CalculatedReinforcementForm(ModelForm):
         return self.compare_distances(section=3, surface="bot")
 
     def get_effective_depths(self, section: int, surface: str):
-        print("!!!! get_effective_depths")
         student_girder_height = self.girder_height
         distance_to_reinforcement = self.cleaned_data.get(f"section_{section}_{surface}_distance")
 
@@ -594,7 +638,6 @@ class CalculatedReinforcementForm(ModelForm):
             return distance_to_reinforcement
 
     def get_initial_distance_value(self, section: int, surface: str):
-        print("!!!! get_initial_distance_value")
         initial_data = self.initial_reinforcement
         if initial_data is not None:
             return getattr(initial_data, f"section_{section}_{surface}_distance", 0)
@@ -616,7 +659,6 @@ class CalculatedReinforcementForm(ModelForm):
             return 0
 
     def compare_distances(self, section: int, surface: str):
-        print("!!!! compare_distances")
         current_distance_value = self.cleaned_data[f"section_{section}_{surface}_distance"]
         initial_distance_value = self.get_initial_distance_value(section=section, surface=surface)
         if current_distance_value > initial_distance_value:
@@ -628,7 +670,6 @@ class CalculatedReinforcementForm(ModelForm):
             return current_distance_value
 
     def check_inappropriate_overlapping(self, section: int, section_to: int, surface: str):
-        print("!!!! check_inappropriate_overlapping")
         max_distance = 3  # mm
         min_distance = -1  # mm
         section_diameter = self.cleaned_data[f"section_{section}_{surface}_d_external"].diameter
@@ -648,7 +689,6 @@ class CalculatedReinforcementForm(ModelForm):
                 else:
                     clearance = (section_to_distance - 0.5 * section_to_diameter) - \
                                 (section_distance + 0.5 * section_diameter)
-                print(clearance)
                 if clearance < min_distance or clearance > max_distance:
                     self.add_error(None,
                                    ValidationError(
@@ -820,7 +860,7 @@ class BearingCapacityLeftTopStudentForm(ModelForm):
                 "Итоговый предельный момент сечения, M'<sub>ult2</sub> [кНсм]"
             )
         }
-        
+
 
 class BearingCapacityRightTopStudentForm(ModelForm):
     verbose_name = forms.CharField(label="header", required=False, initial="Несущая способность в сечении 3-3, верх",
@@ -856,4 +896,3 @@ class BearingCapacityRightTopStudentForm(ModelForm):
                 "Итоговый предельный момент сечения, M'<sub>ult3</sub> [кНсм]"
             )
         }
-

@@ -23,7 +23,6 @@ class GroupList(generic.ListView):
 
     template_name = "RC_beam/group_list.html"
     context_object_name = "group_list"
-    # there is no need to specify two above variables; Django uses them by default
 
 
 class StudentList(generic.ListView):
@@ -162,13 +161,11 @@ class StudentPersonalView(View):
 
         for block_name, block_models in self.models_dict.items():
             number_models_in_block = len(list(block_models.items()))
-            print("number_models_in_block", number_models_in_block)
             for key, value in block_models.items():
                 if self.get_instance(value[0]) is not None and key in block_models.keys():
                     opened_forms_names.append(key)
 
             opened_forms_number = len(opened_forms_names)
-            print("opened_forms_number", opened_forms_number)
 
             if opened_forms_number == number_models_in_block:  # all models in block are filled
                 opened_blocks_number += 1
