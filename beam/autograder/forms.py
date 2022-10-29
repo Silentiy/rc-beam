@@ -173,7 +173,8 @@ class GirderGeometryForm(ModelForm):
         girder_length = data["girder_length"]
         answer_girder_length = self.answer_girder_length
         if girder_length != answer_girder_length:
-            raise ValidationError(gettext_lazy('Уточните конструктивную длину ригеля'))
+            raise ValidationError(gettext_lazy('Уточните конструктивную длину ригеля (в рамках курсовой работы'
+                                               ', она равна 536 см для крайнего ригеля и 556 см для среднего) '))
         return girder_length
 
 

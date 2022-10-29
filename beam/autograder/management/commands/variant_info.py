@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
         page_number = 0
         defaults = dict()
-        first_login_data = {}
+        first_login_data = {"fullname": [], "login": [], "password": []}
         for doc_name in pdf_files_list:
             # check if file is accessible
             try:
@@ -288,6 +288,10 @@ class Command(BaseCommand):
                 file_name = folder_path + f"/login_data_{group_number}.txt"
                 login_data_dataframe = pd.DataFrame(data=first_login_data)
                 login_data_dataframe.to_csv(file_name, sep=' ')
+                print(f"Login data is written into file '{file_name}'")
+                first_login_data["fullname"].clear()
+                first_login_data["login"].clear()
+                first_login_data["password"].clear()
 
             print(f"Variants data for group {group_name} inserted into DB")
-            print(f"Login data is written into file '{file_name}'")
+

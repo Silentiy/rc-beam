@@ -14,7 +14,7 @@ def validate_answers(student: Student, opened_models_dict: dict, button_name: st
             models_dict[model_name] = models_list
 
     student_id = student.pk
-
+    group_id = student.group
     revalidate_reinforcement_list = ["CalculatedReinforcementMiddle", "CalculatedReinforcementLeft",
                                      "CalculatedReinforcementRight"]
     revalidate_capacity_list = ["BearingCapacityMiddleBot", "BearingCapacityLeftBot", "BearingCapacityRightBot",
@@ -37,7 +37,7 @@ def validate_answers(student: Student, opened_models_dict: dict, button_name: st
         if button_name in models_dict.keys():  # work with models that allow validation
             student_subgroup_variant = student.subgroup_variant_number
             student_personal_variant = student.personal_variant_number
-            student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
+            student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant, group_id=group_id)
 
             program_answers_model = models_dict[button_name][2]
             student_answers_model = models_dict[button_name][0]
