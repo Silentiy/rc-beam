@@ -69,6 +69,7 @@ nav.menu a {
 	text-transform: uppercase;
 	text-decoration: 0;
 	text-align: center;
+	text-decoration: underline;
 	color: #494949;
 }
 
@@ -127,7 +128,7 @@ table {
   table-layout: fixed;
   width: 100%;
   border: none;
-  font-size: calc(1.0rem + 0.32vw);
+  font-size: calc(1.2rem + 0.1vw);
 }
 
 table.reinf td {
@@ -240,12 +241,14 @@ div.page_footer {
 }
 
 div.page_footer p{
- 	display: block;
-	height: 20px;
-	line-height: 20px;
 	text-align: center;
-	border-bottom: 3px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 	margin-bottom: 0px;
 	font-size: 12px;
 	text-indent: 0px;
+}
+
+div.page_footer a{
+    color: #494949;
 }

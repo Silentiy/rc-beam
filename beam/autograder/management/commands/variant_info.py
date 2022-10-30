@@ -188,7 +188,7 @@ class Command(BaseCommand):
                         if 'группа' in lines[num]:
                             personal_variant_number = int(lines[num + 1])
                             student_data = lines[num].split()
-                            student_full_name_words = student_data[:-2]
+                            student_full_name_words = list(reversed(student_data[:-2]))
                             student_full_name = " ".join(student_full_name_words).translate(str.maketrans('', '', ','))
                             student_last_name = student_full_name_words[0].translate(
                                 str.maketrans('', '', string.punctuation))
