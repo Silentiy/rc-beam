@@ -84,6 +84,13 @@
                 </table>
             </td>
         </tr>
+        {% if form_name == "CalculatedReinforcement" %}
+            <tr class="overlapping_type_top">
+                <td colspan="2"> <label for="id_{{form.overlapping_type_top.name}}">
+                    {{form.overlapping_type_top.label}} </label>  </td>
+                <td> <div>{{form.overlapping_type_top}}</div> </td>
+            </tr>
+        {% endif %}
 
         <tr>
             <td colspan="3">
@@ -132,6 +139,14 @@
                 </table>
             </td>
         </tr>
+        {% if form_name == "CalculatedReinforcement" %}
+            <tr class="overlapping_type_bot">
+                <td colspan="2"> <label for="id_{{form.overlapping_type_bot.name}}">
+                    {{form.overlapping_type_bot.label}} </label>  </td>
+                <td> <div>{{form.overlapping_type_bot}}</div> </td>
+            </tr>
+        {% endif %}
+
     </table>
 
     {% if form.non_field_errors or form.errors %}

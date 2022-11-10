@@ -68,10 +68,11 @@ def get_materials_properties(student_id: int):
     materials = dict()
 
     student = Student.objects.filter(pk=student_id).first()
+    group_id = student.group
 
     if student is not None:
         student_subgroup_variant = student.subgroup_variant_number
-        student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant)
+        student_variant_data = VariantInfo.objects.get(variant_number=student_subgroup_variant, group_id=group_id)
         concrete_id = student_variant_data.girder_concrete_id
         reinforcement_id = student_variant_data.girder_reinforcement_id
         concrete = Concrete.objects.filter(pk=concrete_id).first()

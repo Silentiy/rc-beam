@@ -171,7 +171,7 @@ def validate_concrete_and_reinforcement(program_answers: dict, student_answers: 
             else:
                 statistics[key] = False
         else:
-            if student_answers[key] == value / 10:
+            if (value / 10) * 0.999 <= student_answers[key] <= (value / 10) * 1.001:
                 statistics[key] = True
             else:
                 statistics[key] = False

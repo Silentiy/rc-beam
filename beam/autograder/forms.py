@@ -69,33 +69,33 @@ class GirderGeometryForm(ModelForm):
         exclude = ("student", "slab", "girder_effective_flange_width")
 
         labels = {"girder_flange_bevel_height": mark_safe(
-                       "Высота скоса полки, h<sub>fb</sub> [см]"
-                  ),
-                  "girder_flange_slab_height": mark_safe(
-                      "Высота прямого участка полки, h<sub>fs</sub> [см]"
-                  ),
-                  "girder_wall_height": mark_safe(
-                      "Высота стенки, h<sub>w</sub> [см]"
-                  ),
-                  "girder_wall_width": mark_safe(
-                      "Ширина стенки, b<sub>w</sub> [см]"
-                  ),
-                  "girder_flange_bevel_width": mark_safe(
-                      "Ширина скоса полки, b<sub>fb</sub> [см]"
-                  ),
-                  "girder_height": mark_safe(
-                      "Высота сечения ригеля, h [см]"
-                  ),
-                  "girder_flange_full_width": mark_safe(
-                      "Ширина полки ригеля, b<sub>f</sub> [см]"
-                  ),
-                  "girder_flange_console_widths": mark_safe(
-                      "Вылет полки ригеля, b<sub>fc</sub> [см]"
-                  ),
-                  "girder_length": mark_safe(
-                      "Конструктивная длина ригеля, l<sub>k</sub> [см]"
-                  ),
-                  }
+            "Высота скоса полки, h<sub>fb</sub> [см]"
+        ),
+            "girder_flange_slab_height": mark_safe(
+                "Высота прямого участка полки, h<sub>fs</sub> [см]"
+            ),
+            "girder_wall_height": mark_safe(
+                "Высота стенки, h<sub>w</sub> [см]"
+            ),
+            "girder_wall_width": mark_safe(
+                "Ширина стенки, b<sub>w</sub> [см]"
+            ),
+            "girder_flange_bevel_width": mark_safe(
+                "Ширина скоса полки, b<sub>fb</sub> [см]"
+            ),
+            "girder_height": mark_safe(
+                "Высота сечения ригеля, h [см]"
+            ),
+            "girder_flange_full_width": mark_safe(
+                "Ширина полки ригеля, b<sub>f</sub> [см]"
+            ),
+            "girder_flange_console_widths": mark_safe(
+                "Вылет полки ригеля, b<sub>fc</sub> [см]"
+            ),
+            "girder_length": mark_safe(
+                "Конструктивная длина ригеля, l<sub>k</sub> [см]"
+            ),
+        }
         error_messages = {
             "girder_flange_bevel_height": {
                 'min_value': mark_safe(
@@ -446,6 +446,10 @@ class CalculatedReinforcementRightStudentForm(ModelForm):
 
 class CalculatedReinforcementForm(ModelForm):
     verbose_name = forms.CharField(label="header", required=False, initial="Итоговое армирование", disabled=True)
+    overlapping_type_top = forms.BooleanField(label="Стыки верхней арматуры в горизонтальной плоскости?",
+                                              required=False, initial=False, disabled=False)
+    overlapping_type_bot = forms.BooleanField(label="Стыки нижней арматуры в горизонтальной плоскости?",
+                                              required=False, initial=False, disabled=False)
 
     class Meta:
         model = CalculatedReinforcement
@@ -593,10 +597,18 @@ class CalculatedReinforcementForm(ModelForm):
 
     def clean(self):
         # reinforcement overlapping
-        self.check_inappropriate_overlapping(section=2, section_to=1, surface="top")
-        self.check_inappropriate_overlapping(section=1, section_to=3, surface="top")
-        self.check_inappropriate_overlapping(section=2, section_to=1, surface="bot")
-        self.check_inappropriate_overlapping(section=1, section_to=3, surface="bot")
+        if not self.cleaned_data["overlapping_type_top"]:
+            self.check_inappropriate_overlapping(section=2, section_to=1, surface="top")
+            self.check_inappropriate_overlapping(section=1, section_to=3, surface="top")
+        else:
+            self.check_distances_equality(section=2, section_to=1, surface="top")
+            self.check_distances_equality(section=1, section_to=3, surface="top")
+        if not self.cleaned_data["overlapping_type_bot"]:
+            self.check_inappropriate_overlapping(section=2, section_to=1, surface="bot")
+            self.check_inappropriate_overlapping(section=1, section_to=3, surface="bot")
+        else:
+            self.check_distances_equality(section=2, section_to=1, surface="bot")
+            self.check_distances_equality(section=1, section_to=3, surface="bot")
 
         # new effective depths
         self.cleaned_data["section_1_top_effective_depth"] = self.get_effective_depths(section=1, surface="top")
@@ -670,14 +682,17 @@ class CalculatedReinforcementForm(ModelForm):
         else:
             return current_distance_value
 
+    def get_distance_to_reinforcement(self, section: int, surface: str):
+        return self.cleaned_data.get(f"section_{section}_{surface}_distance")
+
     def check_inappropriate_overlapping(self, section: int, section_to: int, surface: str):
         max_distance = 3  # mm
         min_distance = -1  # mm
         section_diameter = self.cleaned_data[f"section_{section}_{surface}_d_external"].diameter
         section_to_diameter = self.cleaned_data[f"section_{section_to}_{surface}_d_external"].diameter
 
-        section_distance = self.cleaned_data.get(f"section_{section}_{surface}_distance")
-        section_to_distance = self.cleaned_data.get(f"section_{section_to}_{surface}_distance")
+        section_distance = self.get_distance_to_reinforcement(section=section, surface=surface)
+        section_to_distance = self.get_distance_to_reinforcement(section=section_to, surface=surface)
 
         if section_distance is not None and section_to_distance is not None:
             section_distance *= 10  # cm to mm
@@ -698,8 +713,22 @@ class CalculatedReinforcementForm(ModelForm):
                                                     f'в сечении {section_to} составляет {clearance} мм; '
                                                     f'допустимо от {min_distance} до {max_distance} мм!'
                                                     )
+                                                  )
                                    )
-                                   )
+
+    def check_distances_equality(self, section: int, section_to: int, surface: str):
+        section_distance = self.get_distance_to_reinforcement(section=section, surface=surface)
+        section_to_distance = self.get_distance_to_reinforcement(section=section_to, surface=surface)
+        if section_distance != section_to_distance:
+            self.add_error(None,
+                           ValidationError(
+                               gettext_lazy(f'Расстояние до ЦТ стержней арматуры в сечении {section}'
+                                            f' ({self.surface_localized[surface]})'
+                                            f' не равно расстоянию до ЦТ стержней арматуры в сечении {section_to}'
+                                            f' ({self.surface_localized[surface]}) '
+                                            )
+                                          )
+                           )
 
 
 class BearingCapacityMiddleBotStudentForm(ModelForm):
